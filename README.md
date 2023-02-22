@@ -1,4 +1,4 @@
-##Tono (TOdo-NOte) or maybe Dote (toDO-noTE) or something else idk
+## Tono (TOdo-NOte) or maybe Dote (toDO-noTE) or something else idk
 
 A todo and note taking system centered around dependencies and priorities.
 Inspiration taken from [paradigm/chore](https://github.com/paradigm/chore)
