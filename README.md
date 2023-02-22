@@ -25,12 +25,12 @@ Project plan, written in the planned format for the pretty file:
         name: str
         body: str (stuff in parenthesis)
         due: date
-        tags: str array
-        projects: str array
-        hardSupers: str array
-        hardSubs: str array
-        softSupers: str array
-        softSubs: str array
+        tags: int array (id)
+        projects: int array (id)
+        hardSupers: int array (id)
+        hardSubs: int array (id)
+        softSupers: int array (id)
+        softSubs: int array (id)
     )
 
     parse script $low
