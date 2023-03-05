@@ -1,4 +1,4 @@
-##Dote (toDO-noTE)
+## Dote (toDO-noTE)
 
 A to-do and note-taking system centered around dependencies and priorities.
 Inspiration taken from [paradigm/chore](https://github.com/paradigm/chore).
