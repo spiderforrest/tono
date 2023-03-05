@@ -1,7 +1,7 @@
-##Tono (TOdo-NOte) or maybe Dote (toDO-noTE) or something else idk
+##Dote (toDO-noTE)
 
-A todo and note taking system centered around dependencies and priorities.
-Inspiration taken from [paradigm/chore](https://github.com/paradigm/chore)
+A to-do and note-taking system centered around dependencies and priorities.
+Inspiration taken from [paradigm/chore](https://github.com/paradigm/chore).
 
 
 Project plan, written in the planned format for the pretty file:
@@ -33,10 +33,10 @@ Project plan, written in the planned format for the pretty file:
         softSubs: int array (id)
     )
 
-    parse script $low
-    pretty generate script
-    graph renderer
-    cli i/o script $high <
+    parse script $low &5
+    pretty generate script &6
+    graph renderer &7
+    cli i/o script &8 $high <
         add
         done
         remove/delete
@@ -44,5 +44,5 @@ Project plan, written in the planned format for the pretty file:
         undo $low
         list/show
     >
-    parse dates and adjust priority $low
+    parse dates and adjust priority &9 $low
 ```
