@@ -4,6 +4,12 @@ A to-do and note-taking system centered around dependencies and priorities.
 Inspiration taken from [paradigm/chore](https://github.com/paradigm/chore).
 
 
+### Lua branch
+
+This branch is for the cli app, written in Lua. It parses the JSON data file and performs operations on it via commands.
+Docs to come.
+
+
 Project plan, written in the planned format for the pretty file:
 
 ```
