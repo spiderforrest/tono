@@ -1,5 +1,6 @@
 #!/usr/bin/env lua
 
+-- {{{ License
  -- Copyright (C) 2023 Spider Forrest & Allie Zhao
  -- contact: dote@spood.org
  --
@@ -15,17 +16,18 @@
  --
  -- You should have received a copy of the GNU Affero General Public License
  -- along with this program, at /LICENSE. If not, see <https://www.gnu.org/licenses/>.
-
-local json = require("json")
-
-local function demo()
+ -- }}}
+ --
+local function demo() -- {{{ demo code
     local tbl = { key = "value", 2 }
     io.write("basic echo, will say whatever back in red\n")
     local input = io.read("*line")
     io.write('\27[31m' .. json.stringify(tbl) ..'\n')
     io.write('\27[31m' .. input ..'\n')
     io.write('\27[31m' .. arg[1] ..'\n')
-end
+end --}}}
+
+-- {{{ spec
 --[[
 dote [action] [target...] [data...]
 
@@ -49,6 +51,9 @@ data:
 -- load datafile(check with user if none)
 -- do the action
 -- save/output
+-- }}}
+
+local json = require("json") -- import json lib
 
 -- {{{ find/load config
 -- set default config location
@@ -75,7 +80,35 @@ end
 
 -- }}}
 
-for _,v in ipairs(arg) do
-    print(v)
+-- {{{ define action functions
+function create()
+    print("create")
 end
+function done()
+    print("done")
+end
+function delete()
+    print("delete")
+end
+function modify()
+    print("modify")
+end
+function output()
+    print("outupt")
+end
+-- }}}
+
+-- {{{ parse action arguments
+-- check that the arg is a match for accepted args
+if modifier[arg[1]] then
+    -- execute correlated function
+    modifier[arg[1]]()
+else
+    -- otherwise run the default
+    modifier[default_action]()
+end
+
+-- }}}
+
+
 -- vim:foldmethod=marker
