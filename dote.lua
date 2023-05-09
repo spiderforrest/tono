@@ -59,7 +59,10 @@ for i, v in ipairs(arg) do
         config_location = arg[i + 1]
     end
 end
--- load configs, catch error
-if pcall(dofile(config_location)) then
-    print("Config file not found! Default location is ~./config/dote/init.lua")
+
+
+-- load configs, error out if no config file found
+if not pcall(function () dofile(config_location) end) then
+    print("Config file not found! Default location is ~/.config/dote/init.lua")
+    os.exit()
 end
