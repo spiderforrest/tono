@@ -56,17 +56,26 @@ local config_location = os.getenv("HOME") .. "/.config/dote/init.lua"
 -- iterate thru args and check if the config location is specified
 for i, v in ipairs(arg) do
     if v == "-c" then
-        print("arg match")
+        if arg[i+1] == nil then -- if -c flag passed by itself
+            io.write("The flag -c requires a path\n")
+            os.exit()
+        end
         config_location = arg[i + 1]
+        table.remove(arg,i)
+        table.remove(arg,i) -- removing both "-c" and the path specified after it so we remove twice
     end
 end
 
 
 -- load configs, error out if no config file found
 if not pcall(function () dofile(config_location) end) then
-    print("Config file not found! Default location is ~/.config/dote/init.lua")
+    io.write("Config file not found! Default location is ~/.config/dote/init.lua\n")
     os.exit()
 end
+
 -- }}}
 
+for _,v in ipairs(arg) do
+    print(v)
+end
 -- vim:foldmethod=marker
