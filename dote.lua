@@ -1,6 +1,6 @@
 #!/usr/bin/env lua
 
- -- Copyright (C) 2023 Spider Forrest
+ -- Copyright (C) 2023 Spider Forrest & Allie Zhao
  -- contact: dote@spood.org
  --
  -- This program is free software: you can redistribute it and/or modify
@@ -50,6 +50,7 @@ data:
 -- do the action
 -- save/output
 
+-- {{{ find/load config
 -- set default config location
 local config_location = os.getenv("HOME") .. "/.config/dote/init.lua"
 -- iterate thru args and check if the config location is specified
@@ -66,3 +67,6 @@ if not pcall(function () dofile(config_location) end) then
     print("Config file not found! Default location is ~/.config/dote/init.lua")
     os.exit()
 end
+-- }}}
+
+-- vim:foldmethod=marker
