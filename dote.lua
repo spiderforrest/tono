@@ -16,8 +16,15 @@
  -- You should have received a copy of the GNU Affero General Public License
  -- along with this program, at /LICENSE. If not, see <https://www.gnu.org/licenses/>.
 
+local json = require("json")
+
+local tbl = { key = "value", 2 }
+
+
 io.write("basic echo, will say whatever back in red\n")
 local input = io.read("*line")
+io.write('\27[31m' .. json.stringify(tbl) ..'\n')
 io.write('\27[31m' .. input ..'\n')
+io.write('\27[31m' .. arg[1] ..'\n')
 
 
