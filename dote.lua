@@ -18,13 +18,48 @@
 
 local json = require("json")
 
-local tbl = { key = "value", 2 }
+local function demo()
+    local tbl = { key = "value", 2 }
+    io.write("basic echo, will say whatever back in red\n")
+    local input = io.read("*line")
+    io.write('\27[31m' .. json.stringify(tbl) ..'\n')
+    io.write('\27[31m' .. input ..'\n')
+    io.write('\27[31m' .. arg[1] ..'\n')
+end
+--[[
+dote [action] [target...] [data...]
 
+actions:
+create
+done
+delete
+modify
 
-io.write("basic echo, will say whatever back in red\n")
-local input = io.read("*line")
-io.write('\27[31m' .. json.stringify(tbl) ..'\n')
-io.write('\27[31m' .. input ..'\n')
-io.write('\27[31m' .. arg[1] ..'\n')
+target:
+(for modify:) entity field
 
+data:
+<field char>data
+: for body?
+-- ]]
 
+-- special arg check for -c (to change config dir)
+-- load configs (lua obvs)
+-- parse args
+-- load datafile(check with user if none)
+-- do the action
+-- save/output
+
+-- set default config location
+local config_location = os.getenv("HOME") .. "/.config/dote/init.lua"
+-- iterate thru args and check if the config location is specified
+for i, v in ipairs(arg) do
+    if v == "-c" then
+        print("arg match")
+        config_location = arg[i + 1]
+    end
+end
+-- load configs, catch error
+if pcall(dofile(config_location)) then
+    print("Config file not found! Default location is ~./config/dote/init.lua")
+end

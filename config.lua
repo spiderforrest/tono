@@ -1,0 +1,4 @@
+
+
+thing = "idk"
+print('hi')
