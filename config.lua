@@ -9,3 +9,6 @@ modifier = {
 
 -- default command
 default_action = "output"
+
+-- data file location
+data_file_location = os.getenv("HOME").."/.config/dote/data.json"

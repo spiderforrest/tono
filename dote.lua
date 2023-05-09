@@ -81,22 +81,28 @@ end
 -- }}}
 
 -- {{{ define action functions
-function create()
+local function create()
     print("create")
 end
-function done()
+local function done()
     print("done")
 end
-function delete()
+local function delete()
     print("delete")
 end
-function modify()
+local function modify()
     print("modify")
 end
-function output()
+local function output()
     print("outupt")
 end
 -- }}}
+
+-- load user data from json file
+local function load_data_file()
+    local data_json = io.open(data_file_location, "r"):read("*all")
+    data = json.parse(data_json)
+end
 
 -- {{{ parse action arguments
 -- check that the arg is a match for accepted args
@@ -104,9 +110,15 @@ if modifier[arg[1]] then
     -- execute correlated function
     modifier[arg[1]]()
 else
-    -- otherwise run the default
-    modifier[default_action]()
+    -- if called with no args
+    if arg[1] == nil then
+        output()
+    else
+        -- otherwise run the default
+        modifier[default_action]()
+    end
 end
+
 
 -- }}}
 
