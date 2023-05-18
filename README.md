@@ -5,20 +5,9 @@ Inspiration taken from [paradigm/chore](https://github.com/paradigm/chore).
 
 Dote is made up of a collection of different programs that are all intended to access the same central data storage scheme/location.
 
-### Lua branch
+## Features
 
-This branch is for the cli app, written in Lua. It parses the JSON data file and performs operations on it via commands.
-Docs to come.
-
-
-## Functionality
-
-### core v 0.1 functionality
-
-- crud operations to data storage scheme
-    - write documentation specifying schema for storage
-
-### Features
+## Docs
 
 There are three different types of basic entities in Dote, all of which are represented as nodes in a tree.
 
@@ -60,9 +49,45 @@ Any three of these nodes can have the following properties set (though some of t
 
 - **completed**: marks if something is done. Most useful for tasks, but also allowed on notes and tags (for instance, to mark them as no longer necessary. Why delete anything ever)
 
+## Operands
 
+These symbols are not considered meaningful by Bash, and are thus safe to use for Dote CLI syntax.
+
+`+ - / _ : ^ %`
+
+These symbols are sometimes considered meaningful by Bash, so probably best to use situationally.
+
+`$ = [ ] { }`
+
+If you're using another shell, like Fish, you'll need to change those symbols in Dote's configuration file to something safe for your shell.
+
+## Dote command line syntax
+
+`dote create` and `dote modify` commands follow the following format.
+
+```
+dote [action] [name/fields] $ [body/fields]
+```
+
+- `action`: one of the following subcommands
+    - `todo`: create a new task
+    - `note`: create a new note
+    - `tag`: create a new tag
+    - `modify`: modify an existing entity
+    - `done`: mark an entity as complete
+    - `delete`: delete an entity
+    - to be determined: how to do output (probably subcommands like `dote today` for daily view, etc)
+- `name`: any number of arguments representing `name` property of entity
+- `$`: Literal dollar sign character, surrounded by spaces. Defines boundary between name and body.
+- `body`: any number of args representing `body` property
+- `fields`: any single argument starting with any single Dote operand (see below). Used to specify other properties of the entity (tags, date, etc)
+
+    *example*: `dote create go to =10/27 grocery store $ @outside get salad and cheese @chores and dressing`
+
+This command would create a new task entity with a due date of 10/27, tagged 'outside' and 'chores', with the name 'go to grocery store' and the body 'get salad and cheese and dressing'.
 
 ## Example format
+
 Project plan, written in the planned format for the pretty file:
 
 ```
@@ -71,7 +96,7 @@ Project plan, written in the planned format for the pretty file:
     settle on final syntax &3 <2 (
         current syntax plan is:
         @ for tag
-        $ for due date and priority
+        = for due date and priority
         <> for soft parent/child relationship
         [] for hard parent/child relationship (like my mom)
         & for uuid for linking to

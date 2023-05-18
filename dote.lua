@@ -97,6 +97,41 @@ local function output()
     print("outupt")
 end
 -- }}}
+--
+-- {{{ parsing functions
+
+local function parse_tag()
+
+end
+
+local function parse_body()
+
+end
+
+local function parse_target()
+
+end
+
+local function parse_date()
+
+end
+
+local function parse_parent()
+
+end
+
+local function parse_child()
+
+end
+
+local function parse_aux_parent()
+
+end
+
+local function parse_aux_child()
+
+end
+-- }}}
 
 -- load user data from json file
 local function load_data_file()
