@@ -1,20 +1,36 @@
+local dote = require('config_lib')
+
 -- commands to use
-modifier = {
-    todo = function () create('todo') end,
-    note = function () create('note') end,
-    tag = function () create('tag') end,
-    done = function () done() end,
-    delete = function () delete() end,
-    modify = function () modify() end,
-    output = function () output() end,
+dote.action_commands = {
+    todo = create_note,
+    note = create_todo,
+    tag = create_tag,
+    done = done,
+    delete = delete,
+    modify = modify,
+    output = output,
 }
 
 -- default command
-default_action = "output"
+dote.default_action = "output"
 
 -- data file location
-data_file_location = os.getenv("HOME").."/.config/dote/data.json"
+dote.data_file_location = os.getenv("HOME").."/.config/dote/data.json"
 
 -- symbols for specifying properties in CLI
-parsing_symbols = {
+dote.parsing_symbols = {
+    ['+'] = function (word) end,
+    ['-'] = function (word) end,
+    ['/'] = function (word) end,
+    ['_'] = function (word) end,
+    [':'] = function (word) end,
+    ['^'] = function (word) end,
+    ['%'] = function (word) end,
+    ['$'] = function (word) end,
+    ['@'] = function (word) end,
+    ['='] = function (word) end,
+    ['['] = function (word) end,
+    [']'] = function (word) end,
+    ['{'] = function (word) end,
+    ['}'] = function (word) end,
 }

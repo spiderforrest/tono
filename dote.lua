@@ -54,104 +54,59 @@ data:
 -- }}}
 
 local json = require("json") -- import json lib
+local config_lib = require("config_lib")
+
+
+M = {}
+
 
 -- {{{ find/load config
 -- set default config location
-local config_location = os.getenv("HOME") .. "/.config/dote/init.lua"
--- iterate thru args and check if the config location is specified
-for i, v in ipairs(arg) do
-    if v == "-c" then
-        if arg[i+1] == nil then -- if -c flag passed by itself
-            io.write("The flag -c requires a path\n")
-            os.exit()
+local function load_config()
+    local config_location = os.getenv("HOME") .. "/.config/dote/init.lua"
+    -- iterate thru args and check if the config location is specified
+    for i, v in ipairs(arg) do
+        if v == "-c" then
+            if arg[i+1] == nil then -- if -c flag passed by itself
+                io.write("The flag -c requires a path\n")
+                os.exit()
+            end
+            config_location = arg[i + 1]
+            table.remove(arg,i)
+            table.remove(arg,i) -- removing both "-c" and the path specified after it so we remove twice
         end
-        config_location = arg[i + 1]
-        table.remove(arg,i)
-        table.remove(arg,i) -- removing both "-c" and the path specified after it so we remove twice
     end
-end
 
-
--- load configs, error out if no config file found
-if not pcall(function () dofile(config_location) end) then
-    io.write("Config file not found! Default location is ~/.config/dote/init.lua\n")
-    os.exit()
-end
-
--- }}}
-
--- {{{ define action functions
-local function create()
-    print("create")
-end
-local function done()
-    print("done")
-end
-local function delete()
-    print("delete")
-end
-local function modify()
-    print("modify")
-end
-local function output()
-    print("outupt")
-end
--- }}}
---
--- {{{ parsing functions
-
-local function parse_tag()
-
-end
-
-local function parse_body()
-
-end
-
-local function parse_target()
-
-end
-
-local function parse_date()
-
-end
-
-local function parse_parent()
-
-end
-
-local function parse_child()
-
-end
-
-local function parse_aux_parent()
-
-end
-
-local function parse_aux_child()
-
+    -- load configs, error out if no config file found
+    if not pcall(function () dofile(config_location) end) then
+        io.write("Config file not found! Default location is ~/.config/dote/init.lua\n")
+        os.exit()
+    end
 end
 -- }}}
 
 -- load user data from json file
 local function load_data_file()
-    local data_json = io.open(data_file_location, "r"):read("*all")
-    data = json.parse(data_json)
+    local data_json = io.open(M.data_file_location, "r"):read("*all")
+    return json.parse(data_json)
 end
+
+
+load_config()
 
 -- {{{ parse action arguments
 -- check that the arg is a match for accepted args
-if modifier[arg[1]] then
-    -- execute correlated function
-    modifier[arg[1]]()
-else
+if M.action_commands[arg[1]] == nil then
     -- if called with no args
     if arg[1] == nil then
-        output()
+        M.output()
     else
-        -- otherwise run the default
-        modifier[default_action]()
+        print(tostring(M.action_commands['todo']))
+        M.action_commands[M.default_action]()
     end
+else
+    -- execute correlated function
+    M.action_commands[arg[1]]()
 end
 
 
