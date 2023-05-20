@@ -1,32 +1,5 @@
 
 local M = {}
--- {{{ define action functions
-local function create (type, args)
-    print("create " .. type)
-    field_parser(args)
-end
-M.create_todo = function (args)
-    create('todo', args)
-end
-M.create_note = function ()
-    create('note', args)
-end
-M.create_tag = function ()
-    create('tag', args)
-end
-M.done = function ()
-    print("done")
-end
-M.delete = function ()
-    print("delete")
-end
-M.modify = function ()
-    print("modify")
-end
-M.output = function ()
-    print("outupt")
-end
--- }}}
 
 -- {{{ define parsing functions
 
@@ -47,19 +20,49 @@ end
 M.parse_aux_child = function (word)
 end
 
-local function field_parser(args)
-    for i, word in ipairs(args) do
+-- }}}
+
+M.field_parser = function (args, symbol_table)
+    for _, word in ipairs(args) do
         local first_char = string.sub(word, 1, 1) -- get the first letter of the arg
-        if parsing_symbols[first_char] then
+        if symbol_table[first_char] then
             -- execute correlated function
             -- parsing_symbols[first_char](word)
             print(word .. ", " .. first_char)
         else
-            parse_plain(word) -- otherwise just chuck in name/body
+            M.parse_plain(word) -- otherwise just chuck in name/body
         end
     end
 end
+
+-- {{{ define action functions
+local function create (type, args, symbol_table)
+    print("create " .. type)
+    M.field_parser(args, symbol_table)
+end
+M.create_todo = function (args, symbol_table)
+    create('todo', args, symbol_table)
+end
+M.create_note = function (args, symbol_table)
+    create('note', args, symbol_table)
+end
+M.create_tag = function (args, symbol_table)
+    create('tag', args, symbol_table)
+end
+M.done = function ()
+    print("done")
+end
+M.delete = function ()
+    print("delete")
+end
+M.modify = function ()
+    print("modify")
+end
+M.output = function ()
+    print("outupt")
+end
 -- }}}
+
 
 return M
 

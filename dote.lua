@@ -56,8 +56,6 @@ data:
 local json = require("json") -- import json lib
 local config_lib = require("config_lib")
 
-
-
 -- {{{ find/load config
 -- set default config location
 local function load_config()
