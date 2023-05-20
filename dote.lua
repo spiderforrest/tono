@@ -57,13 +57,11 @@ local json = require("json") -- import json lib
 local config_lib = require("config_lib")
 
 
-M = {}
-
 
 -- {{{ find/load config
 -- set default config location
 local function load_config()
-    local config_location = os.getenv("HOME") .. "/.config/dote/init.lua"
+    local config_location = os.getenv("HOME") .. "/.config/dote/config.lua"
     -- iterate thru args and check if the config location is specified
     for i, v in ipairs(arg) do
         if v == "-c" then
@@ -77,8 +75,10 @@ local function load_config()
         end
     end
 
+    print(config_location)
     -- load configs, error out if no config file found
-    if not pcall(function () dofile(config_location) end) then
+    local config_module
+    if not pcall(function () config_module = dofile(config_location) end) then
         io.write("Config file not found! Default location is ~/.config/dote/init.lua\n")
         os.exit()
     end
@@ -87,7 +87,7 @@ end
 
 -- load user data from json file
 local function load_data_file()
-    local data_json = io.open(M.data_file_location, "r"):read("*all")
+    local data_json = io.open(config_lib.data_file_location, "r"):read("*all")
     return json.parse(data_json)
 end
 
@@ -96,17 +96,17 @@ load_config()
 
 -- {{{ parse action arguments
 -- check that the arg is a match for accepted args
-if M.action_commands[arg[1]] == nil then
+if config_lib.action_commands[arg[1]] == nil then
     -- if called with no args
     if arg[1] == nil then
-        M.output()
+        config_lib.output()
     else
-        print(tostring(M.action_commands['todo']))
-        M.action_commands[M.default_action]()
+        print(tostring(config_lib.action_commands['todo']))
+        config_lib.action_commands[config_lib.default_action]()
     end
 else
     -- execute correlated function
-    M.action_commands[arg[1]]()
+    config_lib.action_commands[arg[1]]()
 end
 
 

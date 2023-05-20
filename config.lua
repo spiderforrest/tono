@@ -2,13 +2,13 @@ local dote = require('config_lib')
 
 -- commands to use
 dote.action_commands = {
-    todo = create_note,
-    note = create_todo,
-    tag = create_tag,
-    done = done,
-    delete = delete,
-    modify = modify,
-    output = output,
+    todo = dote.create_note,
+    note = dote.create_todo,
+    tag = dote.create_tag,
+    done = dote.done,
+    delete = dote.delete,
+    modify = dote.modify,
+    output = dote.output,
 }
 
 -- default command
@@ -34,3 +34,5 @@ dote.parsing_symbols = {
     ['{'] = function (word) end,
     ['}'] = function (word) end,
 }
+
+return dote
