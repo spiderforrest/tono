@@ -18,9 +18,9 @@
 
 local M = {}
 
-M.print = function (data)
+M.print = function (data, indentation)
     print(data.title)
--- print(data.title .. " / " .. data.body)
+    -- print(data.title .. " / " .. data.body)
 end
 
 M.print_recurse = function (data, id, level)

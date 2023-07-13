@@ -27,7 +27,7 @@ M.default_action = "output"
 -- symbols that specify the key in key:value pairs
 -- (empty string behaves same as undefined, get dropped in title/body)
 M.warn.unmatched_sym = true
-M.key_lookup = {
+M.field_lookup = {
     ['$'] = "separator",
     ['+'] = "",
     ['-'] = "target",

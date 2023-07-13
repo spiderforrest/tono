@@ -40,47 +40,46 @@ end
 -- }}}
 
 -- {{{ field functions
-
-local function add_to_field(field, word, context) -- {{{
-    local target = context.target_item[field]
-    -- create field if needed cause yea
-    if not target then
-        context.target_item[field] = {}
-        target = context.target_item[field]
-    end
-    target[#target + 1] = word
-end
 -- }}}
 
-M.handle_fields = function (context) --{{{
-    for _, word in ipairs(context.args) do
+M.handle_fields = function (args, config, item) --{{{
+    local separator_status = "title"
+    for _, word in ipairs(args) do
         -- match the largest non-letter chain at the start of the arg
         local _, _, sym, body = string.find(word, "^(%A+)(.*)")
 
         -- do the lookup or default
-        local key_actual = context.config.key_lookup[sym]
+        local key_actual = config.field_lookup[sym]
 
-        -- field has dedicated func
+        -- swap adding to title and body
+        if key_actual == "separator" then
+            separator_status = "body"
+            goto continue -- gotta save all like. 16 instructions by skipping eval
+        end
+
+        -- if field has handler
         if fields[key_actual] then
-            fields[key_actual](body, context)
+            item = fields[key_actual](body, item, args)
+            goto continue
+        end
 
-        -- field is defined but not builtin
-        elseif key_actual and not key_actual == '' then
-            add_to_field(key_actual, body, context)
+        -- if field is defined but doesn't have a handler just add it
+        if key_actual and not key_actual == '' then
+            item = fields.add_to_field(separator_status, body, item)
+            goto continue
+        end
 
         -- otherwise treat as plaintext
-        else
-            if sym and context.config.warn.unmatched_sym then
-                utils.warn("No defined field for '" .. sym .. "'! Treating as plaintext.")
-            end
-            fields.plain(word, context)
+        if sym and config.warn.unmatched_sym then
+            utils.warn("No defined field for '" .. sym .. "'! Treating as plaintext.")
         end
+        item = fields.plain(word, item)
+
+        ::continue::
     end
+    return item
 end
 -- }}}
-
--- {{{ individual field actions
--- }}} individal field actions
 
 -- }}} field functions
 
