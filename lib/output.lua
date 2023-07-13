@@ -18,26 +18,50 @@
 
 local M = {}
 
-M.print = function (data, indentation)
-    print(data.title)
-    -- print(data.title .. " / " .. data.body)
-end
+M.print = function (item, indentation) -- {{{
+    local whitespace = ''
+    -- build the string of whitespace
+    for _=0,indentation do
+        whitespace = whitespace .. ' '
+    end
+    io.write(whitespace .. item.title .. " / " .. item.body .. '\n')
+end -- }}}
 
-M.print_recurse = function (data, id, level)
+M.print_recurse = function (data, indentation, id, level) -- {{{
     -- print the current node
-    M.print(data[id], level)
+    M.print(data[id], indentation * level)
     -- increment recurse counter-this is just for indentation
     level = level + 1
     for child_id in ipairs(data[id].children) do
         M.print_recurse(data, child_id, level)
     end
-end
+end -- }}}
 
-M.print_all = function (data)
+M.print_all = function (data, indentation) -- {{{
     for item_id in ipairs(data) do
-        M.print_recurse(data, item_id, 0)
+        M.print_recurse(data, indentation, item_id, 0)
     end
-end
+end -- }}}
 
+M.color = {} -- {{{
+M.color.red = function () io.write("\27[31m") end
+M.color.orange = function () io.write("\27[33m") end
+M.color.reset = function () io.write("\27[0m") end
+-- }}}
+
+
+M.warn = function (body) -- {{{
+    M.color.orange()
+    io.write(body .. '\n')
+    M.color.reset()
+end
+--}}}
+
+M.err = function (body) -- {{{
+    M.color.red()
+    io.write(body .. '\n')
+    M.color.reset()
+    os.exit()
+end -- }}}
 return M
 -- vim:foldmethod=marker

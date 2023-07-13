@@ -44,4 +44,7 @@ M.field_lookup = {
     ['}'] = "",
 }
 
+-- for printing the tree, how much whitespace
+M.indentation = 4
+
 return M

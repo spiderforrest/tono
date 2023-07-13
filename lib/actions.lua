@@ -16,32 +16,32 @@
  -- along with this program, at /LICENSE. If not, see <https://www.gnu.org/licenses/>.
  -- }}}
 
-local utils = require('utils')
+local store = require("store")
 local output = require("output")
 
 local M = {}
-local function create (type, context) -- {{{
-    context.target_item = {} -- create new item
-    context.target_item.type = type
+local function create (type, args, config) -- {{{
+    local item = {} -- create new item
+    item.type = type
 
-    M.handle_fields(context) -- hand it off to get it populated
+    M.handle_fields(args, config) -- hand it off to get it populated
 
-    utils.data.add(context) -- add to the tree
+    utils.data.add(args, config) -- add to the tree
 end
 -- }}}
 
-M.create_todo = function (context) -- {{{
-    create('todo', context)
+M.create_todo = function (args, config) -- {{{
+    create('todo', args, config)
 end
 -- }}}
 
-M.create_note = function (context) -- {{{
-    create('note', context)
+M.create_note = function (args, config) -- {{{
+    create('note', args, config)
 end
 -- }}}
 
-M.create_tag = function (context) -- {{{
-    create('tag', context)
+M.create_tag = function (args, config) -- {{{
+    create('tag', args, config)
 end
 -- }}}
 
@@ -60,8 +60,9 @@ M.modify = function () -- {{{
 end
 -- }}}
 
-M.output = function (context) -- {{{
-    output.print_all(utils.data.get(context))
+M.output = function (_, config) -- {{{
+    local data = store.load_data()
+    output.print_all(data, config.indentation)
 end
 -- }}}
 

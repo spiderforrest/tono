@@ -29,45 +29,36 @@ M.add_to_field = function(field, word, item) -- {{{
     return item
 end --  }}}
 
-M.plain = function (word, context) -- {{{
-    if context.past_separator then
-        -- add this word to the body
-        M.add_to_field("body", word, context)
-    else
-        M.add_to_field("title", word, context)
-    end
+
+M.tag = function (word, item) -- {{{
+    M.add_to_field("tag", word, item)
 end
 -- }}}
 
-M.tag = function (word, context) -- {{{
-    M.add_to_field("tag", word, context)
-end
--- }}}
-
-M.target = function (word, context) -- {{{
-    M.add_to_field("target", word, context)
+M.target = function (word, item) -- {{{
+    M.add_to_field("target", word, item)
 end
 -- }}}
 
 M.date = function (word) print("date: " .. word) end
 
-M.parent = function (word, context) -- {{{
-    M.add_to_field("parent", word, context)
+M.parent = function (word, item) -- {{{
+    M.add_to_field("parent", word, item)
 end
 -- }}}
 
-M.child = function (word, context) -- {{{
-    M.add_to_field("child", word, context)
+M.child = function (word, item) -- {{{
+    M.add_to_field("child", word, item)
 end
 -- }}}
 
-M.aux_parent = function (word, context) -- {{{
-    M.add_to_field("aux_parent", word, context)
+M.aux_parent = function (word, item) -- {{{
+    M.add_to_field("aux_parent", word, item)
 end
 -- }}}
 
-M.aux_child = function (word, context) -- {{{
-    M.add_to_field("aux_child", word, context)
+M.aux_child = function (word, item) -- {{{
+    M.add_to_field("aux_child", word, item)
 end
 -- }}}
 
