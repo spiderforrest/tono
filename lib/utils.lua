@@ -20,9 +20,8 @@ local json = require("json") -- import json lib
 
 local M = {}
 
--- setup
 M.load_config = function (args, config_path) -- {{{
-    local configs
+    local config
     -- local config_location = config_path or .getenv("HOME") .. "/.config/dote/config.lua"
     local config_location = config_path or "./config.lua"
     -- iterate thru argss and check ifthe config location is specified
@@ -38,74 +37,49 @@ M.load_config = function (args, config_path) -- {{{
     end
 
     -- load config, error out if no config file found
-    if not pcall(function () configs = dofile(config_location) end) then
+    if not pcall(function () config = dofile(config_location) end) then
         M.err("Config file not found! Default location is ~/.config/dote/config.lua")
     end
 
-    return args, configs
+    return config, args
 end
 -- }}}
 
 
 M.data = {} -- {{{
 
-M.data.load = function (context) --{{{
+M.data.load = function (datafile_path) --{{{
+    local data, datafile
     -- try to open
-    if not pcall( function () context.datafile = io.open(context.config.data_file_location, "r+") end)
+    if not pcall( function () datafile = io.open(datafile_path, "r+") end)
         then
-        M.err(context.config.data_file_location)
+        M.err(datafile_path)
         M.err("Datafile not found")
-        -- M.warn("Data file not found! Creating at: " .. context.config.data_file_location)
+        -- M.warn("Data file not found! Creating at: " .. datafile_path)
         -- -- try to create
-        -- if not pcall( function () context.datafile = io.open(context.config.data_file_location, "a+") end)
+        -- if not pcall( function () datafile = io.open(datafile_path, "a+") end)
         --     then
         --     M.err("Could not create file!")
         -- end
     end
     -- try to read
-    if not pcall( function () context.data = json.parse(context.datafile:read("*all")) end)
+    if not pcall( function () data.tree = json.parse(datafile:read("*all")) end)
         then
         M.warn("Data file empty!")
-        context.data = {}
+        data = {}
 
     end
-    M.dump_table_of_arrays(context.data)
-    return context.data
+    return datafile, data
 end -- }}}
 
-M.data.get = function (context)
-    if context.data then return context.data end
-    return M.data.load(context)
-end
-
-M.data.add = function (context) -- {{{
-    if not context.data then
-        M.data.load(context)
-    end
-
-    if not context.target_item then
-        M.err("Internal error! Trying to save nonexistent context.target_item.")
-    end
-
-    -- slap 'er in the middle if needed
-    table.insert(context.data, context.target_item)
-    -- flag to save at the end of the transaction, don't save now to prevent multiple saves
-    context.modified_tree = true
-end
--- }}}
-
-M.data.save = function (context) -- {{{
-    if not context.data and not context.datafile then
-        M.err("Internal error! Tried to save with missing data or datafile")
-    end
-    local jsonified = json.stringify(context.data)
-    context.datafile:write(jsonified)
+M.data.save = function (data, datafile) -- {{{
+    local jsonified = json.stringify(data)
+    datafile:write(jsonified)
 end
 -- }}}
 --
 -- }}} M.data
 
--- }}} setup
 
 M.dump_table_of_arrays = function (tbl) -- {{{
     for k,v in pairs(tbl) do
