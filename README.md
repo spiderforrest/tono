@@ -29,7 +29,7 @@ Any three of these nodes can have the following properties set (though some of t
 
 - **body**: additional text to be stored with the entity. For tasks, can contain supplemental information. For notes, the primary body of text. For tags, a description of the tags.
 
-- **target**: an estimated date by which you expect a task to be done (or want to have it done by.) 
+- **target**: an estimated date by which you expect a task to be done (or want to have it done by.)
 
 - **deadline**: when a task absolutely must be done by. ideal for your taxes.
 
@@ -79,13 +79,14 @@ This command would create a new task entity with a due date of 10/27, tagged 'ou
 
 These symbols are not considered meaningful by Bash, and are thus safe to use for Dote CLI syntax.
 
-`+ - / _ : ^ % @`
+`+ - / _ ^ % @ ,`
 
-These symbols are sometimes considered meaningful by Bash, so probably best to use situationally.
+These symbols are sometimes considered meaningful by Bash, so be aware-however, in most cases for dote, are fine.
 
-`$ = [ ] { }`
+`$ = [ ] { } . :`
 
 If you're using another shell, like Fish, you'll need to change those symbols in Dote's configuration file to something safe for your shell.
+Also, be aware that this list is not very accurate, and extremely situational.
 
 ## Example format
 

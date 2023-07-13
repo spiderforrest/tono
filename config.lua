@@ -1,38 +1,47 @@
-local dote = require('config_lib')
+-- local dote = require('config_lib')
 
--- commands to use
-dote.action_commands = {
-    todo = dote.create_note,
-    note = dote.create_todo,
-    tag = dote.create_tag,
-    done = dote.done,
-    delete = dote.delete,
-    modify = dote.modify,
-    output = dote.output,
+-- config is a module, configure by populating it with lookup tables, variables, functions
+local M = { warn = {} }
+
+-- data file location
+-- M.data_file_location = os.getenv("HOME").."/.config/dote/data.json"
+M.data_file_location = "./data.json"
+
+-- commands to use (you change the left side, the right is actual function names)
+M.action_lookup = {
+    ['todo'] = "create_todo",
+    ['add'] = "create_todo",
+    ['note'] = "create_note",
+    ['tag'] = "create_tag",
+    ['done'] = "done",
+    ['delete'] = "delete",
+    ['modify'] = "modify",
+    ['edit'] = "modify",
+    ['print'] = "output",
 }
 
 -- default command
-dote.default_action = "output"
+M.default_action = "output"
 
--- data file location
-dote.data_file_location = os.getenv("HOME").."/.config/dote/data.json"
 
--- symbols for specifying properties in CLI
-dote.parsing_symbols = {
-    ['+'] = function (word) end,
-    ['-'] = function (word) end,
-    ['/'] = function (word) end,
-    ['_'] = function (word) end,
-    [':'] = function (word) end,
-    ['^'] = function (word) end,
-    ['%'] = function (word) end,
-    ['$'] = function (word) end,
-    ['@'] = function (word) end,
-    ['='] = function (word) end,
-    ['['] = function (word) end,
-    [']'] = function (word) end,
-    ['{'] = function (word) end,
-    ['}'] = function (word) end,
+-- symbols that specify the key in key:value pairs
+-- (empty string behaves same as undefined, get dropped in title/body)
+M.warn.unmatched_sym = true
+M.key_lookup = {
+    ['$'] = "separator",
+    ['+'] = "",
+    ['-'] = "target",
+    ['/'] = "",
+    ['_'] = "",
+    [':'] = "child",
+    ['^^'] = "parent",
+    ['%'] = "",
+    ['@'] = "tag",
+    ['='] = "date",
+    ['['] = "new made up field",
+    [']'] = "",
+    ['{'] = "",
+    ['}'] = "",
 }
 
-return dote
+return M
