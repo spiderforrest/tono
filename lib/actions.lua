@@ -18,15 +18,16 @@
 
 local store = require("store")
 local output = require("output")
+local fields = require("fields")
 
 local M = {}
 local function create (type, args, config) -- {{{
     local item = {} -- create new item
     item.type = type
 
-    M.handle_fields(args, config) -- hand it off to get it populated
+    fields.dispatch(args, config, item) -- hand it off to get it populated
 
-    utils.data.add(args, config) -- add to the tree
+    store.save_item(item, config.datafile_path) -- add to the tree
 end
 -- }}}
 
@@ -61,7 +62,7 @@ end
 -- }}}
 
 M.output = function (_, config) -- {{{
-    local data = store.load_data()
+    local data = store.load(config.datafile_path)
     output.print_all(data, config.indentation)
 end
 -- }}}

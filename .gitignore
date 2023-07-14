@@ -1,5 +1,5 @@
-node_modules
 /luarocks
 /lua
 /lua_modules
 /.luarocks
+data.json

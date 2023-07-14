@@ -21,39 +21,42 @@ local M = {}
 local output = require("output")
 local json = require("json")
 
-M.load_data = function (datafile_path) --{{{
+M.load = function (datafile_path) --{{{
     local data, datafile
     -- try to open
-    if not pcall( function () datafile = io.open(datafile_path, "r+") end)
+    if not pcall( function () datafile = assert(io.open(datafile_path, "r")) end)
         then
-        output.err(datafile_path)
         output.err("Datafile not found")
-        -- M.warn("Data file not found! Creating at: " .. datafile_path)
-        -- -- try to create
-        -- if not pcall( function () datafile = io.open(datafile_path, "a+") end)
-        --     then
-        --     M.err("Could not create file!")
-        -- end
     end
     -- try to read
-    if not pcall( function () data.tree = json.parse(datafile:read("*all")) end)
+    if not pcall( function () data = json.parse(datafile:read("*all")) end)
         then
         output.warn("Data file empty!")
         data = {}
-
     end
-    return data, datafile
+
+    datafile:close()
+    return data
 end -- }}}
 
-M.save_data = function (data, datafile) -- {{{
+M.save = function (data, datafile_path) -- {{{
+    local datafile
     local jsonified = json.stringify(data)
-    datafile:write(jsonified)
+    local safety = M.load(datafile_path)
+    if not pcall( function ()
+        datafile = assert(io.open(datafile_path, "w+"))
+        datafile:write(jsonified)
+        end)
+            then
+            io.write(safety)
+            output.err("ERROR WRITING FILE! Last saved contents dumped above, please manually make sure it wasn't overwritten.")
+    end
 end -- }}}
 
-M.save_item = function (item) -- {{{
-    local data, datafile = M.load_data()
+M.save_item = function (item, datafile_path) -- {{{
+    local data = M.load(datafile_path)
     table.insert(data, item)
-    M.save_data(data, datafile)
+    M.save(data, datafile_path)
     return data
 end
 -- }}}

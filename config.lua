@@ -5,7 +5,7 @@ local M = { warn = {} }
 
 -- data file location
 -- M.data_file_location = os.getenv("HOME").."/.config/dote/data.json"
-M.data_file_location = "./data.json"
+M.datafile_path = "./data.json"
 
 -- commands to use (you change the left side, the right is actual function names)
 M.action_lookup = {

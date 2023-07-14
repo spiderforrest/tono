@@ -19,7 +19,6 @@
 local M = {}
 
 local actions = require("actions")
-local fields = require("fields")
 local output = require("output")
 
 M.load_config = function (args, config_path) -- {{{
@@ -46,7 +45,6 @@ M.load_config = function (args, config_path) -- {{{
 end
 -- }}}
 
-
 M.get_action = function (args, config) --{{{
     local action
     -- do the lookup
@@ -63,44 +61,6 @@ M.get_action = function (args, config) --{{{
 end
 -- }}}
 
-M.handle_fields = function (args, config, item) --{{{
-    local separator_status = "title"
-    for _, word in ipairs(args) do
-        -- match the largest non-letter chain at the start of the arg
-        local _, _, sym, body = string.find(word, "^(%A+)(.*)")
-
-        -- do the lookup or default
-        local key_actual = config.field_lookup[sym]
-
-        -- swap adding to title and body
-        if key_actual == "separator" then
-            separator_status = "body"
-            goto continue -- gotta save all of like. 16 instructions by skipping eval
-        end
-
-        -- if field has handler
-        if fields[key_actual] then
-            item = fields[key_actual](body, item, args)
-            goto continue
-        end
-
-        -- if field is defined but doesn't have a handler just add it
-        if key_actual and not key_actual == '' then
-            item = fields.add_to_field(separator_status, body, item)
-            goto continue
-        end
-
-        -- otherwise treat as plaintext
-        if sym and config.warn.unmatched_sym then
-            M.warn("No defined field for '" .. sym .. "'! Treating as plaintext.")
-        end
-        item = fields.plain(word, item)
-
-        ::continue::
-    end
-    return item
-end
--- }}}
 
 
 return M

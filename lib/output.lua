@@ -19,12 +19,23 @@
 local M = {}
 
 M.print = function (item, indentation) -- {{{
-    local whitespace = ''
+    local str = ''
     -- build the string of whitespace
     for _=0,indentation do
-        whitespace = whitespace .. ' '
+        str = str .. ' '
     end
-    io.write(whitespace .. item.title .. " / " .. item.body .. '\n')
+    -- add the words
+    for _, word in ipairs(item.title) do
+        str = str .. word .. ' '
+    end
+    str = str .. '/ '
+    for _, word in ipairs(item.body) do
+        str = str .. word .. ' '
+    end
+
+    str = str .. '\n'
+
+    io.write(str)
 end -- }}}
 
 M.print_recurse = function (data, indentation, id, level) -- {{{
@@ -32,6 +43,7 @@ M.print_recurse = function (data, indentation, id, level) -- {{{
     M.print(data[id], indentation * level)
     -- increment recurse counter-this is just for indentation
     level = level + 1
+    if not data[id].children then return end
     for child_id in ipairs(data[id].children) do
         M.print_recurse(data, child_id, level)
     end
@@ -63,5 +75,17 @@ M.err = function (body) -- {{{
     M.color.reset()
     os.exit()
 end -- }}}
+
+M.dump_table_of_arrays = function (tbl) -- {{{
+    for k,v in pairs(tbl) do
+        if type(v) == 'table' then
+            print(k .. ": " .. table.concat(v, " "))
+        elseif type(v) == 'string' then
+            print(k .. ": " .. v)
+        end
+    end
+end
+-- }}}
+
 return M
 -- vim:foldmethod=marker
