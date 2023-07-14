@@ -18,16 +18,20 @@
 
 local M = {}
 
-M.print = function (item, indentation) -- {{{
+M.print = function (item, id, indentation) -- {{{
     local str = ''
     -- build the string of whitespace
-    for _=0,indentation do
+    for _=1,indentation do
         str = str .. ' '
     end
+
+    str = str .. id .. ": "
+
     -- add the words
     for _, word in ipairs(item.title) do
         str = str .. word .. ' '
     end
+
     str = str .. '/ '
     for _, word in ipairs(item.body) do
         str = str .. word .. ' '
@@ -40,15 +44,17 @@ end -- }}}
 
 M.print_recurse = function (data, indentation, id, level) -- {{{
     -- print the current node
-    M.print(data[id], indentation * level)
-
-    -- increment recurse counter-this is just for indentation
-    level = level + 1
+    M.print(data[id], id, indentation * level)
 
     if not data[id].children then return end
 
+    -- increment recurse counter-this is just for indentation
+    level = level + 1
+    M.warn("recurse: " .. level)
+
+
     for child_id in ipairs(data[id].children) do
-        M.print_recurse(data, child_id, level)
+        M.print_recurse(data, indentation, child_id, level)
     end
 end -- }}}
 

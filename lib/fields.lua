@@ -88,7 +88,7 @@ end
 -- }}}
 
 M.child = function (word, item) -- {{{
-    return M.add_to_field("child", word, item)
+    return M.add_to_field("children", word, item)
 end
 -- }}}
 

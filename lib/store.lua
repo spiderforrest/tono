@@ -26,7 +26,7 @@ M.load = function (datafile_path) --{{{
     -- try to open
     if not pcall( function () datafile = assert(io.open(datafile_path, "r")) end)
         then
-        output.err("Datafile not found")
+        output.err("Datafile not found-please create it or check the path!")
     end
     -- try to read
     if not pcall( function () data = json.parse(datafile:read("*all")) end)
