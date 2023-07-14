@@ -40,17 +40,22 @@ M.load = function (datafile_path) --{{{
 end -- }}}
 
 M.save = function (data, datafile_path) -- {{{
-    local datafile
-    local jsonified = json.stringify(data)
-    local safety = M.load(datafile_path)
+    local datafile, jsonified, safety
+    -- read the file again and store it raw-crash damn program if it can't, do NOT try to write
+    safety = assert(io.open(datafile_path, "r"):read("*all"))
+
+    jsonified = json.stringify(data)
+
     if not pcall( function ()
         datafile = assert(io.open(datafile_path, "w+"))
         datafile:write(jsonified)
         end)
             then
             io.write(safety)
+            io.write("\n\n")
             output.err("ERROR WRITING FILE! Last saved contents dumped above, please manually make sure it wasn't overwritten.")
     end
+    datafile:close()
 end -- }}}
 
 M.save_item = function (item, datafile_path) -- {{{
