@@ -41,9 +41,12 @@ end -- }}}
 M.print_recurse = function (data, indentation, id, level) -- {{{
     -- print the current node
     M.print(data[id], indentation * level)
+
     -- increment recurse counter-this is just for indentation
     level = level + 1
+
     if not data[id].children then return end
+
     for child_id in ipairs(data[id].children) do
         M.print_recurse(data, child_id, level)
     end
@@ -51,9 +54,14 @@ end -- }}}
 
 M.print_all = function (data, indentation) -- {{{
     for item_id in ipairs(data) do
-        M.print_recurse(data, indentation, item_id, 0)
+        -- only print top level nodes at the top level
+        -- recurse will print the rest
+        if not data[item_id].parent then
+            M.print_recurse(data, indentation, item_id, 0)
+        end
     end
 end -- }}}
+
 
 M.color = {} -- {{{
 M.color.red = function () io.write("\27[31m") end

@@ -22,11 +22,13 @@ package.path = package.path .. ";./lib/?.lua;"
 local core = require("core")
 local actions = require("actions")
 
-local args, config, action
--- config, args = core.load_config(arg)
-config, args = core.load_config(arg, "./config.lua") -- for dev
 
-action, args = core.get_action(args, config)
+local args, config, action
+args = arg
+-- config, args = core.load_config(arg)
+config = core.load_config(args, "./config.lua") -- for dev
+
+action = core.get_action(args, config)
 
 -- run the action, the rest of flow is handled from those functions.
 actions[action](args, config)

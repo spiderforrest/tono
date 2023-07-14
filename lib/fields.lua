@@ -21,11 +21,12 @@ local output = require("output")
 
 local M = {}
 
+-- this one goes through the input text, parses it, and calls all the field handlers appropriately
 M.dispatch = function (args, config, item) --{{{
     local separator_status = "title"
     for _, word in ipairs(args) do
         -- match the largest non-letter chain at the start of the arg
-        local _, _, sym, body = string.find(word, "^(%A+)(.*)")
+        local _, _, sym, body = string.find(word, "^(%W+)(.*)")
 
         -- do the lookup or default
         local key_actual = config.field_lookup[sym]
@@ -38,13 +39,13 @@ M.dispatch = function (args, config, item) --{{{
 
         -- if field has handler
         if M[key_actual] then
-            item = M[key_actual](body, item, args)
+            M[key_actual](body, item, args)
             goto continue
         end
 
         -- if field is defined but doesn't have a handler just add it
         if key_actual and not key_actual == '' then
-            item = M.add_to_field(key_actual, body, item)
+            M.add_to_field(key_actual, body, item)
             goto continue
         end
 
@@ -52,7 +53,7 @@ M.dispatch = function (args, config, item) --{{{
         if sym and config.warn.unmatched_sym then
             output.warn("No defined field for '" .. sym .. "'! Treating as plaintext.")
         end
-        item = M.add_to_field(separator_status, word, item)
+        M.add_to_field(separator_status, word, item)
 
         ::continue::
     end
@@ -70,24 +71,24 @@ M.add_to_field = function(field, word, item) -- {{{
 end --  }}}
 
 M.tag = function (word, item) -- {{{
-    M.add_to_field("tag", word, item)
+    return M.add_to_field("tag", word, item)
 end
 -- }}}
 
 M.target = function (word, item) -- {{{
-    M.add_to_field("target", word, item)
+    return M.add_to_field("target", word, item)
 end
 -- }}}
 
 M.date = function (word) print("date: " .. word) end
 
 M.parent = function (word, item) -- {{{
-    M.add_to_field("parent", word, item)
+    return M.add_to_field("parent", word, item)
 end
 -- }}}
 
 M.child = function (word, item) -- {{{
-    M.add_to_field("child", word, item)
+    return M.add_to_field("child", word, item)
 end
 -- }}}
 
