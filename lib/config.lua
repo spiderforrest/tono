@@ -16,23 +16,21 @@
  -- along with this program, at /LICENSE. If not, see <https://www.gnu.org/licenses/>.
  -- }}}
 
-local M = {}
-
-local actions = require("actions")
 local output = require("output")
 
-M.load_config = function (args, config_path) -- {{{
+local initialize = function () -- {{{
     local config
-    local config_location = config_path or os.getenv("HOME") .. "/.config/dote/config.lua"
+    -- local config_location = os.getenv("HOME") .. "/.config/dote/config.lua"
+    local config_location = "./default_config.lua"
     -- iterate thru argss and check ifthe config location is specified
-    for i, v in ipairs(args) do
+    for i, v in ipairs(arg) do
         if v == "-c" then
-            if args[i+1] == nil then -- if -c flag passed by itself
+            if arg[i+1] == nil then -- if -c flag passed by itself
                 output.err("The flag -c requires a path")
             end
-            config_location = args[i + 1]
-            table.remove(args,i)
-            table.remove(args,i) -- removing both "-c" and the path specified after it so we remove twice
+            config_location = arg[i + 1]
+            table.remove(arg,i)
+            table.remove(arg,i) -- removing both "-c" and the path specified after it so we remove twice
         end
     end
 
@@ -41,28 +39,14 @@ M.load_config = function (args, config_path) -- {{{
         output.err("Config file not found! Default location is ~/.config/dote/config.lua")
     end
 
-    return config, args
+    return config
 end
 -- }}}
 
-M.get_action = function (args, config) --{{{
-    local action
-    -- do the lookup
-    local action_actual = config.action_lookup[args[1]]
-    -- check if the looked up action is valid
-    if actions[action_actual] then
-        table.remove(args, 1) -- strip the action
-        action = action_actual
-    else
-        action = config.default_action
-    end
+-- this file is a module, that sets its own contents to the functions inside the config
 
-    return action, args
-end
--- }}}
+return initialize()
 
 
-
-return M
 
 -- vim:foldmethod=marker

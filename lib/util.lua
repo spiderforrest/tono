@@ -1,5 +1,3 @@
-#!/usr/bin/env lua
-
 -- {{{ License
  -- Copyright (C) 2023 Spider Forrest & Allie Zhao
  -- contact: dote@spood.org
@@ -18,26 +16,28 @@
  -- along with this program, at /LICENSE. If not, see <https://www.gnu.org/licenses/>.
  -- }}}
 
-package.path = package.path .. ";./lib/?.lua;"
+local M = {}
 
--- calling this actively loads the configs (and cuts -c from arg)
-local config = require("config")
-
--- this contains functions for each command
-local actions = require("actions")
-
-
--- lookup the user's aliases
-local action = config.action_lookup[arg[1]]
-
--- check if the looked up action is valid
-if actions[action] then
-    table.remove(arg, 1) -- strip the action
-else
-    action = config.default_action -- or default
+M.construct_item = function (config) -- {{{
+    local new_item = {
+        title = {},
+        body = {},
+    }
+    return new_item
 end
+-- }}}
 
--- then run the action, the rest of flow is handled from those functions.
-actions[action]()
+M.dump_table_of_arrays = function (tbl) -- {{{
+    for k,v in pairs(tbl) do
+        if type(v) == 'table' then
+            print(k .. ": " .. table.concat(v, " "))
+        elseif type(v) == 'string' then
+            print(k .. ": " .. v)
+        end
+    end
+end
+-- }}}
+
+return M
 
 -- vim:foldmethod=marker

@@ -18,13 +18,14 @@
  -- }}}
 
 local output = require("output")
+local config = require("config")
 
 local M = {}
 
 -- this one goes through the input text, parses it, and calls all the field handlers appropriately
-M.dispatch = function (args, config, item) --{{{
+M.process_all = function (item) --{{{
     local separator_status = "title"
-    for _, word in ipairs(args) do
+    for _, word in ipairs(arg) do
         -- match the largest non-letter chain at the start of the arg
         local _, _, sym, body = string.find(word, "^(%W+)(.*)")
 
@@ -39,7 +40,7 @@ M.dispatch = function (args, config, item) --{{{
 
         -- if field has handler
         if M[key_actual] then
-            M[key_actual](body, item, args)
+            M[key_actual](body, item)
             goto continue
         end
 

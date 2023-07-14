@@ -72,13 +72,11 @@ M.print_all = function (data, indentation) -- {{{
     end
 end -- }}}
 
-
 M.color = {} -- {{{
     M.color.red = function () io.write("\27[31m") end
     M.color.orange = function () io.write("\27[33m") end
     M.color.reset = function () io.write("\27[0m") end
     -- }}}
-
 
     M.warn = function (body) -- {{{
         M.color.orange()
@@ -93,17 +91,5 @@ M.color = {} -- {{{
         M.color.reset()
         os.exit()
     end -- }}}
-
-    M.dump_table_of_arrays = function (tbl) -- {{{
-        for k,v in pairs(tbl) do
-            if type(v) == 'table' then
-                print(k .. ": " .. table.concat(v, " "))
-            elseif type(v) == 'string' then
-                print(k .. ": " .. v)
-            end
-        end
-    end
-    -- }}}
-
     return M
     -- vim:foldmethod=marker

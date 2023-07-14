@@ -19,30 +19,32 @@
 local store = require("store")
 local output = require("output")
 local fields = require("fields")
+local config = require("config")
 
 local M = {}
-local function create (type, args, config) -- {{{
+
+local function create (type) -- {{{
     local item = {} -- create new item
     item.type = type
 
-    fields.dispatch(args, config, item) -- hand it off to get it populated
+    fields.process_all(arg, item) -- hand it off to get it populated
 
-    store.save_item(item, config.datafile_path) -- add to the tree
+    store.save_item(item.datafile_path) -- add to the tree
 end
 -- }}}
 
-M.create_todo = function (args, config) -- {{{
-    create('todo', args, config)
+M.create_todo = function () -- {{{
+    create('todo')
 end
 -- }}}
 
-M.create_note = function (args, config) -- {{{
-    create('note', args, config)
+M.create_note = function () -- {{{
+    create('note')
 end
 -- }}}
 
-M.create_tag = function (args, config) -- {{{
-    create('tag', args, config)
+M.create_tag = function () -- {{{
+    create('tag')
 end
 -- }}}
 
@@ -61,12 +63,25 @@ M.modify = function () -- {{{
 end
 -- }}}
 
-M.output = function (_, config) -- {{{
+M.output = function () -- {{{
     local data = store.load(config.datafile_path)
     output.print_all(data, config.indentation)
 end
 -- }}}
 
+M.repair_tree = function () -- {{{
+    local data = store.load(config.datafile_path)
+    -- go through the items and pair all parents to chidren and children to parents etc
+    for id, item in ipairs(data) do
+        for child in ipairs(item.children) do
+            table.insert(data[child].parents, id)
+        end
+        for parent in ipairs(item.children) do
+            table.insert(data[parent].children, id)
+        end
+    end
+end
+-- }}}
 
 return M
 
