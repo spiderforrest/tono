@@ -1,20 +1,20 @@
 -- {{{ License
- -- Copyright (C) 2023 Spider Forrest & Allie Zhao
- -- contact: dote@spood.org
- --
- -- This program is free software: you can redistribute it and/or modify
- -- it under the terms of the GNU Affero General Public License as published
- -- by the Free Software Foundation, either version 3 of the License, or
- -- (at your option) any later version.
- --
- -- This program is distributed in the hope that it will be useful,
- -- but WITHOUT ANY WARRANTY; without even the implied warranty of
- -- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- -- GNU Affero General Public License for more details.
- --
- -- You should have received a copy of the GNU Affero General Public License
- -- along with this program, at /LICENSE. If not, see <https://www.gnu.org/licenses/>.
- -- }}}
+-- Copyright (C) 2023 Spider Forrest & Allie Zhao
+-- contact: dote@spood.org
+--
+-- This program is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU Affero General Public License as published
+-- by the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU Affero General Public License for more details.
+--
+-- You should have received a copy of the GNU Affero General Public License
+-- along with this program, at /LICENSE. If not, see <https://www.gnu.org/licenses/>.
+-- }}}
 
 local M = {}
 
@@ -28,13 +28,17 @@ M.print = function (item, id, indentation) -- {{{
     str = str .. id .. ": "
 
     -- add the words
-    for _, word in ipairs(item.title) do
-        str = str .. word .. ' '
+    if item.title then
+        for _, word in ipairs(item.title) do
+            str = str .. word .. ' '
+        end
     end
 
     str = str .. '/ '
-    for _, word in ipairs(item.body) do
-        str = str .. word .. ' '
+    if item.body then
+        for _, word in ipairs(item.body) do
+            str = str .. word .. ' '
+        end
     end
 
     str = str .. '\n'
@@ -70,36 +74,36 @@ end -- }}}
 
 
 M.color = {} -- {{{
-M.color.red = function () io.write("\27[31m") end
-M.color.orange = function () io.write("\27[33m") end
-M.color.reset = function () io.write("\27[0m") end
--- }}}
+    M.color.red = function () io.write("\27[31m") end
+    M.color.orange = function () io.write("\27[33m") end
+    M.color.reset = function () io.write("\27[0m") end
+    -- }}}
 
 
-M.warn = function (body) -- {{{
-    M.color.orange()
-    io.write(body .. '\n')
-    M.color.reset()
-end
---}}}
+    M.warn = function (body) -- {{{
+        M.color.orange()
+        io.write(body .. '\n')
+        M.color.reset()
+    end
+    --}}}
 
-M.err = function (body) -- {{{
-    M.color.red()
-    io.write(body .. '\n')
-    M.color.reset()
-    os.exit()
-end -- }}}
+    M.err = function (body) -- {{{
+        M.color.red()
+        io.write(body .. '\n')
+        M.color.reset()
+        os.exit()
+    end -- }}}
 
-M.dump_table_of_arrays = function (tbl) -- {{{
-    for k,v in pairs(tbl) do
-        if type(v) == 'table' then
-            print(k .. ": " .. table.concat(v, " "))
-        elseif type(v) == 'string' then
-            print(k .. ": " .. v)
+    M.dump_table_of_arrays = function (tbl) -- {{{
+        for k,v in pairs(tbl) do
+            if type(v) == 'table' then
+                print(k .. ": " .. table.concat(v, " "))
+            elseif type(v) == 'string' then
+                print(k .. ": " .. v)
+            end
         end
     end
-end
--- }}}
+    -- }}}
 
-return M
--- vim:foldmethod=marker
+    return M
+    -- vim:foldmethod=marker
