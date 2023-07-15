@@ -46,7 +46,7 @@ M.safe_app = function(arr, maybe_str, separator)  -- {{{
         arr[#arr + 1] = maybe_str
     -- allows treating table stuff just like a string, it's nice
     elseif type(maybe_str) == "table" then
-        arr[#arr + 1] = table.concat(maybe_str, separator or ' ')
+        arr[#arr + 1] = table.concat(maybe_str, separator or '')
     end
     return arr
 end

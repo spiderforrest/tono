@@ -113,15 +113,16 @@ end
 local function render_fields_smart(item, whitespace)
     local content = {}
     if item.title then
-        util.safe_app(content, 'Title:')
-        util.safe_app(content, item.title)
+        util.safe_app(content, 'Title: ')
+        util.safe_app(content, item.title, ' ')
     end
-    -- util.safe_app(content, M.rgb{r=255}, '')
-    util.safe_app(content, '|')
+
+    util.safe_app(content, M.rgb{r=255}, '')
+    util.safe_app(content, ' | ')
     util.safe_app(content, M.color.reset(), '')
     if item.body then
-        util.safe_app(content, 'Body:')
-        util.safe_app(content, item.body)
+        util.safe_app(content, 'Body: ')
+        util.safe_app(content, item.body, ' ')
     end
     return content
 end
