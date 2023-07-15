@@ -17,12 +17,13 @@
 -- }}}
 
 local config = require("config")
+local util = require("util")
 
 local M = {}
 
 M.color = {}                                                  -- {{{
 
-M.color.rgb = function(maybe_r, maybe_g, maybe_b, background) -- {{{
+M.rgb = function(maybe_r, maybe_g, maybe_b, background) -- {{{
     -- users don't have to put everything in i guess
     -- ''''users''''
     local r, g, b = maybe_r or 0, maybe_g or 0, maybe_b or 0
@@ -31,7 +32,7 @@ M.color.rgb = function(maybe_r, maybe_g, maybe_b, background) -- {{{
     if type(maybe_r) == "table" then
         -- if so you can also set background
         if maybe_r.bg then
-            M.color.rgb(maybe_r.bg, nil, nil, "bg")
+            M.rgb(maybe_r.bg, nil, nil, "bg")
         end
 
         -- deconstruct
@@ -64,7 +65,7 @@ end
 -- }}}
 
 -- reset colors to the user defined or the terminal default
-M.color.reset = function() M.color.rgb(config.format.base_color) end
+M.color.reset = function() return M.rgb(config.format.base_color) end
 M.color.clear = function() io.write("\27[0m") end
 -- }}}
 
@@ -110,33 +111,41 @@ end
 -- }}}
 
 local function render_fields_smart(item, whitespace)
-    local str = ''
+    local content = {}
     if item.title then
-        str = str .. item.title
+        util.safe_app(content, 'Title:')
+        util.safe_app(content, item.title)
     end
-    return str
+    -- util.safe_app(content, M.rgb{r=255}, '')
+    util.safe_app(content, '|')
+    util.safe_app(content, M.color.reset(), '')
+    if item.body then
+        util.safe_app(content, 'Body:')
+        util.safe_app(content, item.body)
+    end
+    return content
 end
 
 M.print_item = function(item, id, level) -- {{{
-    local str = ''
+    local content = {}
     -- calculate indentation
     local whitespace = level * config.format.indentation
     -- build the string of whitespace
     for _ = 1, whitespace do
-        str = str .. ' '
+        util.safe_app(content, ' ')
     end
 
-    str = str .. id .. ": "
+    util.safe_app(content, ": ")
 
+    util.safe_app(content, render_fields_smart(item, whitespace))
     -- str = str .. render_fields(item)
-    str = str .. render_fields_smart(item, whitespace, id)
 
-    str = str .. '\n'
-
+    util.safe_app(content, '\n')
 
     M.color.reset()
-    io.write(str)
-end                                         -- }}}
+    io.write(table.concat(content, ''))
+end
+-- }}}
 
 M.print_recurse = function(data, id, level) -- {{{
     -- print the current node
@@ -146,7 +155,7 @@ M.print_recurse = function(data, id, level) -- {{{
 
     -- increment recurse counter-this is just for indentation
     level = level + 1
-    M.warn("recurse: " .. level)
+    -- M.warn("recurse: " .. level)
 
 
     for child_id in ipairs(data[id].children) do
@@ -162,7 +171,7 @@ M.print_all = function(data) -- {{{
             M.print_recurse(data, item_id, 0)
         end
     end
-    M.color.rgb(80, 10, 68)
+    M.rgb(80, 10, 68)
 end -- }}}
 
 return M
