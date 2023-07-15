@@ -91,5 +91,6 @@ M.color = {} -- {{{
         M.color.reset()
         os.exit()
     end -- }}}
-    return M
-    -- vim:foldmethod=marker
+
+return M
+-- vim:foldmethod=marker
