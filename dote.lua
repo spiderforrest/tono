@@ -18,7 +18,7 @@
  -- along with this program, at /LICENSE. If not, see <https://www.gnu.org/licenses/>.
  -- }}}
 
-package.path = package.path .. ";./src/?.lua;"
+package.path = package.path .. ";./lua/?.lua;"
 
 -- calling this actively loads the configs (and cuts -c from arg)
 local config = require("config")
