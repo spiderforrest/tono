@@ -40,4 +40,8 @@ end
 -- then run the action, the rest of flow is handled from those functions.
 actions[action]()
 
+
+-- clean up terminal colors
+require("output").color.clear()
+
 -- vim:foldmethod=marker

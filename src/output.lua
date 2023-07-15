@@ -20,18 +20,25 @@ local config = require("config")
 
 local M = {}
 
-M.color = {} -- {{{
+M.color = {}                                                  -- {{{
 
-M.color.rgb = function (r, g, b, background, do_not_write) -- {{{
+M.color.rgb = function(maybe_r, maybe_g, maybe_b, background) -- {{{
+    -- users don't have to put everything in i guess
+    -- ''''users''''
+    local r, g, b = maybe_r or 0, maybe_g or 0, maybe_b or 0
 
-    -- also accept an table
-    if type(r) == "table" then
-        do_not_write = r.write or r.do_not_write -- programming
-        background = r.bg or r.background
-        b = r.b or r.blue
-        g = r.g or r.green
-        r = r.r or r.red
-    end
+    -- also accept an table {{{
+    if type(maybe_r) == "table" then
+        -- if so you can also set background
+        if maybe_r.bg then
+            M.color.rgb(maybe_r.bg, nil, nil, "bg")
+        end
+
+        -- deconstruct
+        b = maybe_r.b or maybe_r.blue or 0
+        g = maybe_r.g or maybe_r.green or 0
+        r = maybe_r.r or maybe_r.red or 0
+    end -- }}}
 
     -- rgb codes are formatted as: "\27[38;2;<r>;<g>;<b>m"-this generates that
     local seq = ''
@@ -49,74 +56,89 @@ M.color.rgb = function (r, g, b, background, do_not_write) -- {{{
     seq = seq .. string.format("%03d", g) .. ';'
     seq = seq .. string.format("%03d", b) .. 'm'
 
-    -- set the color-or don't if told not to
-    if not do_not_write then return seq end
+    -- actually set the color in the term
     io.write(seq)
     -- also return it idk how i'm gonna use these
     return seq
 end
 -- }}}
 
-M.color.red = function () io.write("\27[31m") end
-M.color.orange = function () io.write("\27[33m") end
-M.color.reset = function () io.write("\27[0m") end
+-- reset colors to the user defined or the terminal default
+M.color.reset = function() M.color.rgb(config.format.base_color) end
+M.color.clear = function() io.write("\27[0m") end
 -- }}}
 
-M.warn = function (body) -- {{{
-    M.color.orange()
+M.warn = function(body) -- {{{
+    io.write("\27[33m") -- hard code error color strings because it feels right
     io.write(body .. '\n')
-    M.color.reset()
+    M.color.clear()
 end
 --}}}
 
-M.err = function (body) -- {{{
-    M.color.red()
+M.err = function(body) -- {{{
+    io.write("\27[31m")
     io.write(body .. '\n')
-    M.color.reset()
+    M.color.clear()
     os.exit()
-end -- }}}
+end                                -- }}}
 
-local function render_field (field) -- {{{
+local function render_field(field) -- {{{
     local str = ''
     for _, word in ipairs(field) do
         str = str .. word .. ' '
     end
     return str
-end -- }}}
+end                                -- }}}
 
-local function render_fields (item) -- {{{
+local function render_fields(item) -- {{{
     local str = ''
-    for name, field in pairs(item) do
-        str = str .. name .. ": "
-        str = str .. render_field(field)
+
+    -- lua pairs but consistent order
+    local fields = {}
+    for key in pairs(item) do
+        table.insert(fields, key)
+    end
+    table.sort(fields)
+
+    for _, field in ipairs(fields) do
+        str = str .. field .. ": "
+        str = str .. render_field(item[field])
         str = str .. '/ '
     end
     return str
 end
 -- }}}
 
-M.print_item = function (item, id, level) -- {{{
+local function render_fields_smart(item, whitespace)
+    local str = ''
+    if item.title then
+        str = str .. item.title
+    end
+    return str
+end
+
+M.print_item = function(item, id, level) -- {{{
     local str = ''
     -- calculate indentation
     local whitespace = level * config.format.indentation
     -- build the string of whitespace
-    for _=1,whitespace do
+    for _ = 1, whitespace do
         str = str .. ' '
     end
 
     str = str .. id .. ": "
 
-    str = str .. render_fields(item)
+    -- str = str .. render_fields(item)
+    str = str .. render_fields_smart(item, whitespace, id)
 
     str = str .. '\n'
 
-    M.color.rgb(80,10,68)
 
-    io.write(str)
     M.color.reset()
-end -- }}}
+    io.write(str)
+end                                         -- }}}
 
-M.print_recurse = function (data, id, level) -- {{{
+M.print_recurse = function(data, id, level) -- {{{
     -- print the current node
     M.print_item(data[id], id, level)
 
@@ -130,9 +152,9 @@ M.print_recurse = function (data, id, level) -- {{{
     for child_id in ipairs(data[id].children) do
         M.print_recurse(data, child_id, level)
     end
-end -- }}}
+end                          -- }}}
 
-M.print_all = function (data) -- {{{
+M.print_all = function(data) -- {{{
     for item_id in ipairs(data) do
         -- only print top level nodes at the top level
         -- recurse will print the rest
@@ -140,6 +162,7 @@ M.print_all = function (data) -- {{{
             M.print_recurse(data, item_id, 0)
         end
     end
+    M.color.rgb(80, 10, 68)
 end -- }}}
 
 return M

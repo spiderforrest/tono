@@ -54,4 +54,8 @@ M.format.indentation = 4
 -- M.format.field_whitelist = {}
 M.format.field_blacklist = {}
 
+-- set the colorscheme for things without their own color!
+M.format.base_color = { g = 255, bg = {} } -- hacker green on black
+M.format.base_color = { r=160, g=20, b=140 } -- something tolerable
+
 return M
