@@ -1,7 +1,7 @@
 -- local dote = require('config_lib')
 
 -- config is a module, configure by populating it with lookup tables, variables, functions
-local M = { warn = {} }
+local M = { warn = {}, format = {} }
 
 -- data file location
 -- M.data_file_location = os.getenv("HOME").."/.config/dote/data.json"
@@ -44,7 +44,14 @@ M.field_lookup = {
     ['}'] = "",
 }
 
+-- the escape sequence for setting colors
+M.format.term_escape_seq = "\27["
+
 -- for printing the tree, how much whitespace
-M.indentation = 4
+M.format.indentation = 4
+
+-- whitelist or blacklist what fields show by default
+-- M.format.field_whitelist = {}
+M.format.field_blacklist = {}
 
 return M
