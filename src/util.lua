@@ -38,6 +38,20 @@ M.dump_table_of_arrays = function (tbl) -- {{{
 end
 -- }}}
 
+M.warn = function (body) -- {{{
+    M.color.orange()
+    io.write(body .. '\n')
+    M.color.reset()
+end
+--}}}
+
+M.err = function (body) -- {{{
+    M.color.red()
+    io.write(body .. '\n')
+    M.color.reset()
+    os.exit()
+end -- }}}
+
 return M
 
 -- vim:foldmethod=marker

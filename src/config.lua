@@ -16,7 +16,7 @@
  -- along with this program, at /LICENSE. If not, see <https://www.gnu.org/licenses/>.
  -- }}}
 
-local output = require("output")
+local util = require("util")
 
 local initialize = function () -- {{{
     local config
@@ -26,7 +26,7 @@ local initialize = function () -- {{{
     for i, v in ipairs(arg) do
         if v == "-c" then
             if arg[i+1] == nil then -- if -c flag passed by itself
-                output.err("The flag -c requires a path")
+                util.err("The flag -c requires a path")
             end
             config_location = arg[i + 1]
             table.remove(arg,i)
@@ -36,7 +36,7 @@ local initialize = function () -- {{{
 
     -- load config, error out if no config file found
     if not pcall(function () config = dofile(config_location) end) then
-        output.err("Config file not found! Default location is ~/.config/dote/config.lua")
+        util.err("Config file not found! Default location is ~/.config/dote/config.lua")
     end
 
     return config
