@@ -27,9 +27,9 @@ local function create(type)  -- {{{
     local item = {}          -- create new item
     item.type = type
 
-    fields.process_all(arg, item)       -- hand it off to get it populated
+    fields.process_all(item)       -- hand it off to get it populated
 
-    store.save_item(item.datafile_path) -- add to the tree
+    store.save_item(item) -- add to the tree
 end
 -- }}}
 

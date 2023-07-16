@@ -51,17 +51,46 @@ M.format.term_escape_seq = "\27["
 M.format.indentation = 4
 M.format.left_align_id = true
 
--- whitelist or blacklist what fields show by default
--- M.format.field_whitelist = {}
-M.format.field_blacklist = {}
+-- how do you want the fields to show
+M.format.field_order = {
+    'title',
+    'body',
+    'tag',
+    'date',
+}
+
+M.format.ascii_diagram = {
+    '╔', -- first item
+    '╠', -- middle items
+    '╚', -- last item
+    "> ", -- separator between field key/content
+    " | ", -- separator between fields
+}
+M.format.line_split_fields = true
+
+M.format.ascii_diagram = {
+    '', -- first item
+    '', -- middle items
+    '', -- last item
+    "> ", -- separator between field key/content
+    " | ", -- separator between fields
+}
+M.format.line_split_fields = false
+
+-- blacklist fields
+M.format.field_blacklist = {
+    children = true,
+    parents = true,
+    type = true,
+}
 
 -- set the colorscheme for things without their own color!
-M.theme.primary = { g = 255, bg = {} } -- hacker green on black
+-- M.theme.primary = { g=255, bg={} } -- hacker green on black
 M.theme.primary = { r=160, g=20, b=140 } -- something tolerable
-
 M.theme.accent = { r=255 }
-M.theme.red = { r=255 }
-M.theme.green = { g=255 }
-M.theme.blue = { b=255 }
+M.theme.ternary = { r=90, g=90, b=90 }
+M.theme.accent = { r=255 }
+M.theme.accent = { r=255 }
+M.theme.accent = { r=255 }
 
 return M

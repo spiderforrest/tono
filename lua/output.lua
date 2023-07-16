@@ -21,16 +21,77 @@ local util = require("util")
 
 local M = {}
 
-local function render_fields(item) -- {{{
+local function render_field(content, item, field, indent)
+        -- divide
+        if c.format.line_split_fields and i > 1 then
+            util.safe_app(content, '\n')
+            -- stinky padding, can't believe that worked i can't count
+            util.safe_app(content, string.format('%' .. indent .. 's', ''))
+        else
+            util.safe_app(content, c.theme.accent())
+            util.safe_app(content, c.format.ascii_diagram[5])
+        end
+        -- the symbol at the start of the line
+        if c.format.ascii_diagram then
+            local sym_key
+
+            -- shit, idk how to do this, it'll figure it out later
+            -- can't know if the next one is gonna get skipped
+
+            -- if i == 1 then
+                sym_key = 1
+            -- elseif #c.format.field_order + 1 == i then
+                -- sym_key = 3
+            -- else
+            --     sym_key = 2
+            -- end
+            util.safe_app(content, c.theme.accent())
+            util.safe_app(content, c.format.ascii_diagram[sym_key])
+        end
+
+        -- the field name
+        util.safe_app(content, c.theme.ternary())
+        util.safe_app(content, field)
+        util.safe_app(content, c.format.ascii_diagram[4])
+
+        -- content
+        util.safe_app(content, c.theme.primary())
+        util.safe_app(content, item[field], ' ')
+end
+
+local function render_fields(item, indent)
+    local content, rendered, i = {}, {}, 1 -- lua brain small i no kno what a zee ro is
+    -- first go through their fav fields
+    for _,v in ipairs(c.format.field_order) do
+        -- skip if missing
+        if item[v] and item[v] ~= {} then
+            render_field(content, item, v, indent)
+            -- track that it's been done
+            rendered[v] = true
+        end
+        i = i + 1
+    end
+
+    -- next, we just dump the rest out
+    for k in pairs(item) do
+        if (not c.format.field_blacklist[k]) and (not rendered[k]) then
+            render_field(content, item, k, indent)
+        end
+    end
+
+    return content
+end
+
+local function render_fields_dumb(item) -- {{{
     local content = {}
     if item.title then
         util.safe_app(content, 'Title: ')
         util.safe_app(content, item.title, ' ')
     end
 
-    util.safe_app(content, c.theme.accent(), '')
+    util.safe_app(content, c.theme.accent())
     util.safe_app(content, ' | ')
-    util.safe_app(content, c.theme.primary(), '')
+    util.safe_app(content, c.theme.primary())
     if item.body then
         util.safe_app(content, 'Body: ')
         util.safe_app(content, item.body, ' ')
@@ -39,12 +100,12 @@ local function render_fields(item) -- {{{
 end -- }}}
 
 M.print_item = function(data, id, level) -- {{{
-    local content = {}
+    local content, base10_digits = {}, nil
 
     -- render id {{{
     if c.format.left_align_id then
         -- how many digits are shown?
-        local base10_digits = math.floor(#data/10 + 1)
+        base10_digits = math.floor(#data/10 + 1)
 
         util.safe_app(content,
             -- pad with printf trix
@@ -62,7 +123,10 @@ M.print_item = function(data, id, level) -- {{{
     util.safe_app(content, string.format('%' .. whitespace .. 's', ''))
     end
 
-    util.safe_app(content, render_fields(data[id]))
+    -- util.safe_app(content, render_fields_dumb(data[id]))
+    util.safe_app(content,
+        render_fields(data[id], whitespace + base10_digits + 2)
+    )
 
     util.safe_app(content, '\n')
 
