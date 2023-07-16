@@ -45,6 +45,9 @@ local initialize = function()  -- {{{
     -- clobber tables together
     config = util.merge_tbl_recurse(config, user_config)
 
+    -- bake and replace theme:
+    config.theme = util.bake_theme(config.theme, config.term_escape_seq)
+
     return config
 end
 -- }}}

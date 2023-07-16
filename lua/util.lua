@@ -79,6 +79,81 @@ M.err = function(body) -- {{{
     io.write("\27[0m")
     os.exit()
 end -- }}}
+
+M.rgb = function(maybe_r, maybe_g, maybe_b, background) -- {{{
+    -- users don't have to put everything in i guess
+    -- ''''users''''
+    local r, g, b, suppress_write, escape_seq = maybe_r or 0, maybe_g or 0, maybe_b or 0, nil, nil
+
+    -- also accept an table {{{
+    if type(maybe_r) == "table" then
+        -- if so you can also set background
+        if maybe_r.bg then
+            M.rgb(maybe_r.bg, nil, nil, "bg")
+        end
+        escape_seq = maybe_r.term_escape_seq
+        suppress_write = maybe_r.suppress_write
+
+        -- deconstruct
+        b = maybe_r.b or maybe_r.blue or 0
+        g = maybe_r.g or maybe_r.green or 0
+        r = maybe_r.r or maybe_r.red or 0
+    end -- }}}
+
+    -- rgb codes are formatted as: "\27[38;2;<r>;<g>;<b>m"-this generates that
+    local seq = ''
+    seq = seq .. (escape_seq or "\27[")
+
+    -- default foreground or use background
+    if background ~= "fg" and background then
+        seq = seq .. "48;2;"
+    else
+        seq = seq .. "38;2;"
+    end
+
+    -- assemble the actual rgb zero padded because ANSI escape codes are a beast
+    seq = seq .. string.format("%03d", r) .. ';'
+    seq = seq .. string.format("%03d", g) .. ';'
+    seq = seq .. string.format("%03d", b) .. 'm'
+
+    -- actually set the color in the term
+    if not suppress_write then
+        io.write(seq)
+    end
+    -- also return it idk how i'm gonna use these
+    return seq
+end
+-- }}}
+
+M.bake_theme = function (colors, escape_seq) -- {{{
+    -- this one takes a table of rgb and converts them into actual function calls to set said color
+    -- meant to streamline user theming-pass it c.theme and it'll spit out a table with keys
+    -- named the same but values of functions that return/set a baked rgb code
+    -- so we can just call c.theme.primary() or whatever to set it ;)
+
+    local converted = {}
+    for k,v in pairs(colors) do
+        -- add the config escape sequence to the table we're passing rgb()
+        v.term_escape_seq = escape_seq
+        -- and disable spamming output with colorcodes while baking
+        v.suppress_write = true
+
+        local colorcode = M.rgb(v)
+
+        -- take a bool control if writes on call
+        local func = function (write)
+            if write then
+                io.write(colorcode)
+            end
+            return colorcode
+        end
+
+        converted[k] = func
+    end
+    return converted
+end
+-- }}}
+
 return M
 
 -- vim:foldmethod=marker

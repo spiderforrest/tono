@@ -42,6 +42,7 @@ actions[action]()
 
 
 -- clean up terminal colors
-require("output").color.clear()
+io.write(c.format.term_escape_seq .. "0m")
+io.write("\27[0m")
 
 -- vim:foldmethod=marker

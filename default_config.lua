@@ -1,5 +1,5 @@
 -- config is a module, configure by populating it with lookup tables, variables, functions
-local M = { warn = {}, format = {} }
+local M = { warn = {}, format = {}, theme = {} }
 
 -- the default configs are part of the project itself, this is just where dote looks first for user configs.
 M.config_file_location = os.getenv("HOME") .. "/.config/dote/config.lua"
@@ -56,7 +56,12 @@ M.format.left_align_id = true
 M.format.field_blacklist = {}
 
 -- set the colorscheme for things without their own color!
-M.format.base_color = { g = 255, bg = {} } -- hacker green on black
-M.format.base_color = { r=160, g=20, b=140 } -- something tolerable
+M.theme.primary = { g = 255, bg = {} } -- hacker green on black
+M.theme.primary = { r=160, g=20, b=140 } -- something tolerable
+
+M.theme.accent = { r=255 }
+M.theme.red = { r=255 }
+M.theme.green = { g=255 }
+M.theme.blue = { b=255 }
 
 return M
