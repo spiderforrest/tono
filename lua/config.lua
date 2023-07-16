@@ -21,7 +21,7 @@ local util = require("util")
 local initialize = function()  -- {{{
     local user_config
     -- get default configs
-    local config = require("default_config")
+    local config = require("configs")
     local config_location = config.config_file_location -- lol
 
     -- iterate thru args and check ifthe config location is specified
