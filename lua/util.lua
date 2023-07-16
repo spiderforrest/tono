@@ -101,27 +101,28 @@ M.rgb = function(maybe_r, maybe_g, maybe_b, background) -- {{{
     end -- }}}
 
     -- rgb codes are formatted as: "\27[38;2;<r>;<g>;<b>m"-this generates that
-    local seq = ''
-    seq = seq .. (escape_seq or "\27[")
+    local seq = {}
+    M.safe_app(seq, escape_seq or "\27[")
 
     -- default foreground or use background
     if background ~= "fg" and background then
-        seq = seq .. "48;2;"
+        M.safe_app(seq,"48;2;")
     else
-        seq = seq .. "38;2;"
+        M.safe_app(seq,"38;2;")
     end
 
     -- assemble the actual rgb zero padded because ANSI escape codes are a beast
-    seq = seq .. string.format("%03d", r) .. ';'
-    seq = seq .. string.format("%03d", g) .. ';'
-    seq = seq .. string.format("%03d", b) .. 'm'
+    M.safe_app(seq, string.format("%03d", r) .. ';')
+    M.safe_app(seq, string.format("%03d", g) .. ';')
+    M.safe_app(seq, string.format("%03d", b) .. 'm')
 
+    local str = table.concat(seq, '')
     -- actually set the color in the term
     if not suppress_write then
-        io.write(seq)
+        io.write(str)
     end
     -- also return it idk how i'm gonna use these
-    return seq
+    return str
 end
 -- }}}
 
