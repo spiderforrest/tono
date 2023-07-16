@@ -110,7 +110,7 @@ local function render_fields(item) -- {{{
 end
 -- }}}
 
-local function render_fields_smart(item, whitespace)
+local function render_fields_smart(item, whitespace) -- {{{
     local content = {}
     if item.title then
         util.safe_app(content, 'Title: ')
@@ -125,20 +125,34 @@ local function render_fields_smart(item, whitespace)
         util.safe_app(content, item.body, ' ')
     end
     return content
-end
+end -- }}}
 
-M.print_item = function(item, id, level) -- {{{
+M.print_item = function(data, id, level) -- {{{
     local content = {}
+
+    -- render id
+    if config.format.left_align_id then
+        -- how many digits are shown?
+        local base10_digits = math.floor(#data/10 + 1)
+
+        util.safe_app(content,
+            -- pad with printf trix
+            string.format('%' .. base10_digits .. "s", id),
+            '')
+    else
+        util.safe_app(content, tostring(id), '')
+    end
+    util.safe_app(content, ": ")
+
     -- calculate indentation
     local whitespace = level * config.format.indentation
     -- build the string of whitespace
-    for _ = 1, whitespace do
-        util.safe_app(content, ' ')
+    if whitespace > 0 then
+    util.safe_app(content, string.format('%' .. whitespace .. 's', ''))
     end
 
-    util.safe_app(content, ": ")
 
-    util.safe_app(content, render_fields_smart(item, whitespace))
+    util.safe_app(content, render_fields_smart(data[id], whitespace))
     -- str = str .. render_fields(item)
 
     util.safe_app(content, '\n')
@@ -150,7 +164,7 @@ end
 
 M.print_recurse = function(data, id, level) -- {{{
     -- print the current node
-    M.print_item(data[id], id, level)
+    M.print_item(data, id, level)
 
     if not data[id].children then return end
 

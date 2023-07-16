@@ -49,6 +49,7 @@ M.format.term_escape_seq = "\27["
 
 -- for printing the tree, how much whitespace
 M.format.indentation = 4
+M.format.left_align_id = true
 
 -- whitelist or blacklist what fields show by default
 -- M.format.field_whitelist = {}
