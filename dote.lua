@@ -21,20 +21,20 @@
 package.path = package.path .. ";./lua/?.lua;"
 
 -- calling this actively loads the configs (and cuts -c from arg)
-local config = require("config")
+local c = require("config")
 
 -- this contains functions for each command
 local actions = require("actions")
 
 
 -- lookup the user's aliases
-local action = config.action_lookup[arg[1]]
+local action = c.action_lookup[arg[1]]
 
 -- check if the looked up action is valid
 if actions[action] then
     table.remove(arg, 1) -- strip the action
 else
-    action = config.default_action -- or default
+    action = c.default_action -- or default
 end
 
 -- then run the action, the rest of flow is handled from those functions.

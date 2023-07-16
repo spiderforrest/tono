@@ -19,7 +19,7 @@
 local store = require("store")
 local output = require("output")
 local fields = require("fields")
-local config = require("config")
+local c = require("config")
 
 local M = {}
 
@@ -64,13 +64,13 @@ end
 -- }}}
 
 M.output = function()  -- {{{
-    local data = store.load(config.datafile_path)
-    output.print_all(data, config.indentation)
+    local data = store.load(c.datafile_path)
+    output.print_all(data, c.indentation)
 end
 -- }}}
 
 M.repair_tree = function()  -- {{{
-    local data = store.load(config.datafile_path)
+    local data = store.load(c.datafile_path)
     -- go through the items and pair all parents to chidren and children to parents etc
     for id, item in ipairs(data) do
         for child in ipairs(item.children) do

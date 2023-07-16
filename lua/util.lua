@@ -27,6 +27,20 @@ M.construct_item = function(config) -- {{{
 end
 -- }}}
 
+M.merge_tbl_recurse = function(primary, aux) -- {{{
+    -- iterate each
+    for k,v in pairs(aux) do
+        -- just clobber
+        if type(primary[k]) ~= "table" then
+            primary[k] = v
+        else
+            -- if it's a table, just recurse this function
+            M.merge_tbl_recurse(primary[k] or {}, aux[k] or {})
+        end
+    end
+    return primary
+end -- }}}
+
 M.dump_table_of_arrays = function(tbl) -- {{{
     for k, v in pairs(tbl) do
         if type(v) == 'table' then
@@ -55,14 +69,14 @@ end
 M.warn = function(body) -- {{{
     io.write("\27[33m") -- hard code error color strings because it feels right
     io.write(body .. '\n')
-    M.color.clear()
+    io.write("\27[0m")
 end
 --}}}
 
 M.err = function(body) -- {{{
     io.write("\27[31m")
     io.write(body .. '\n')
-    M.color.clear()
+    io.write("\27[0m")
     os.exit()
 end -- }}}
 return M

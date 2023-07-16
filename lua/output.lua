@@ -16,7 +16,7 @@
 -- along with this program, at /LICENSE. If not, see <https://www.gnu.org/licenses/>.
 -- }}}
 
-local config = require("config")
+local c = require("config")
 local util = require("util")
 
 local M = {}
@@ -43,7 +43,7 @@ M.rgb = function(maybe_r, maybe_g, maybe_b, background) -- {{{
 
     -- rgb codes are formatted as: "\27[38;2;<r>;<g>;<b>m"-this generates that
     local seq = ''
-    seq = seq .. config.format.term_escape_seq
+    seq = seq .. c.format.term_escape_seq
 
     -- default foreground or use background
     if background ~= "fg" and background then
@@ -65,23 +65,9 @@ end
 -- }}}
 
 -- reset colors to the user defined or the terminal default
-M.color.reset = function() return M.rgb(config.format.base_color) end
+M.color.reset = function() return M.rgb(c.format.base_color) end
 M.color.clear = function() io.write("\27[0m") end
 -- }}}
-
-M.warn = function(body) -- {{{
-    io.write("\27[33m") -- hard code error color strings because it feels right
-    io.write(body .. '\n')
-    M.color.clear()
-end
---}}}
-
-M.err = function(body) -- {{{
-    io.write("\27[31m")
-    io.write(body .. '\n')
-    M.color.clear()
-    os.exit()
-end                                -- }}}
 
 local function render_field(field) -- {{{
     local str = ''
@@ -130,8 +116,8 @@ end -- }}}
 M.print_item = function(data, id, level) -- {{{
     local content = {}
 
-    -- render id
-    if config.format.left_align_id then
+    -- render id {{{
+    if c.format.left_align_id then
         -- how many digits are shown?
         local base10_digits = math.floor(#data/10 + 1)
 
@@ -142,18 +128,16 @@ M.print_item = function(data, id, level) -- {{{
     else
         util.safe_app(content, tostring(id), '')
     end
-    util.safe_app(content, ": ")
+    util.safe_app(content, ": ") -- }}}
 
     -- calculate indentation
-    local whitespace = level * config.format.indentation
+    local whitespace = level * c.format.indentation
     -- build the string of whitespace
     if whitespace > 0 then
     util.safe_app(content, string.format('%' .. whitespace .. 's', ''))
     end
 
-
     util.safe_app(content, render_fields_smart(data[id], whitespace))
-    -- str = str .. render_fields(item)
 
     util.safe_app(content, '\n')
 

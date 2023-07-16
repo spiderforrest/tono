@@ -17,7 +17,7 @@
 -- }}}
 
 local output = require("output")
-local config = require("config")
+local c = require("config")
 
 local M = {}
 
@@ -29,7 +29,7 @@ M.process_all = function(item)  --{{{
         local _, _, sym, body = string.find(word, "^(%W+)(.*)")
 
         -- do the lookup or default
-        local key_actual = config.field_lookup[sym]
+        local key_actual = c.field_lookup[sym]
 
         -- swap adding to title or body
         if key_actual == "separator" then
@@ -50,7 +50,7 @@ M.process_all = function(item)  --{{{
         end
 
         -- otherwise treat as plaintext
-        if sym and config.warn.unmatched_sym then
+        if sym and c.warn.unmatched_sym then
             output.warn("No defined field for '" .. sym .. "'! Treating as plaintext.")
         end
         M.add_to_field(separator_status, word, item)

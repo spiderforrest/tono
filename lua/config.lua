@@ -19,9 +19,13 @@
 local util = require("util")
 
 local initialize = function()  -- {{{
-    local config
-    -- local config_location = os.getenv("HOME") .. "/.config/dote/config.lua"
-    local config_location = "./default_config.lua"
+    -- get default configs
+    local config = require("default_config")
+
+    local user_config
+
+    local config_location = os.getenv("HOME") .. "/.config/dote/config.lua"
+    -- local config_location = "./default_config.lua"
     -- iterate thru argss and check ifthe config location is specified
     for i, v in ipairs(arg) do
         if v == "-c" then
@@ -34,10 +38,14 @@ local initialize = function()  -- {{{
         end
     end
 
-    -- load config, error out if no config file found
-    if not pcall(function() config = dofile(config_location) end) then
-        util.err("Config file not found! Default location is ~/.config/dote/config.lua")
+    -- load config, warn if no config file found
+    if not pcall(function() user_config = dofile(config_location) end) then
+        util.warn("Config file not found! Default location is ~/.config/dote/config.lua")
+        return config
     end
+
+    -- clobber tables together
+    config = util.merge_tbl_recurse(config, user_config)
 
     return config
 end
