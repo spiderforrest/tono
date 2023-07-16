@@ -23,7 +23,7 @@ local M = {}
 
 local function render_field(content, item, field, indent)
         -- divide
-        if c.format.line_split_fields and i > 1 then
+        if c.format.line_split_fields then
             util.safe_app(content, '\n')
             -- stinky padding, can't believe that worked i can't count
             util.safe_app(content, string.format('%' .. indent .. 's', ''))
@@ -39,9 +39,9 @@ local function render_field(content, item, field, indent)
             -- can't know if the next one is gonna get skipped
 
             -- if i == 1 then
-                sym_key = 1
+                -- sym_key = 1
             -- elseif #c.format.field_order + 1 == i then
-                -- sym_key = 3
+                sym_key = 3
             -- else
             --     sym_key = 2
             -- end
