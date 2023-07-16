@@ -17,20 +17,21 @@
 -- }}}
 
 local M = {}
-local output = require("output")
+local util = require("util")
 local json = require("json")
+local c = require("config")
 
-M.load = function(datafile_path) --{{{
+M.load = function(path) --{{{
     local data, datafile
     -- try to open
-    if not pcall(function() datafile = assert(io.open(datafile_path, "r")) end)
+    if not pcall(function() datafile = assert(io.open(path or c.data_file_location, "r")) end)
     then
-        output.err("Datafile not found-please create it or check the path!")
+        util.err("Datafile not found-please create it or check the path!")
     end
     -- try to read
     if not pcall(function() data = json.parse(datafile:read("*all")) end)
     then
-        output.warn("Data file empty!")
+        util.warn("Data file empty!")
         data = {}
     end
 
@@ -38,21 +39,21 @@ M.load = function(datafile_path) --{{{
     return data
 end                                    -- }}}
 
-M.save = function(data, datafile_path) -- {{{
+M.save = function(data, path) -- {{{
     local datafile, jsonified, safety
     -- read the file again and store it raw-crash damn program if it can't, do NOT try to write
-    safety = assert(io.open(datafile_path, "r"):read("*all"))
+    safety = assert(io.open(path, "r"):read("*all"))
 
     jsonified = json.stringify(data)
 
     if not pcall(function()
-            datafile = assert(io.open(datafile_path, "w+"))
+            datafile = assert(io.open(path, "w+"))
             datafile:write(jsonified)
         end)
     then
         io.write(safety)
         io.write("\n\n")
-        output.err(
+        util.err(
             "ERROR WRITING FILE! Last saved contents dumped above, please manually make sure it wasn't overwritten.")
     end
     datafile:close()

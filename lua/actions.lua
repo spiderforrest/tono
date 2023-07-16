@@ -64,8 +64,8 @@ end
 -- }}}
 
 M.output = function()  -- {{{
-    local data = store.load(c.datafile_path)
-    output.print_all(data, c.indentation)
+    local data = store.load()
+    output.print_all(data)
 end
 -- }}}
 

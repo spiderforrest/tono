@@ -1,11 +1,11 @@
--- local dote = require('config_lib')
-
 -- config is a module, configure by populating it with lookup tables, variables, functions
 local M = { warn = {}, format = {} }
 
+-- the default configs are part of the project itself, this is just where dote looks first for user configs.
+M.config_file_location = os.getenv("HOME") .. "/.config/dote/config.lua"
+
 -- data file location
--- M.data_file_location = os.getenv("HOME").."/.config/dote/data.json"
-M.datafile_path = "./data.json"
+M.data_file_location = os.getenv("HOME").."/.config/dote/data.json"
 
 -- commands to use (you change the left side, the right is actual function names)
 M.action_lookup = {

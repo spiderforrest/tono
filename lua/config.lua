@@ -19,14 +19,12 @@
 local util = require("util")
 
 local initialize = function()  -- {{{
+    local user_config
     -- get default configs
     local config = require("default_config")
+    local config_location = config.config_file_location -- lol
 
-    local user_config
-
-    local config_location = os.getenv("HOME") .. "/.config/dote/config.lua"
-    -- local config_location = "./default_config.lua"
-    -- iterate thru argss and check ifthe config location is specified
+    -- iterate thru args and check ifthe config location is specified
     for i, v in ipairs(arg) do
         if v == "-c" then
             if arg[i + 1] == nil then -- if -c flag passed by itself
