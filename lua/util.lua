@@ -18,15 +18,6 @@
 
 local M = {}
 
-M.construct_item = function(config) -- {{{
-    local new_item = {
-        title = {},
-        body = {},
-    }
-    return new_item
-end
--- }}}
-
 M.merge_tbl_recurse = function(primary, aux) -- {{{
     -- iterate each
     for k,v in pairs(aux) do
@@ -143,8 +134,12 @@ M.bake_theme = function (colors, escape_seq) -- {{{
 
         -- take a bool control if writes on call
         local func = function (write)
-            if write then
+            if write == true then
                 io.write(colorcode)
+            -- or just take and write a string
+            elseif write then
+                io.write(colorcode)
+                io.write(tostring(write))
             end
             return colorcode
         end

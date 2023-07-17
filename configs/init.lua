@@ -13,8 +13,8 @@ M.theme = require('theme')
 -- the default configs are part of the project itself, this is just where dote looks first for user configs.
 M.config_file_location = os.getenv("HOME") .. "/.config/dote/config.lua"
 
--- data file location
 M.data_file_location = os.getenv("HOME").."/.config/dote/data.json"
+M.archive_file_location = os.getenv("HOME").."/.config/dote/archive.json"
 
 -- commands to use (you change the left side, the right is actual function names)
 M.action_lookup = {
@@ -27,6 +27,7 @@ M.action_lookup = {
     ['modify'] = "modify",
     ['edit'] = "modify",
     ['print'] = "output",
+    ['archive'] = "archive",
 }
 
 -- default command

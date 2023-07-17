@@ -83,6 +83,38 @@ M.repair_tree = function()  -- {{{
 end
 -- }}}
 
+M.archive = function() -- {{{
+    local data = store.load()
+    c.theme.primary("Where do you want to archive to? (")
+    c.theme.ternary(c.archive_file_location)
+    c.theme.primary("): ")
+    local path = io.read()
+    if path == '' then path = c.archive_file_location end
+
+    c.theme.primary("Enter a range to move to archive, starting id (")
+    c.theme.ternary(1)
+    c.theme.primary("): ")
+    local start_range = tonumber(io.read()) or 1
+
+    c.theme.primary("Ending id (")
+    c.theme.ternary(#data - 10)
+    c.theme.primary("): ")
+    local end_range = tonumber(io.read()) or #data - 10
+
+    local archive = store.load(path)
+    -- merge and cut
+    for i = start_range, end_range do
+        table.insert(archive, data[i])
+        table.remove(data, i)
+    end
+
+    store.save(archive, path)
+    -- this gotta stay after archive because it is removing data
+    store.save(data)
+
+end
+-- }}}
+
 return M
 
 -- vim:foldmethod=marker

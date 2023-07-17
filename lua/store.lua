@@ -26,12 +26,12 @@ M.load = function(path) --{{{
     -- try to open
     if not pcall(function() datafile = assert(io.open(path or c.data_file_location, "r")) end)
     then
-        util.err("Datafile not found-please create it or check the path!")
+        util.err("File " .. tostring(path or c.data_file_location) .. " not found!")
     end
     -- try to read
     if not pcall(function() data = json.parse(datafile:read("*all")) end)
     then
-        util.warn("Data file empty!")
+        util.warn("File " .. tostring(path or c.data_file_location) .. " empty!")
         data = {}
     end
 
@@ -55,7 +55,7 @@ M.save = function(data, path) -- {{{
         io.write(safety)
         io.write("\n\n")
         util.err(
-            "ERROR WRITING FILE! Last saved contents dumped above, please manually make sure it wasn't overwritten."
+            "ERROR WRITING FILE! Last saved data dumped above, please manually make sure it wasn't overwritten."
         )
     end
     datafile:close()
