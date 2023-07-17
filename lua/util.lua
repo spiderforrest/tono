@@ -121,6 +121,40 @@ M.rgb = function(maybe_r, maybe_g, maybe_b, background) -- {{{
 end
 -- }}}
 
+M.bake_theme = function (colors, escape_seq) -- {{{
+    -- this one takes a table of rgb and converts them into actual function calls to set said color
+    -- meant to streamline user theming-pass it c.theme and it'll spit out a table with keys
+    -- named the same but values of functions that return/set a baked rgb code
+    -- so we can just call c.theme.primary() or whatever to set it ;)
+
+    local converted = {}
+    for k,v in pairs(colors) do
+        -- add the config escape sequence to the table we're passing rgb()
+        v.term_escape_seq = escape_seq
+        -- and disable spamming output with colorcodes while baking
+        v.suppress_write = true
+
+        local colorcode = M.rgb(v)
+
+        -- generate the function
+        -- take a bool control if writes on call
+        local func = function (write)
+            if write == true then
+                io.write(colorcode)
+            -- or just take and write a string
+            elseif write then
+                io.write(colorcode)
+                io.write(tostring(write))
+            end
+            return colorcode
+        end
+
+        converted[k] = func
+    end
+    return converted
+end
+-- }}}
+
 M._repair = function(data)  -- {{{
     -- go through the items and pair all parents to chidren and children to parents etc
     for id, item in ipairs(data) do
