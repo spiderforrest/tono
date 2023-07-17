@@ -21,7 +21,7 @@ local util = require("util")
 
 local M = {}
 
-local function render_field(content, item, field, indent)
+local function render_field(content, item, field, indent) -- {{{
         -- divide
         if c.format.line_split_fields then
             util.safe_app(content, '\n')
@@ -58,8 +58,9 @@ local function render_field(content, item, field, indent)
         util.safe_app(content, c.theme.primary())
         util.safe_app(content, item[field], ' ')
 end
+-- }}}
 
-local function render_fields(item, indent)
+local function render_fields(item, indent) -- {{{
     local content, rendered, i = {}, {}, 1 -- lua brain small i no kno what a zee ro is
     -- first go through their fav fields
     for _,v in ipairs(c.format.field_order) do
@@ -81,23 +82,7 @@ local function render_fields(item, indent)
 
     return content
 end
-
-local function render_fields_dumb(item) -- {{{
-    local content = {}
-    if item.title then
-        util.safe_app(content, 'Title: ')
-        util.safe_app(content, item.title, ' ')
-    end
-
-    util.safe_app(content, c.theme.accent())
-    util.safe_app(content, ' | ')
-    util.safe_app(content, c.theme.primary())
-    if item.body then
-        util.safe_app(content, 'Body: ')
-        util.safe_app(content, item.body, ' ')
-    end
-    return content
-end -- }}}
+-- }}}
 
 M.print_item = function(data, id, level) -- {{{
     local content, base10_digits = {}, nil
@@ -123,15 +108,13 @@ M.print_item = function(data, id, level) -- {{{
     util.safe_app(content, string.format('%' .. whitespace .. 's', ''))
     end
 
-    -- util.safe_app(content, render_fields_dumb(data[id]))
     util.safe_app(content,
         render_fields(data[id], whitespace + base10_digits + 2)
     )
 
     util.safe_app(content, '\n')
 
-    c.theme.primary(true)
-    io.write(table.concat(content, ''))
+    c.theme.primary(table.concat(content, ''))
 end
 -- }}}
 

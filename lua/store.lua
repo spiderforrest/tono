@@ -52,6 +52,7 @@ M.save = function(data, path) -- {{{
                 datafile:write(jsonified)
             end)
         then
+        -- dump and crash
         io.write(safety)
         io.write("\n\n")
         util.err(

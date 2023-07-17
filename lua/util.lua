@@ -19,14 +19,13 @@
 local M = {}
 
 M.merge_tbl_recurse = function(primary, aux) -- {{{
-    -- iterate each
     for k,v in pairs(aux) do
         -- just clobber
         if type(primary[k]) ~= "table" then
             primary[k] = v
         else
             -- if it's a table, just recurse this function
-            M.merge_tbl_recurse(primary[k] or {}, aux[k] or {})
+            M.merge_tbl_recurse(primary[k], aux[k] or {})
         end
     end
     return primary
@@ -74,25 +73,28 @@ end -- }}}
 M.rgb = function(maybe_r, maybe_g, maybe_b, background) -- {{{
     -- users don't have to put everything in i guess
     -- ''''users''''
-    local r, g, b, suppress_write, escape_seq = maybe_r or 0, maybe_g or 0, maybe_b or 0, nil, nil
+    local r, g, b = maybe_r or 0, maybe_g or 0, maybe_b or 0
+    local suppress_write, escape_seq = nil, nil
+    local seq = {}
 
     -- also accept an table {{{
     if type(maybe_r) == "table" then
         -- if so you can also set background
         if maybe_r.bg then
-            M.rgb(maybe_r.bg, nil, nil, "bg")
+            maybe_r.bg.term_escape_seq = maybe_r.term_escape_seq
+            maybe_r.bg.suppress_write = maybe_r.suppress_write
+            M.safe_app(seq, M.rgb(maybe_r.bg, nil, nil, "bg"))
         end
         escape_seq = maybe_r.term_escape_seq
         suppress_write = maybe_r.suppress_write
 
         -- deconstruct
-        b = maybe_r.b or maybe_r.blue or 0
-        g = maybe_r.g or maybe_r.green or 0
         r = maybe_r.r or maybe_r.red or 0
+        g = maybe_r.g or maybe_r.green or 0
+        b = maybe_r.b or maybe_r.blue or 0
     end -- }}}
 
-    -- rgb codes are formatted as: "\27[38;2;<r>;<g>;<b>m"-this generates that
-    local seq = {}
+    -- {{{ rgb codes are formatted as: "\27[38;2;<r>;<g>;<b>m"-this generates that
     M.safe_app(seq, escape_seq or "\27[")
 
     -- default foreground or use background
@@ -108,6 +110,8 @@ M.rgb = function(maybe_r, maybe_g, maybe_b, background) -- {{{
     M.safe_app(seq, string.format("%03d", b) .. 'm')
 
     local str = table.concat(seq, '')
+    -- }}}
+
     -- actually set the color in the term
     if not suppress_write then
         io.write(str)
@@ -117,36 +121,16 @@ M.rgb = function(maybe_r, maybe_g, maybe_b, background) -- {{{
 end
 -- }}}
 
-M.bake_theme = function (colors, escape_seq) -- {{{
-    -- this one takes a table of rgb and converts them into actual function calls to set said color
-    -- meant to streamline user theming-pass it c.theme and it'll spit out a table with keys
-    -- named the same but values of functions that return/set a baked rgb code
-    -- so we can just call c.theme.primary() or whatever to set it ;)
-
-    local converted = {}
-    for k,v in pairs(colors) do
-        -- add the config escape sequence to the table we're passing rgb()
-        v.term_escape_seq = escape_seq
-        -- and disable spamming output with colorcodes while baking
-        v.suppress_write = true
-
-        local colorcode = M.rgb(v)
-
-        -- take a bool control if writes on call
-        local func = function (write)
-            if write == true then
-                io.write(colorcode)
-            -- or just take and write a string
-            elseif write then
-                io.write(colorcode)
-                io.write(tostring(write))
-            end
-            return colorcode
+M._repair = function(data)  -- {{{
+    -- go through the items and pair all parents to chidren and children to parents etc
+    for id, item in ipairs(data) do
+        for child in ipairs(item.children) do
+            table.insert(data[child].parents, id)
         end
-
-        converted[k] = func
+        for parent in ipairs(item.children) do
+            table.insert(data[parent].children, id)
+        end
     end
-    return converted
 end
 -- }}}
 

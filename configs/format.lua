@@ -6,6 +6,9 @@ M.term_escape_seq = "\27["
 M.indentation = 4
 M.left_align_id = true
 
+-- when you show a single item does it recurse by default
+M.single_item_recurse = true
+
 -- how do you want the fields to show
 M.field_order = {
     'title',

@@ -1,7 +1,8 @@
 -- config is a module, configure by populating it with lookup tables, variables, functions
 local M = {}
 
--- shadow the path while in this file to only pull config files from here only
+-- {{{ default config only
+-- shadow the path while in this file to pull config files from here only
 local package = package
 package.path = package.path .. ";./configs/?.lua;"
 
@@ -12,6 +13,8 @@ M.theme = require('theme')
 
 -- the default configs are part of the project itself, this is just where dote looks first for user configs.
 M.config_file_location = os.getenv("HOME") .. "/.config/dote/config.lua"
+-- }}}
+
 
 M.data_file_location = os.getenv("HOME").."/.config/dote/data.json"
 M.archive_file_location = os.getenv("HOME").."/.config/dote/archive.json"
@@ -33,7 +36,6 @@ M.action_lookup = {
 -- default command
 M.default_action = "output"
 
-
 -- symbols that specify the key in key:value pairs
 -- (empty string behaves same as undefined, get dropped in title/body)
 M.field_lookup = {
@@ -54,3 +56,4 @@ M.field_lookup = {
 }
 
 return M
+-- vim:foldmethod=marker

@@ -23,29 +23,20 @@ local c = require("config")
 
 local M = {}
 
-local function create(type)  -- {{{
+M.create = function (type)  -- {{{
     local item = {}          -- create new item
     item.type = type
+    item.created = os.time()
 
     fields.process_all(item)       -- hand it off to get it populated
 
     store.save_item(item) -- add to the tree
 end
--- }}}
 
-M.create_todo = function()  -- {{{
-    create('todo')
-end
--- }}}
-
-M.create_note = function()  -- {{{
-    create('note')
-end
--- }}}
-
-M.create_tag = function()  -- {{{
-    create('tag')
-end
+-- lazily dispatch these
+M.create_todo = function() M.create('todo') end
+M.create_note = function() M.create('note') end
+M.create_tag = function() M.create('tag') end
 -- }}}
 
 M.done = function()  -- {{{
@@ -65,20 +56,15 @@ end
 
 M.output = function()  -- {{{
     local data = store.load()
-    output.print_all(data)
-end
--- }}}
-
-M.repair_tree = function()  -- {{{
-    local data = store.load(c.datafile_path)
-    -- go through the items and pair all parents to chidren and children to parents etc
-    for id, item in ipairs(data) do
-        for child in ipairs(item.children) do
-            table.insert(data[child].parents, id)
+    if data[tonumber(arg[1])] then
+        -- if flagged or configs say to recurse
+        if arg[2] == 'recurse' or (c.format.single_item_recurse and not arg[2]) then
+            output.print_recurse(data, tonumber(arg[1]), 0)
+        else
+            output.print_item(data, tonumber(arg[1]), 0)
         end
-        for parent in ipairs(item.children) do
-            table.insert(data[parent].children, id)
-        end
+    else
+        output.print_all(data)
     end
 end
 -- }}}

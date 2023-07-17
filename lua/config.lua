@@ -36,9 +36,10 @@ local initialize = function()  -- {{{
         end
     end
 
-    -- load config, warn if no config file found
+    -- load config, warn if no config file found and skip clobber code
     if not pcall(function() user_config = dofile(config_location) end) then
         util.warn("Config file not found! Default location is ~/.config/dote/config.lua")
+        config.theme = util.bake_theme(config.theme, config.term_escape_seq)
         return config
     end
 
@@ -53,9 +54,6 @@ end
 -- }}}
 
 -- this file is a module, that sets its own contents to the functions inside the config
-
 return initialize()
-
-
 
 -- vim:foldmethod=marker
