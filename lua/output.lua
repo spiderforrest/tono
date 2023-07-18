@@ -118,28 +118,30 @@ M.print_item = function(data, id, level) -- {{{
 end
 -- }}}
 
-M.print_recurse = function(data, id, level) -- {{{
-    -- print the current node
+M.print_recurse = function(data, id, level, filter) -- {{{
+    -- run external filter function
+    if type(filter) == 'function' then
+        if not filter(data[id]) then return end
+    end
+
     M.print_item(data, id, level)
 
+    -- catch
     if not data[id].children then return end
 
     -- increment recurse counter-this is just for indentation
     level = level + 1
-    -- M.warn("recurse: " .. level)
-
-
     for child_id in ipairs(data[id].children) do
-        M.print_recurse(data, child_id, level)
+        M.print_recurse(data, child_id, level, filter)
     end
 end                          -- }}}
 
-M.print_all = function(data) -- {{{
+M.print_all = function(data, filter) -- {{{
     for item_id in ipairs(data) do
         -- only print top level nodes at the top level
         -- recurse will print the rest
         if not data[item_id].parent then
-            M.print_recurse(data, item_id, 0)
+            M.print_recurse(data, item_id, 0, filter)
         end
     end
 end -- }}}

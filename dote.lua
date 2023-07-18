@@ -26,7 +26,6 @@ local c = require("config")
 -- this contains functions for each command
 local actions = require("actions")
 
-
 -- lookup the user's aliases
 local action = c.action_lookup[arg[1]]
 

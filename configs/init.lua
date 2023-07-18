@@ -31,6 +31,7 @@ M.action_lookup = {
     ['edit'] = "modify",
     ['print'] = "output",
     ['archive'] = "archive",
+    ['notag'] = "no_tags",
 }
 
 -- default command

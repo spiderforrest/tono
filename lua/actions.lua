@@ -24,11 +24,11 @@ local c = require("config")
 local M = {}
 
 M.create = function (type)  -- {{{
-    local item = {}          -- create new item
+    local item = {} -- create new item
     item.type = type
     item.created = os.time()
 
-    fields.process_all(item)       -- hand it off to get it populated
+    fields.process_all(item) -- hand it off to get it populated
 
     store.save_item(item) -- add to the tree
 end
@@ -69,6 +69,18 @@ M.output = function()  -- {{{
 end
 -- }}}
 
+M.no_tags = function()  -- {{{
+    local data = store.load()
+    local filter = function (item)
+        if item.type == 'tag' then
+            return false
+        end
+        return true
+    end
+    output.print_all(data, filter)
+end
+-- }}}
+--
 M.archive = function() -- {{{
     local data = store.load()
     c.theme.primary("Where do you want to archive to? (")
