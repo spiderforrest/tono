@@ -55,32 +55,29 @@ end
 -- }}}
 
 M.output = function()  -- {{{
+    local filter
+    -- get the filter function
+    if c.filter[arg[1]] then
+        filter = c.filter[arg[1]]
+        table.remove(arg, 1) -- strip the action
+    else
+        filter = c.filter.default
+    end
+
     local data = store.load()
     if data[tonumber(arg[1])] then
         -- if flagged or configs say to recurse
         if arg[2] == 'recurse' or (c.format.single_item_recurse and not arg[2]) then
-            output.print_recurse(data, tonumber(arg[1]), 0)
+            output.print_recurse(data, tonumber(arg[1]), 0, filter)
         else
             output.print_item(data, tonumber(arg[1]), 0)
         end
     else
-        output.print_all(data)
+        output.print_all(data, filter)
     end
 end
 -- }}}
 
-M.no_tags = function()  -- {{{
-    local data = store.load()
-    local filter = function (item)
-        if item.type == 'tag' then
-            return false
-        end
-        return true
-    end
-    output.print_all(data, filter)
-end
--- }}}
---
 M.archive = function() -- {{{
     local data = store.load()
     c.theme.primary("Where do you want to archive to? (")

@@ -126,7 +126,7 @@ M.print_recurse = function(data, id, level, filter) -- {{{
 
     M.print_item(data, id, level)
 
-    -- catch
+    -- catch for end of recursion
     if not data[id].children then return end
 
     -- increment recurse counter-this is just for indentation

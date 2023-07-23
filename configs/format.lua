@@ -1,3 +1,6 @@
+
+-- Contains options related to formatting output
+
 local M = {}
 -- the escape sequence for setting colors
 M.term_escape_seq = "\27["
@@ -40,5 +43,6 @@ M.field_blacklist = {
     children = true,
     parents = true,
     type = true,
+    created = true,
 }
 return M
