@@ -80,10 +80,6 @@ M.target = function(word, item)  -- {{{
 end
 -- }}}
 
-M.date = function(word, item) -- {{{
-end
--- }}}
-
 M.parent = function(word, item)  -- {{{
     return M.add_to_field("parent", word, item)
 end

@@ -9,12 +9,14 @@ local M = {}
 
 -- this one is special and auto called w/o arguments but every other
 -- filter is just called by name with the text of the arg
+
+-- also your configs are passed in as the second arg just in casesies
 M.default = function (item)
     if item.type ~= "tag" then return true end
     return false
 end
 
-M.all = function (_)
+M.all = function ()
     return true
 end
 

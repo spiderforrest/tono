@@ -18,8 +18,14 @@ M.field_order = {
     'body',
     'tag',
     'date',
+    'type',
+    'created',
 }
 
+-- date strng, pretty much same as unix `date` but see https://www.lua.org/pil/22.1.html
+M.date = "%b %d, %H:%M"
+
+--[[
 M.ascii_diagram = {
     '╔', -- first item
     '╠', -- middle items
@@ -28,6 +34,7 @@ M.ascii_diagram = {
     " | ", -- separator between fields
 }
 M.line_split_fields = true
+]]
 
 M.ascii_diagram = {
     '', -- first item
@@ -39,10 +46,20 @@ M.ascii_diagram = {
 M.line_split_fields = false
 
 -- blacklist fields
-M.field_blacklist = {
-    children = true,
-    parents = true,
-    type = true,
-    created = true,
+M.blacklist = {
+    -- children = true,
+    -- parents = true,
+    -- type = true,
+    -- created = true,
 }
+
+-- the list of fields with special types, currently just 'date', i'll probably
+-- think of some other uses later...
+M.field_type = {
+    created = "date",
+    updated = "date",
+    target = "date",
+    deadline = "date",
+}
+
 return M

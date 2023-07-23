@@ -22,41 +22,45 @@ local util = require("util")
 local M = {}
 
 local function render_field(content, item, field, indent) -- {{{
-        -- divide
-        if c.format.line_split_fields then
-            util.safe_app(content, '\n')
-            -- stinky padding, can't believe that worked i can't count
-            util.safe_app(content, string.format('%' .. indent .. 's', ''))
-        else
-            util.safe_app(content, c.theme.accent())
-            util.safe_app(content, c.format.ascii_diagram[5])
-        end
-        -- the symbol at the start of the line
-        if c.format.ascii_diagram then
-            local sym_key
+    -- divide
+    if c.format.line_split_fields then
+        util.safe_app(content, '\n')
+        -- stinky padding, can't believe that worked i can't count
+        util.safe_app(content, string.format('%' .. indent .. 's', ''))
+    else
+        util.safe_app(content, c.theme.accent())
+        util.safe_app(content, c.format.ascii_diagram[5])
+    end
+    -- the symbol at the start of the line
+    if c.format.ascii_diagram then
+        local sym_key
 
-            -- shit, idk how to do this, it'll figure it out later
-            -- can't know if the next one is gonna get skipped
+        -- shit, idk how to do this, it'll figure it out later
+        -- can't know if the next one is gonna get skipped
 
-            -- if i == 1 then
-                -- sym_key = 1
-            -- elseif #c.format.field_order + 1 == i then
-                sym_key = 3
-            -- else
-            --     sym_key = 2
-            -- end
-            util.safe_app(content, c.theme.accent())
-            util.safe_app(content, c.format.ascii_diagram[sym_key])
-        end
+        -- if i == 1 then
+        -- sym_key = 1
+        -- elseif #c.format.field_order + 1 == i then
+        sym_key = 3
+        -- else
+        --     sym_key = 2
+        -- end
+        util.safe_app(content, c.theme.accent())
+        util.safe_app(content, c.format.ascii_diagram[sym_key])
+    end
 
-        -- the field name
-        util.safe_app(content, c.theme.ternary())
-        util.safe_app(content, field)
-        util.safe_app(content, c.format.ascii_diagram[4])
+    -- the field name
+    util.safe_app(content, c.theme.ternary())
+    util.safe_app(content, field)
+    util.safe_app(content, c.format.ascii_diagram[4])
 
-        -- content
-        util.safe_app(content, c.theme.primary())
+    -- content
+    util.safe_app(content, c.theme.primary())
+    if c.format.field_type[field] == "date" then
+        util.safe_app(content, os.date(c.format.date, item[field]))
+    else
         util.safe_app(content, item[field], ' ')
+    end
 end
 -- }}}
 
@@ -75,7 +79,7 @@ local function render_fields(item, indent) -- {{{
 
     -- next, we just dump the rest out
     for k in pairs(item) do
-        if (not c.format.field_blacklist[k]) and (not rendered[k]) then
+        if (not c.format.blacklist[k]) and (not rendered[k]) then
             render_field(content, item, k, indent)
         end
     end
@@ -105,7 +109,7 @@ M.print_item = function(data, id, level) -- {{{
     local whitespace = level * c.format.indentation
     -- build the string of whitespace
     if whitespace > 0 then
-    util.safe_app(content, string.format('%' .. whitespace .. 's', ''))
+        util.safe_app(content, string.format('%' .. whitespace .. 's', ''))
     end
 
     util.safe_app(content,
@@ -121,7 +125,7 @@ end
 M.print_recurse = function(data, id, level, filter) -- {{{
     -- run external filter function
     if type(filter) == 'function' then
-        if not filter(data[id]) then return end
+        if not filter(data[id], c) then return end
     end
 
     M.print_item(data, id, level)
