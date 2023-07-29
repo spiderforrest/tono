@@ -155,6 +155,7 @@ M.bake_theme = function (colors, escape_seq) -- {{{
 end
 -- }}}
 
+-- this needs ifs, dont use!!
 M._repair = function(data)  -- {{{
     -- go through the items and pair all parents to chidren and children to parents etc
     for id, item in ipairs(data) do

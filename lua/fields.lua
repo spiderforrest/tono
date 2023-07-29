@@ -22,7 +22,7 @@ local c = require("config")
 local M = {}
 
 -- this one goes through the input text, parses it, and calls all the field handlers appropriately
-M.process_all = function(item)  --{{{
+M.process_all = function(data, id)  --{{{
     local separator_status = "title"
     for _, word in ipairs(arg) do
         -- match the largest non-letter chain at the start of the arg
@@ -39,13 +39,13 @@ M.process_all = function(item)  --{{{
 
         -- if field has handler
         if M[key_actual] then
-            M[key_actual](body, item)
+            M[key_actual](body, data, id)
             goto continue
         end
 
         -- if field is defined but doesn't have a handler just add it
         if key_actual and not key_actual == '' then
-            M.add_to_field(key_actual, body, item)
+            M.add_to_field(key_actual, body, data[id])
             goto continue
         end
 
@@ -53,11 +53,11 @@ M.process_all = function(item)  --{{{
         if sym and c.warn.unmatched_sym then
             output.warn("No defined field for '" .. sym .. "'! Treating as plaintext.")
         end
-        M.add_to_field(separator_status, word, item)
+        M.add_to_field(separator_status, word, data[id])
 
         ::continue::
     end
-    return item
+    return data[id]
 end
 -- }}}
 
@@ -68,38 +68,42 @@ M.add_to_field = function(field, word, item) -- {{{
     end
     table.insert(item[field], word)
     return item
-end                           --  }}}
+end
+--  }}}
 
-M.tag = function(word, item)  -- {{{
-    return M.add_to_field("tag", word, item)
+M.tag = function(word, data, id)  -- {{{
+    return M.add_to_field("tag", word, data[id])
 end
 -- }}}
 
-M.target = function(word, item)  -- {{{
-    return M.add_to_field("target", word, item)
+M.target = function(word, data, id)  -- {{{
+    return M.add_to_field("target", word, data[id])
 end
 -- }}}
 
-M.parent = function(word, item)  -- {{{
-    return M.add_to_field("parent", word, item)
+M.parents = function(parent_id, data, id)  -- {{{
+    -- that tonumber is important bc t[1] ~= t['1']
+    -- thse look backwards, but when you make an item a child it actually wants to set its parent
+    M.add_to_field("children", tonumber(parent_id), data[id])
+    M.add_to_field("parents", id, data[tonumber(parent_id)])
 end
 -- }}}
 
-M.child = function(word, item)  -- {{{
-    return M.add_to_field("children", word, item)
+M.child = function(child_id, data, id)  -- {{{
+    M.add_to_field("parents", tonumber(child_id), data[id])
+    M.add_to_field("children", id, data[tonumber(child_id)])
 end
 -- }}}
 
-M.aux_parent = function(word, item)  -- {{{
-    M.add_to_field("aux_parent", word, item)
+M.aux_parent = function(word, data, id)  -- {{{
+    M.add_to_field("aux_parent", word, data[id])
 end
 -- }}}
 
-M.aux_child = function(word, item)  -- {{{
-    M.add_to_field("aux_child", word, item)
+M.aux_child = function(word, data, id)  -- {{{
+    M.add_to_field("aux_child", word, data[id])
 end
 -- }}}
-
 
 return M
 

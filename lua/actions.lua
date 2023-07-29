@@ -28,9 +28,15 @@ M.create = function (type)  -- {{{
     item.type = type
     item.created = os.time()
 
-    fields.process_all(item) -- hand it off to get it populated
+    -- pull the data
+    local data = store.load()
 
-    store.save_item(item) -- add to the tree
+    -- append the item, get its id
+    data[#data + 1] = item
+
+    fields.process_all(data, #data) -- hand it off to get it populated
+
+    store.save(data) -- add to the tree
 end
 
 -- lazily dispatch these
@@ -104,7 +110,7 @@ M.archive = function() -- {{{
     end
 
     store.save(archive, path)
-    -- this gotta stay after archive because it is removing data
+    -- this gotta stay after archive because it is removing data, lowest risk of data loss
     store.save(data)
 
 end

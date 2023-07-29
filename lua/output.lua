@@ -135,16 +135,21 @@ M.print_recurse = function(data, id, level, filter) -- {{{
 
     -- increment recurse counter-this is just for indentation
     level = level + 1
-    for child_id in ipairs(data[id].children) do
-        M.print_recurse(data, child_id, level, filter)
+    for _, child_id in ipairs(data[id].children) do
+        -- oopsi whoopsi, don't you hate it when you fall into the recursive void again and again and agai
+        -- do not call this function on the same item it was called on, not loop proof but i'll fix later
+        if id ~= child_id then
+            M.print_recurse(data, child_id, level, filter)
+        end
     end
-end                          -- }}}
+end
+-- }}}
 
 M.print_all = function(data, filter) -- {{{
     for item_id in ipairs(data) do
         -- only print top level nodes at the top level
         -- recurse will print the rest
-        if not data[item_id].parent then
+        if not data[item_id].parents then
             M.print_recurse(data, item_id, 0, filter)
         end
     end
