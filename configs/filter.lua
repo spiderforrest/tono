@@ -7,10 +7,10 @@ local M = {}
 -- inside the item table passed into the function. If you create a
 -- custom field, it'll be named as you named it and just as accessible.
 
--- this one is special and auto called w/o arguments but every other
--- filter is just called by name with the text of the arg
-
+-- every filter is just called by name with the text of the arg
 -- also your configs are passed in as the second arg just in casesies
+
+-- except this one it's called with no args
 M.default = function (item)
     if item.type ~= "tag" then return true end
     return false

@@ -47,10 +47,10 @@ M.line_split_fields = false
 
 -- blacklist fields
 M.blacklist = {
-    -- children = true,
-    -- parents = true,
-    -- type = true,
-    -- created = true,
+    children = true,
+    parents = true,
+    type = true,
+    created = true,
 }
 
 -- the list of fields with special types, currently just 'date', i'll probably

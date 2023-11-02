@@ -53,7 +53,7 @@ local initialize = function()  -- {{{
 end
 -- }}}
 
--- this file is a module, that sets its own contents to the functions inside the config
+-- this file is a module, that sets its own contents to the data inside the config
 return initialize()
 
 -- vim:foldmethod=marker

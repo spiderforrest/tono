@@ -81,6 +81,7 @@ M.output = function()  -- {{{
     else
         output.print_all(data, filter)
     end
+    store.load()
 end
 -- }}}
 
