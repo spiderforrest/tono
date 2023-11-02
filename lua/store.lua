@@ -21,23 +21,41 @@ local util = require("util")
 local json = require("json")
 local c = require("config")
 
+-- hold the datafile in this module's scope, prevent reperated re openings
+local data_cache = nil
+
 M.load = function(path) --{{{
-    local data, datafile
-    -- try to open
-    if not pcall(function() datafile = assert(io.open(path or c.data_file_location, "r")) end)
-    then
-        util.err("File " .. tostring(path or c.data_file_location) .. " not found!")
-    end
-    -- try to read
-    if not pcall(function() data = json.parse(datafile:read("*all")) end)
-    then
-        util.warn("File " .. tostring(path or c.data_file_location) .. " empty!")
-        data = {}
+
+    if not path then
+        -- quickly return the data on subsequent actions
+        if data_cache then
+            return data_cache
+        end
+        path = c.data_file_location
     end
 
-    datafile:close()
+    local data, file
+    -- try to open
+    if not pcall(function() file = assert(io.open(path, "r")) end)
+    then
+        util.err("File " .. tostring(path) .. " not found!")
+    end
+    -- try to read
+    if not pcall(function() data = json.parse(file:read("*all")) end)
+    then
+        util.warn("File " .. tostring(path) .. " empty!")
+        data = {}
+    end
+    file:close()
+
+    -- save the data for later if it's the standard data file
+    if not path then
+        data_cache = data
+    end
+
     return data
-end                                    -- }}}
+end
+-- }}}
 
 M.save = function(data, path) -- {{{
     local datafile, jsonified, safety
@@ -53,22 +71,31 @@ M.save = function(data, path) -- {{{
             end)
         then
         -- dump and crash
-        io.write(safety)
-        io.write("\n\n")
+        c.theme.ternary("/// Old file contents: ///")
+        io.write(safety .. "\n\n")
+        c.theme.ternary("/// Cache contents: ///")
+        io.write(json.stringify(data_cache) .. "\n\n")
         util.err(
-            "ERROR WRITING FILE! Last saved data dumped above, please manually make sure it wasn't overwritten."
+            "ERROR WRITING FILE! Data dumped above, please manually verify your stored data before running dote again."
         )
     end
     datafile:close()
+
+    -- update the cache
+    if not path then
+        data_cache = data
+    end
 end                                         -- }}}
 
-M.save_item = function(item, datafile_path) -- {{{
+--[[ old shortcut, don't use
+M._save_item = function(item, datafile_path) -- {{{
     local data = M.load(datafile_path)
     table.insert(data, item)
     M.save(data, datafile_path)
     return data
 end
 -- }}}
+]]
 
 return M
 
