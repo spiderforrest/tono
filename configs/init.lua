@@ -33,6 +33,7 @@ M.action_lookup = {
     ['print'] = "output",
     ['archive'] = "archive",
     ['notag'] = "no_tags",
+    ['compact'] = "compact"
 }
 
 -- default command

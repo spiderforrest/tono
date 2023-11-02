@@ -24,16 +24,13 @@ local M = {}
 local function render_fields(content, item, field_list, indent) -- {{{
     for i, field in ipairs(field_list) do
         -- the symbol at the start of the field
-        if c.format.ascii_diagram then
+        if c.format.line_split_fields then
             local sym_key
 
-            -- shit, idk how to do this, it'll figure it out later
-            -- can't know if the next one is gonna get skipped
-
             if i == 1 then
-            sym_key = 1
+                sym_key = 1
             elseif not field_list[i+1] then
-            sym_key = 3
+                sym_key = 3
             else
                 sym_key = 2
             end
@@ -55,9 +52,11 @@ local function render_fields(content, item, field_list, indent) -- {{{
         end
 
         if c.format.line_split_fields then
-            util.safe_app(content, '\n')
-            -- stinky padding, can't believe that worked i can't count
-            util.safe_app(content, string.format('%' .. indent .. 's', ''))
+            if field_list[i+1] then -- this just strips the newline between them
+                util.safe_app(content, '\n')
+                -- stinky padding, can't believe that worked i can't count
+                util.safe_app(content, string.format('%' .. indent .. 's', ''))
+            end
         else
             util.safe_app(content, c.theme.accent())
             util.safe_app(content, c.format.ascii_diagram[5])

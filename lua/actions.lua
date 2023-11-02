@@ -60,6 +60,12 @@ M.modify = function()  -- {{{
 end
 -- }}}
 
+M.compact = function()
+    c.format.line_split_fields = false
+    c.modify(c)
+    M.output()
+end
+
 M.output = function()  -- {{{
     local filter
     -- get the filter function

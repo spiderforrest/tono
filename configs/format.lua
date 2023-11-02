@@ -26,6 +26,7 @@ M.field_order = {
 M.date = "%b %d, %H:%M"
 
 M.ascii_diagram = {
+    -- these three apply with split fields
     '╔', -- first item
     '╠', -- middle items
     '╚', -- last item
@@ -33,14 +34,6 @@ M.ascii_diagram = {
     " | ", -- separator between fields
 }
 M.line_split_fields = true
-
--- M.ascii_diagram = {
---     '', -- first item
---     '', -- middle items
---     '', -- last item
---     "> ", -- separator between field key/content
---     " | ", -- separator between fields
--- }
 -- M.line_split_fields = false
 
 -- blacklist fields
