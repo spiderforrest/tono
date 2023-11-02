@@ -3,14 +3,17 @@ local M = {}
 
 -- {{{ default config only
 -- shadow the path while in this file to pull config files from here only
-local package = package
-package.path = package.path .. ";./configs/?.lua;"
+local package_tmp = package.path
+package.path = "./configs/?.lua"
 
 -- pull the other files
 M.format = require('format')
 M.warn = require('warn')
 M.theme = require('theme')
 M.filter = require('filter')
+M.actions = require('user_actions')
+
+package.path = package_tmp
 
 -- the default configs are part of the project itself, this is just where dote looks first for user configs.
 M.config_file_location = os.getenv("HOME") .. "/.config/dote/config.lua"
