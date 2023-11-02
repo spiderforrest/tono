@@ -8,7 +8,7 @@ local M = {}
 -- custom field, it'll be named as you named it and just as accessible.
 
 -- every filter is just called by name with the text of the arg
--- also your configs are passed in as the second arg just in casesies
+-- also your configs and the libs are passed as args 2/3 just in casesies
 
 -- except this one it's called with no args
 M.default = function (item)

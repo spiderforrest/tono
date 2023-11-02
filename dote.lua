@@ -18,29 +18,21 @@
 -- along with this program, at /LICENSE. If not, see <https://www.gnu.org/licenses/>.
 -- }}}
 
-package.path = package.path .. ";./lib/?.lua;"
+package.path = package.path .. ";./libs/?.lua;"
 
 -- calling this actively loads the configs (and cuts -c from arg)
 local c = require("config")
 
 -- this contains functions for each command
-local actions = require("actions")
+local actions = require("builtin_actions")
 
 -- lookup the user's aliases
 local action = c.action_lookup[arg[1]]
 
 local function user_action_handler()
-    -- bundle up all of my libs and hand to the configs
+    -- hand config and libs to the custom function.. in the configs
     -- bit contrived but I like the interface
-    local lib = {
-        actions = require('actions'),
-        fields = require('fields'),
-        output = require('output'),
-        store = require('store'),
-        util = require('util'),
-    }
-
-    c.actions[action](c, lib)
+    c.actions[action](c, require('libs'))
 end
 
 -- flow to user actions, builtin actions, and then the default action

@@ -129,7 +129,7 @@ end
 M.print_recurse = function(data, id, level, filter) -- {{{
     -- run external filter function
     if type(filter) == 'function' then
-        if not filter(data[id], c) then return end
+        if not filter(data[id], c, require("libs")) then return end
     end
 
     M.print_item(data, id, level)

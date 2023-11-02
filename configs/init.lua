@@ -11,7 +11,7 @@ M.format = require('format')
 M.warn = require('warn')
 M.theme = require('theme')
 M.filter = require('filter')
-M.actions = require('user_actions')
+M.actions = require('actions')
 
 package.path = package_tmp
 
