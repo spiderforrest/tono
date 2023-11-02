@@ -25,7 +25,6 @@ M.field_order = {
 -- date strng, pretty much same as unix `date` but see https://www.lua.org/pil/22.1.html
 M.date = "%b %d, %H:%M"
 
---[[
 M.ascii_diagram = {
     '╔', -- first item
     '╠', -- middle items
@@ -34,16 +33,15 @@ M.ascii_diagram = {
     " | ", -- separator between fields
 }
 M.line_split_fields = true
-]]
 
-M.ascii_diagram = {
-    '', -- first item
-    '', -- middle items
-    '', -- last item
-    "> ", -- separator between field key/content
-    " | ", -- separator between fields
-}
-M.line_split_fields = false
+-- M.ascii_diagram = {
+--     '', -- first item
+--     '', -- middle items
+--     '', -- last item
+--     "> ", -- separator between field key/content
+--     " | ", -- separator between fields
+-- }
+-- M.line_split_fields = false
 
 -- blacklist fields
 M.blacklist = {

@@ -16,7 +16,7 @@
 -- along with this program, at /LICENSE. If not, see <https://www.gnu.org/licenses/>.
 -- }}}
 
-local output = require("output")
+local util = require("util")
 local c = require("config")
 
 local M = {}
@@ -51,7 +51,7 @@ M.process_all = function(data, id)  --{{{
 
         -- otherwise treat as plaintext
         if sym and c.warn.unmatched_sym then
-            output.warn("No defined field for '" .. sym .. "'! Treating as plaintext.")
+            util.warn("No defined field for '" .. sym .. "'! Treating as plaintext.")
         end
         M.add_to_field(separator_status, word, data[id])
 

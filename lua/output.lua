@@ -21,69 +21,74 @@ local util = require("util")
 
 local M = {}
 
-local function render_field(content, item, field, indent) -- {{{
-    -- divide
-    if c.format.line_split_fields then
-        util.safe_app(content, '\n')
-        -- stinky padding, can't believe that worked i can't count
-        util.safe_app(content, string.format('%' .. indent .. 's', ''))
-    else
-        util.safe_app(content, c.theme.accent())
-        util.safe_app(content, c.format.ascii_diagram[5])
-    end
-    -- the symbol at the start of the line
-    if c.format.ascii_diagram then
-        local sym_key
+local function render_fields(content, item, field_list, indent) -- {{{
+    for i, field in ipairs(field_list) do
+        -- the symbol at the start of the field
+        if c.format.ascii_diagram then
+            local sym_key
 
-        -- shit, idk how to do this, it'll figure it out later
-        -- can't know if the next one is gonna get skipped
+            -- shit, idk how to do this, it'll figure it out later
+            -- can't know if the next one is gonna get skipped
 
-        -- if i == 1 then
-        -- sym_key = 1
-        -- elseif #c.format.field_order + 1 == i then
-        sym_key = 3
-        -- else
-        --     sym_key = 2
-        -- end
-        util.safe_app(content, c.theme.accent())
-        util.safe_app(content, c.format.ascii_diagram[sym_key])
-    end
+            if i == 1 then
+            sym_key = 1
+            elseif not field_list[i+1] then
+            sym_key = 3
+            else
+                sym_key = 2
+            end
+            util.safe_app(content, c.theme.accent())
+            util.safe_app(content, c.format.ascii_diagram[sym_key])
+        end
 
-    -- the field name
-    util.safe_app(content, c.theme.ternary())
-    util.safe_app(content, field)
-    util.safe_app(content, c.format.ascii_diagram[4])
+        -- the field name
+        util.safe_app(content, c.theme.ternary())
+        util.safe_app(content, field)
+        util.safe_app(content, c.format.ascii_diagram[4])
 
-    -- content
-    util.safe_app(content, c.theme.primary())
-    if c.format.field_type[field] == "date" then
-        util.safe_app(content, os.date(c.format.date, item[field]))
-    else
-        util.safe_app(content, item[field], ' ')
+        -- content
+        util.safe_app(content, c.theme.primary())
+        if c.format.field_type[field] == "date" then
+            util.safe_app(content, os.date(c.format.date, item[field]))
+        else
+            util.safe_app(content, item[field], ' ')
+        end
+
+        if c.format.line_split_fields then
+            util.safe_app(content, '\n')
+            -- stinky padding, can't believe that worked i can't count
+            util.safe_app(content, string.format('%' .. indent .. 's', ''))
+        else
+            util.safe_app(content, c.theme.accent())
+            util.safe_app(content, c.format.ascii_diagram[5])
+        end
     end
 end
 -- }}}
 
-local function render_fields(item, indent) -- {{{
-    local content, rendered, i = {}, {}, 1 -- lua brain small i no kno what a zee ro is
+local function sort_fields(item, indent) -- {{{
+    local content, rendered, ordered, i = {}, {}, {}, 1 -- lua brain small i no kno what a zee ro is
     -- first go through their fav fields
     for _,v in ipairs(c.format.field_order) do
         -- skip if missing
         if item[v] and item[v] ~= {} then
-            render_field(content, item, v, indent)
+            -- add it to a list to be rendered in a bit
+            ordered[i] = v
             -- track that it's been done
             rendered[v] = true
+            i = i + 1
         end
-        i = i + 1
     end
 
-    -- next, we just dump the rest out
+    -- next, we just dump the rest in
     for k in pairs(item) do
         if (not c.format.blacklist[k]) and (not rendered[k]) then
-            render_field(content, item, k, indent)
+            ordered[i] = k
+            i = i + 1
         end
     end
 
+    render_fields(content, item, ordered, indent)
     return content
 end
 -- }}}
@@ -113,7 +118,7 @@ M.print_item = function(data, id, level) -- {{{
     end
 
     util.safe_app(content,
-        render_fields(data[id], whitespace + base10_digits + 2)
+        sort_fields(data[id], whitespace + base10_digits + 2)
     )
 
     util.safe_app(content, '\n')
