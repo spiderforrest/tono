@@ -14,6 +14,7 @@ M.single_item_recurse = true
 
 -- how do you want the fields to show
 M.field_order = {
+    'done',
     'title',
     'body',
     'tag',
@@ -24,6 +25,9 @@ M.field_order = {
 
 -- date strng, pretty much same as unix `date` but see https://www.lua.org/pil/22.1.html
 M.date = "%b %d, %H:%M"
+-- M.true_string = "✔"
+M.true_string = "✓"
+M.false_string = "X"
 
 M.ascii_diagram = {
     -- these three apply with split fields
@@ -44,13 +48,13 @@ M.blacklist = {
     created = true,
 }
 
--- the list of fields with special types, currently just 'date', i'll probably
--- think of some other uses later...
+-- list of fields with special types that need to be rendered in different formats etc
 M.field_type = {
     created = "date",
     updated = "date",
     target = "date",
     deadline = "date",
+    done = "bool"
 }
 
 return M

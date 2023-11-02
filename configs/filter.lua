@@ -12,6 +12,7 @@ local M = {}
 
 -- except this one it's called with no args
 M.default = function (item)
+    if item.done == true then return false end
     if item.type ~= "tag" then return true end
     return false
 end

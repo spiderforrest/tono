@@ -47,6 +47,12 @@ local function render_fields(content, item, field_list, indent) -- {{{
         util.safe_app(content, c.theme.primary())
         if c.format.field_type[field] == "date" then
             util.safe_app(content, os.date(c.format.date, item[field]))
+        elseif c.format.field_type[field] == "bool" then
+            if item[field] then
+                util.safe_app(content, c.format.true_string)
+            else
+                util.safe_app(content, c.format.false_string)
+            end
         else
             util.safe_app(content, item[field], ' ')
         end

@@ -46,7 +46,14 @@ M.create_tag = function() create('tag') end
 -- }}}
 
 M.done = function()  -- {{{
-    print("done")
+    local id = tonumber(arg[1])
+    local data = store.load()
+
+    c.theme.primary("Completed ")
+    c.theme.ternary(table.concat(data[id].title, ' '))
+
+    data[id].done = true
+    store.save(data)
 end
 -- }}}
 
@@ -66,7 +73,19 @@ end
 -- }}}
 
 M.modify = function()  -- {{{
-    print("modify")
+    local data = store.load()
+    -- non interactive
+    if arg[2] then
+        local id = tonumber(arg[1])
+        table.remove(arg, 1)
+
+        local field = arg[1]
+        table.remove(arg, 1)
+
+        data[id][field] = { table.unpack(arg) }
+
+        store.save(data)
+    end
 end
 -- }}}
 
