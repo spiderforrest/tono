@@ -23,7 +23,7 @@ local c = require("config")
 
 local M = {}
 
-M.create = function (type)  -- {{{
+local function create (type)  -- {{{
     local item = {} -- create new item
     item.type = type
     item.created = os.time()
@@ -40,9 +40,9 @@ M.create = function (type)  -- {{{
 end
 
 -- lazily dispatch these
-M.create_todo = function() M.create('todo') end
-M.create_note = function() M.create('note') end
-M.create_tag = function() M.create('tag') end
+M.create_todo = function() create('todo') end
+M.create_note = function() create('note') end
+M.create_tag = function() create('tag') end
 -- }}}
 
 M.done = function()  -- {{{
@@ -51,7 +51,17 @@ end
 -- }}}
 
 M.delete = function()  -- {{{
-    print("delete")
+    local id = tonumber(arg[1])
+    local data = store.load()
+    c.theme.primary("Trashing ")
+    c.theme.ternary(table.concat(data[id].title, ' '))
+
+    local trash = store.load(c.trash_file_location)
+    table.insert(trash, data[id])
+    store.save(trash, c.trash_file_location)
+
+    table.remove(data, id)
+    store.save(data)
 end
 -- }}}
 

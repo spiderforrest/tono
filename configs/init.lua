@@ -22,6 +22,7 @@ M.config_file_location = os.getenv("HOME") .. "/.config/dote/config.lua"
 
 M.data_file_location = os.getenv("HOME").."/.config/dote/data.json"
 M.archive_file_location = os.getenv("HOME").."/.config/dote/archive.json"
+M.trash_file_location = os.getenv("HOME").."/.config/dote/trash.json"
 
 -- commands to use (you change the left side, the right is actual function names)
 M.action_lookup = {
