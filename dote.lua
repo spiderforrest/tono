@@ -37,6 +37,7 @@ end
 
 -- flow to user actions, builtin actions, and then the default action
 if c.actions[action] then
+    table.remove(arg, 1)
     user_action_handler()
 else
 
