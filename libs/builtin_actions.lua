@@ -19,24 +19,24 @@
 local store = require("store")
 local output = require("output")
 local fields = require("fields")
+local util = require("util")
 local c = require("config")
 
 local M = {}
 
 local function create (type)  -- {{{
+    local data = store.load()
+
     local item = {} -- create new item
     item.type = type
     item.created = os.time()
 
-    -- pull the data
-    local data = store.load()
-
-    -- append the item, get its id
+    item.id = #data + 1
     data[#data + 1] = item
+    -- hand it off to get it populated
+    fields.process_all(data, #data)
 
-    fields.process_all(data, #data) -- hand it off to get it populated
-
-    store.save(data) -- add to the tree
+    store.save(data)
 end
 
 -- lazily dispatch these
@@ -51,6 +51,7 @@ M.done = function()  -- {{{
 
     c.theme.primary("Completed ")
     c.theme.ternary(table.concat(data[id].title, ' '))
+    io.write('\n')
 
     data[id].done = true
     store.save(data)
@@ -62,12 +63,15 @@ M.delete = function()  -- {{{
     local data = store.load()
     c.theme.primary("Trashing ")
     c.theme.ternary(table.concat(data[id].title, ' '))
+    io.write('\n')
 
     local trash = store.load(c.trash_file_location)
     table.insert(trash, data[id])
     store.save(trash, c.trash_file_location)
 
     table.remove(data, id)
+    -- we MUST fix the table every time we remove something; splitting the array would be bad in like six ways
+    M.repair(data)
     store.save(data)
 end
 -- }}}
@@ -142,8 +146,75 @@ M.archive = function() -- {{{
 
     store.save(archive, path)
     -- this gotta stay after archive because it is removing data, lowest risk of data loss
+    M.repair(data)
     store.save(data)
 
+end
+-- }}}
+
+M.repair = function(data) -- {{{
+    if not data then data = store.load() end
+
+    -- make a list of the transforms, go through parents/kids/tags/members and change the ids {{{
+    c.sort(data)
+    -- where it was:where it will be
+    local swaps = {}
+    for k,item in ipairs(data) do
+        swaps[item.id] = k
+    end
+
+    -- less repeated code this way
+    local id_related_fields = { "parents", "children", "tags", "members" }
+    -- for each number \ in each field (that exists) \ in each item, do the swap
+    for _,item in ipairs(data) do
+        for _,field in ipairs(id_related_fields) do
+            if item[field] then
+                for k, id in ipairs(item[field]) do -- triple baka
+                    item[field][k] = swaps[id]
+                end
+            end
+        end
+        -- and then finally update the item's id
+        item.id = swaps[item.id]
+    end
+    -- you know, this section worked first try at 4am
+    -- i'm going to bed.
+    --}}}
+
+    -- now we can iteratete; handle parents, children {{{
+    for id, item in ipairs(data) do
+        -- this is gonna get messy ::::/
+        if item.children then
+            for child in ipairs(item.children) do
+                data[child].parents = util.ensure_present(data[child].parents, id)
+            end
+        end
+
+        if item.parents then
+            for parent in ipairs(item.parents) do
+                data[parent].children = util.ensure_present(data[parent].children, id)
+            end
+        end
+
+        if item.tags then -- tags have members instead of kids so tagged things can still be top level
+            for tag in ipairs(item.tags) do
+                data[tag].members = util.ensure_present(data[tag].members, id)
+            end
+        end
+    end
+    -- }}}
+
+    -- after that, we'll go over again, with the tree intact we can handle tags {{{
+    for id, item in ipairs(data) do
+        if item.type == "tag" and item.members then
+            for _,v in ipairs(item.members) do
+                util.ensure_present(data[v].tags, id)
+            end
+        end
+    end
+    -- }}}
+
+    store.save(data)
 end
 -- }}}
 

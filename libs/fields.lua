@@ -72,7 +72,7 @@ end
 --  }}}
 
 M.tag = function(word, data, id)  -- {{{
-    return M.add_to_field("tag", word, data[id])
+    return M.add_to_field("tags", word, data[id])
 end
 -- }}}
 
@@ -95,15 +95,6 @@ M.child = function(child_id, data, id)  -- {{{
 end
 -- }}}
 
-M.aux_parent = function(word, data, id)  -- {{{
-    M.add_to_field("aux_parent", word, data[id])
-end
--- }}}
-
-M.aux_child = function(word, data, id)  -- {{{
-    M.add_to_field("aux_child", word, data[id])
-end
--- }}}
 
 return M
 

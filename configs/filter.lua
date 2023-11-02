@@ -23,8 +23,9 @@ end
 
 M.tags = function (item)
     if item.done == true then return false end
-    if item.type == "tag" then return true end
-    return false
+    -- if item.type == "tag" then return true end
+    -- return false
+    return true
 end
 
 M.todos = function (item)

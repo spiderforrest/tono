@@ -47,13 +47,19 @@ local function render_fields(content, item, field_list, indent) -- {{{
         util.safe_app(content, c.theme.primary())
         if c.format.field_type[field] == "date" then
             util.safe_app(content, os.date(c.format.date, item[field]))
+
+        elseif c.format.field_type[field] == "int" then
+            util.safe_app(content, tostring(item[field]))
+
+
         elseif c.format.field_type[field] == "bool" then
             if item[field] then
                 util.safe_app(content, c.format.true_string)
             else
                 util.safe_app(content, c.format.false_string)
             end
-        else
+
+        else -- strings
             util.safe_app(content, item[field], ' ')
         end
 
@@ -76,8 +82,8 @@ local function sort_fields(item, indent) -- {{{
     local content, rendered, ordered, i = {}, {}, {}, 1 -- lua brain small i no kno what a zee ro is
     -- first go through their fav fields
     for _,v in ipairs(c.format.field_order) do
-        -- skip if missing
-        if item[v] and item[v] ~= {} then
+        -- skip if missing/blacklisted
+        if item[v] and item[v] ~= {} and not c.format.blacklist[v] then
             -- add it to a list to be rendered in a bit
             ordered[i] = v
             -- track that it's been done
@@ -157,11 +163,19 @@ end
 -- }}}
 
 M.print_all = function(data, filter) -- {{{
-    for item_id in ipairs(data) do
-        -- only print top level nodes at the top level
-        -- recurse will print the rest
-        if not data[item_id].parents then
-            M.print_recurse(data, item_id, 0, filter)
+    if c.format.order_decending then
+        for id = #data, 1, -1 do -- mom said we have ipairs at home
+            -- only print top level nodes at the top level
+            -- recurse will print the rest
+            if not data[id].parents then
+                M.print_recurse(data, id, 0, filter)
+            end
+        end
+    else
+        for id in ipairs(data) do
+            if not data[id].parents then
+                M.print_recurse(data, id, 0, filter)
+            end
         end
     end
 end -- }}}

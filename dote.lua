@@ -55,5 +55,5 @@ io.write(c.format.term_escape_seq .. "0m")
 io.write("\27[0m")
 
 
-print("time: " .. tostring(os.clock()))
+-- print("time: " .. tostring(os.clock()))
 -- vim:foldmethod=marker

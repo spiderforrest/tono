@@ -36,8 +36,9 @@ M.action_lookup = {
     ['edit'] = "modify",
     ['print'] = "output",
     ['archive'] = "archive",
-    ['notag'] = "no_tags",
-    ['compact'] = "compact"
+    ['fix'] = "repair",
+
+    ['compact'] = "compact",
 }
 
 -- default command
@@ -52,7 +53,7 @@ M.field_lookup = {
     ['/'] = "",
     ['_'] = "",
     [':'] = "child",
-    ['^^'] = "parent",
+    ['^'] = "parent",
     ['%'] = "",
     ['@'] = "tag",
     ['='] = "date",
@@ -61,6 +62,23 @@ M.field_lookup = {
     ['{'] = "",
     ['}'] = "",
 }
+
+-- this is called to sort the list whenever things are removed
+M.sort = function(data)
+    -- so the sort order
+    table.sort(data, function(a, b)
+        if b.done and not a.done then -- sort done seperately from not done, all after
+            return true
+        elseif a.done and not b.done then
+            return false
+        elseif a.created < b.created then -- and sort both groups by date, this is FIFO
+            return true
+        else
+            return false
+        end
+        end)
+    return data
+end
 
 return M
 -- vim:foldmethod=marker

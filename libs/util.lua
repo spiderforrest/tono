@@ -56,6 +56,20 @@ M.safe_app = function(arr, maybe_str, separator)  -- {{{
 end
 -- }}}
 
+M.ensure_present = function (tbl, item) -- {{{
+    -- oh sometimes tbl will be part of a bigger table and nil
+    if not tbl then tbl = {} end
+    -- go thru and check if the thing is in the table
+    for _,v in pairs(tbl) do
+        if v == item then
+            return tbl
+        end
+    end
+    -- if not, toss er in!
+    table.insert(tbl, item)
+    return tbl
+end -- }}}
+
 M.warn = function(body) -- {{{
     io.write("\27[33m") -- hard code error color strings because it feels right
     io.write(body .. '\n')
@@ -155,20 +169,7 @@ M.bake_theme = function (colors, escape_seq) -- {{{
 end
 -- }}}
 
--- this needs ifs, dont use!!
-M._repair = function(data)  -- {{{
-    -- go through the items and pair all parents to chidren and children to parents etc
-    for id, item in ipairs(data) do
-        for child in ipairs(item.children) do
-            table.insert(data[child].parents, id)
-        end
-        for parent in ipairs(item.children) do
-            table.insert(data[parent].children, id)
-        end
-    end
-end
--- }}}
+
 
 return M
-
 -- vim:foldmethod=marker

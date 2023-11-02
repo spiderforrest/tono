@@ -12,6 +12,9 @@ M.left_align_id = true
 -- when you show a single item does it recurse by default
 M.single_item_recurse = true
 
+-- print items decending vs ascending
+M.order_decending = true
+
 -- how do you want the fields to show
 M.field_order = {
     'done',
@@ -46,6 +49,7 @@ M.blacklist = {
     parents = true,
     type = true,
     created = true,
+    id = true,
 }
 
 -- list of fields with special types that need to be rendered in different formats etc
@@ -54,7 +58,8 @@ M.field_type = {
     updated = "date",
     target = "date",
     deadline = "date",
-    done = "bool"
+    done = "bool",
+    id = "int"
 }
 
 return M
