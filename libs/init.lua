@@ -16,6 +16,7 @@
 -- along with this program, at /LICENSE. If not, see <https://www.gnu.org/licenses/>.
 -- }}}
 
+-- just a bundle for convience, for passing internal libs into configs
 local M = {
     actions = require('builtin_actions'),
     fields = require('fields'),

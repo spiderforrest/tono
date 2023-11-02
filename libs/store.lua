@@ -87,16 +87,6 @@ M.save = function(data, path) -- {{{
     end
 end                                         -- }}}
 
---[[ old shortcut, don't use
-M._save_item = function(item, datafile_path) -- {{{
-    local data = M.load(datafile_path)
-    table.insert(data, item)
-    M.save(data, datafile_path)
-    return data
-end
--- }}}
-]]
-
 return M
 
 -- vim:foldmethod=marker

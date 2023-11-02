@@ -76,12 +76,13 @@ M.modify = function()  -- {{{
     local data = store.load()
     -- non interactive
     if arg[2] then
+        -- pull the target and field
         local id = tonumber(arg[1])
         table.remove(arg, 1)
-
         local field = arg[1]
         table.remove(arg, 1)
 
+        -- strings are arrays internally so just dump what's left of arg in
         data[id][field] = { table.unpack(arg) }
 
         store.save(data)

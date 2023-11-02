@@ -10,7 +10,7 @@ local M = {}
 -- every filter is just called by name with the text of the arg
 -- also your configs and the libs are passed as args 2/3 just in casesies
 
--- except this one it's called with no args
+-- except this one it's called when there's no args to dote
 M.default = function (item)
     if item.done == true then return false end
     if item.type ~= "tag" then return true end
@@ -22,16 +22,19 @@ M.all = function ()
 end
 
 M.tags = function (item)
+    if item.done == true then return false end
     if item.type == "tag" then return true end
     return false
 end
 
 M.todos = function (item)
+    if item.done == true then return false end
     if item.type == "todo" then return true end
     return false
 end
 
 M.notes = function (item)
+    if item.done == true then return false end
     if item.type == "note" then return true end
     return false
 end

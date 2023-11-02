@@ -18,7 +18,30 @@
 
 local util = require("util")
 
--- we cache the config so that it can be modified in runtime
+-- explaination of this before I forget
+-- lua caches stuff when you run require so it doesn't need to re-process the file when you
+-- use require again. That makes it possible to run a setup once and store data. That data is
+-- even mutable, and `runtime_config` is the module itself. It's the configs stored during runtime
+-- and then discarded at the end. This means the configs can be more than just static tables, and
+-- I'm primarily using it for two things: one; transforming all the theme colors into functions for
+-- convience, and two; allowing the configs to be modified at any point and then when other files
+-- require this file, it will give the modified configs. So this will have everything from the
+-- configs, and `.reset()` as well as `.modify()` added.
+-- in total, this file:
+-- makes a table
+-- craetes .reset and .modify
+-- calls .reset, which is basically just an init function that can be rerun
+-- pulls in the default and user configs and merges them
+-- sets the config data to the module itself
+-- does some stuff with themes
+-- caches that data
+-- subsequent requires just give the data
+
+--probably didn't need to write all that out but the naming here is bad so it can be pretty
+--elsewhere
+
+
+-- we cache the config so that it can be modified on the fly
 local runtime_config = {}
 
 if #runtime_config == 0 then

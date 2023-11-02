@@ -43,7 +43,7 @@ local function render_fields(content, item, field_list, indent) -- {{{
         util.safe_app(content, field)
         util.safe_app(content, c.format.ascii_diagram[4])
 
-        -- content
+        -- format the actual field content
         util.safe_app(content, c.theme.primary())
         if c.format.field_type[field] == "date" then
             util.safe_app(content, os.date(c.format.date, item[field]))
@@ -57,6 +57,7 @@ local function render_fields(content, item, field_list, indent) -- {{{
             util.safe_app(content, item[field], ' ')
         end
 
+        -- format space between fields
         if c.format.line_split_fields then
             if field_list[i+1] then -- this just strips the newline between them
                 util.safe_app(content, '\n')
