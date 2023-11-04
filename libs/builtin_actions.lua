@@ -95,25 +95,41 @@ end
 -- }}}
 
 M.output = function()  -- {{{
-    local filter
-    -- get the filter function
-    if c.filter[arg[1]] then
-        filter = c.filter[arg[1]]
-        table.remove(arg, 1) -- strip the action
+    -- get multi filter
+    local filters = {}
+    for _, word in ipairs(arg) do
+        if string.find(word, "%w") and c.filter[word] then -- only match alpha words, not numbers/symbols
+            table.insert(filters, word)
+        end
+    end
+
+    -- set the default filter
+    local multifilter
+    if #filters == 0 then
+        multifilter = c.filter.default
     else
-        filter = c.filter.default
+
+        -- bake the multifilter function
+        -- this is any fail bans the item
+        multifilter = function (item, conf, libs)
+            local pass = true
+            for _,filter in ipairs(filters) do
+                if not c.filter[filter](item, conf, libs) then pass = false end
+            end
+            return pass
+        end
     end
 
     local data = store.load()
     if data[tonumber(arg[1])] then
         -- if flagged or configs say to recurse
         if arg[2] == 'recurse' or (c.format.single_item_recurse and not arg[2]) then
-            output.print_recurse(data, tonumber(arg[1]), 0, filter)
+            output.print_recurse(data, tonumber(arg[1]), 0, multifilter)
         else
             output.print_item(data, tonumber(arg[1]), 0)
         end
     else
-        output.print_all(data, filter)
+        output.print_all(data, multifilter)
     end
     store.load()
 end
@@ -155,7 +171,7 @@ end
 M.repair = function(data) -- {{{
     if not data then data = store.load() end
 
-    -- make a list of the transforms, go through parents/kids and change the ids {{{
+    -- make a list of the transforms, go through parents/kids/tags and change the ids {{{
     c.sort(data)
     -- where it was:where it will be
     local swaps = {}
