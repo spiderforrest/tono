@@ -116,7 +116,6 @@ M.print = function()  -- {{{
     if #filters == 0 then
         multifilter = c.filter.default
     else
-
         -- bake the multifilter function
         -- this is any fail bans the item
         multifilter = function (item, conf, libs)
@@ -128,13 +127,18 @@ M.print = function()  -- {{{
         end
     end
 
+    -- handle single item prints, notably, these bypass the filter
     local data = store.load()
     if data[tonumber(arg[1])] then
         -- if flagged or configs say to recurse
         if arg[2] == 'recurse' or (c.format.single_item_recurse and not arg[2]) then
-            output.print_recurse(data, tonumber(arg[1]), 0, multifilter)
+            -- fill the queue
+            local queue = output.queue_print({}, tonumber(arg[1]), 1) -- shh ignore that 1 you'll nver notice
+            for _, entry in ipairs(queue or {}) do
+                output.print_item(entry.id, entry.level)
+            end
         else
-            output.print_item(data, tonumber(arg[1]), 0)
+            output.print_item(tonumber(arg[1]), 0)
         end
     else
         output.print_all(multifilter)

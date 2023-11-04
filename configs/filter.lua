@@ -21,6 +21,12 @@ M.all = function ()
     return true
 end
 
+M.top = function (item)
+    if item.done == true then return false end
+    if item.parents then return false end
+    return true
+end
+
 M.tags = function (item)
     if item.done == true then return false end
     -- if item.type == "tag" then return true end

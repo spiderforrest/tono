@@ -110,7 +110,8 @@ local function sort_fields(item, indent) -- {{{
 end
 -- }}}
 
-M.print_item = function(data, id, level) -- {{{
+M.print_item = function(id, level) -- {{{
+    local data = store.load()
     local content, base10_digits = {}, 0
 
     -- render id {{{
@@ -144,22 +145,20 @@ M.print_item = function(data, id, level) -- {{{
 end
 -- }}}
 
-M.queue_print = function (queue, data, id, level) -- {{{
-    -- only print top level nodes and nodes with only tag parents at the top level
-    -- recurse will print the rest
-    local non_tag_parent = false
-    for _,parent in ipairs(data[id].parents or {}) do
-        if data[parent].type ~= 'tag' then non_tag_parent = true end
-    end
-    if non_tag_parent then return end
+M.queue_print = function (queue, id, level) -- {{{
+    local data = store.load()
+
+    -- let recursion handle non top level nodes
+    if level == 0 and data[id].parents then return queue end
 
     table.insert(queue, { id = id, level = level })
 
     -- now do recursion
+    level = level + 1
     for _, child_id in ipairs(data[id].children or {}) do
         -- checks to keep recursion finite
         if id ~= child_id and (not queue[child_id]) then
-            queue = M.queue_print(queue, data, child_id, level)
+            queue = M.queue_print(queue, child_id, level)
         end
     end
     return queue
@@ -172,19 +171,17 @@ M.print_all = function(filter) -- {{{
     local queue = {}
     if c.format.order_decending then
         for id = #data, 1, -1 do -- mom said we have ipairs at home
-            queue = M.queue_print(queue, data, id, 0)
+            queue = M.queue_print(queue, id, 0)
         end
     else
         for id in ipairs(data) do
-            queue = M.queue_print(queue, data, id, 0)
+            queue = M.queue_print(queue, id, 0)
         end
     end
 
     for _, entry in ipairs(queue or {}) do
-        if type(filter) == 'function' then
-            if filter(data[entry.id], c, require("libs")) then
-                M.print_item(data, entry.id, entry.level)
-            end
+        if filter(data[entry.id], c, require("libs")) then
+            M.print_item(entry.id, entry.level)
         end
     end
 
