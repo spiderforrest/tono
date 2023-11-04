@@ -37,6 +37,8 @@ local function create (type)  -- {{{
     fields.process_all(data, #data)
 
     store.save(data)
+
+    if c.print_after_change then M.print() end
 end
 
 -- lazily dispatch these
@@ -55,6 +57,8 @@ M.done = function()  -- {{{
 
     data[id].done = true
     store.save(data)
+
+    if c.print_after_change then M.print() end
 end
 -- }}}
 
@@ -73,6 +77,8 @@ M.delete = function()  -- {{{
     -- we MUST fix the table every time we remove something; splitting the array would be bad in like six ways
     M.repair(data)
     store.save(data)
+
+    if c.print_after_change then M.print() end
 end
 -- }}}
 
@@ -91,10 +97,12 @@ M.modify = function()  -- {{{
 
         store.save(data)
     end
+
+    if c.print_after_change then M.print() end
 end
 -- }}}
 
-M.output = function()  -- {{{
+M.print = function()  -- {{{
     -- get multi filter
     local filters = {}
     for _, word in ipairs(arg) do
@@ -129,9 +137,8 @@ M.output = function()  -- {{{
             output.print_item(data, tonumber(arg[1]), 0)
         end
     else
-        output.print_all(data, multifilter)
+        output.print_all(multifilter)
     end
-    store.load()
 end
 -- }}}
 
@@ -165,6 +172,7 @@ M.archive = function() -- {{{
     M.repair(data)
     store.save(data)
 
+    if c.print_after_change then M.print() end
 end
 -- }}}
 

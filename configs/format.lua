@@ -34,11 +34,12 @@ M.false_string = "X"
 
 M.ascii_diagram = {
     -- these three apply with split fields
-    '╔', -- first item
-    '╠', -- middle items
-    '╚', -- last item
-    "> ", -- separator between field key/content
-    " | ", -- separator between fields
+    first_line = '╔', -- first item
+    middle_line = '╠', -- middle items
+    last_line = '╚', -- last item
+    only_line = '═', -- for if there's only one item on a line
+    field_key_val = "> ", -- separator between field key/content
+    inline = " | ", -- separator between fields when it's not split by lines
 }
 M.line_split_fields = true
 -- M.line_split_fields = false

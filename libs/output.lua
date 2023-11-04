@@ -18,6 +18,7 @@
 
 local c = require("config")
 local util = require("util")
+local store = require("store")
 
 local M = {}
 
@@ -28,11 +29,15 @@ local function render_fields(content, item, field_list, indent) -- {{{
             local sym_key
 
             if i == 1 then
-                sym_key = 1
+                if field_list[i+1] then
+                    sym_key = "first_line"
+                else
+                    sym_key = "only_line"
+                end
             elseif not field_list[i+1] then
-                sym_key = 3
+                sym_key = "last_line"
             else
-                sym_key = 2
+                sym_key = "middle_line"
             end
             util.safe_app(content, c.theme.accent())
             util.safe_app(content, c.format.ascii_diagram[sym_key])
@@ -41,7 +46,7 @@ local function render_fields(content, item, field_list, indent) -- {{{
         -- the field name
         util.safe_app(content, c.theme.ternary())
         util.safe_app(content, field)
-        util.safe_app(content, c.format.ascii_diagram[4])
+        util.safe_app(content, c.format.ascii_diagram["field_key_val"])
 
         -- format the actual field content
         util.safe_app(content, c.theme.primary())
@@ -72,7 +77,7 @@ local function render_fields(content, item, field_list, indent) -- {{{
             end
         else
             util.safe_app(content, c.theme.accent())
-            util.safe_app(content, c.format.ascii_diagram[5])
+            util.safe_app(content, c.format.ascii_diagram["inline"])
         end
     end
 end
@@ -139,62 +144,58 @@ M.print_item = function(data, id, level) -- {{{
 end
 -- }}}
 
-M.print_recurse = function(data, id, level, filter) -- {{{
-    -- run external filter function
-    if type(filter) == 'function' then
-        if not filter(data[id], c, require("libs")) then return end
+
+
+M.queue_print = function (queue, data, id, level) -- {{{
+    -- only print top level nodes and nodes with only tag parents at the top level
+    -- recurse will print the rest
+    local non_tag_parent = false
+    for _,parent in ipairs(data[id].parents or {}) do
+        if data[parent].type ~= 'tag' then non_tag_parent = true end
     end
 
-    M.print_item(data, id, level)
+    if non_tag_parent then return end
 
-    -- catch for end of recursion
-    if not data[id].children then return end
+    table.insert(queue, { id = id, level = level })
 
-    -- increment recurse counter-this is just for indentation
-    level = level + 1
-
-    for _, child_id in ipairs(data[id].children) do
-        -- oopsi whoopsi, don't you hate it when you fall into the recursive void again and again and agai
-        -- do not call this function on the same item it was called on, not loop proof but i'll fix later
-        if id ~= child_id then
-            M.print_recurse(data, child_id, level, filter)
+    -- now do recursion
+    for _, child_id in ipairs(data[id].children or {}) do
+        -- checks to keep recursion finite
+        if id ~= child_id and (not queue[child_id]) then
+            queue = M.queue_print(queue, data, child_id, level)
         end
     end
+    return queue
 end
--- }}}
 
-M.print_all = function(data, filter) -- {{{
+--}}}
+
+M.print_all = function(filter) -- {{{
+    local data = store.load()
+    local queue = {}
     if c.format.order_decending then
         for id = #data, 1, -1 do -- mom said we have ipairs at home
-            -- only print top level nodes at the top level
-            -- recurse will print the rest
-            if (not data[id].parents) then
-                M.print_recurse(data, id, 0, filter)
-            else
-                -- also print if all the parents are tags
-                local non_tag_parent = false
-                for _,parent in ipairs(data[id].parents) do
-                    if data[parent].type ~= 'tag' then non_tag_parent = true end
-                end
-                if not non_tag_parent then M.print_recurse(data, id, 0, filter) end
-            end
-
+            queue = M.queue_print(queue, data, id, 0)
         end
     else
-        -- duplicate code annoys me sm even if it'd be stupid to make this a func
         for id in ipairs(data) do
-            if not data[id].parents then
-                M.print_recurse(data, id, 0, filter)
-            else
-                local non_tag_parent = false
-                for _,parent in ipairs(data[id].parents) do
-                    if data[parent].type ~= 'tag' then non_tag_parent = true end
-                end
-                if not non_tag_parent then M.print_recurse(data, id, 0, filter) end
+            queue = M.queue_print(queue, data, id, 0)
+        end
+    end
+
+    for _, entry in ipairs(queue or {}) do
+
+        if type(filter) == 'function' then
+            if filter(data[entry.id], c, require("libs"))
+            then
+                M.print_item(data, entry.id, entry.level)
             end
         end
     end
-end -- }}}
+
+
+end
+-- }}}
 
 return M
 -- vim:foldmethod=marker

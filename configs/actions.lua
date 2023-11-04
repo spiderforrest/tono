@@ -10,7 +10,7 @@
 M.compact = function(c, lib)
     c.format.line_split_fields = false
     c.modify(c)
-    lib.actions.output()
+    lib.actions.print()
 end
 
  return M

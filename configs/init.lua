@@ -34,7 +34,7 @@ M.action_lookup = {
     ['delete'] = "delete",
     ['modify'] = "modify",
     ['edit'] = "modify",
-    ['print'] = "output",
+    ['print'] = "print",
     ['archive'] = "archive",
     ['fix'] = "repair",
 
@@ -42,7 +42,10 @@ M.action_lookup = {
 }
 
 -- default command
-M.default_action = "output"
+M.default_action = "print"
+
+-- after you delete, add, etc should it print it out
+M.print_after_change = true
 
 -- symbols that specify the key in key:value pairs
 -- (empty string behaves same as undefined, get dropped in title/body)
