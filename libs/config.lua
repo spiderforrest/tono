@@ -51,19 +51,7 @@ if #runtime_config == 0 then
         local user_config
         -- get default configs
         local config = require("configs")
-        local config_location = config.config_file_location -- lol
-
-        -- iterate thru args and check ifthe config location is specified
-        for i, v in ipairs(arg) do
-            if v == "-c" then
-                if arg[i + 1] == nil then -- if -c flag passed by itself
-                    util.err("The flag -c requires a path")
-                end
-                config_location = arg[i + 1]
-                table.remove(arg, i)
-                table.remove(arg, i) -- removing both "-c" and the path specified after it so we remove twice
-            end
-        end
+        local config_location = util.get_flag("-c") or config.config_file_location -- lol
 
         -- load config, warn if no config file found and skip clobber code
         if not pcall(function() user_config = dofile(config_location) end) then

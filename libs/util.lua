@@ -48,7 +48,7 @@ M.safe_app = function(arr, maybe_str, separator)  -- {{{
 
     if type(maybe_str) == "string" then
         arr[#arr + 1] = maybe_str
-    -- allows treating table stuff just like a string, it's nice
+        -- allows treating table stuff just like a string, it's nice
     elseif type(maybe_str) == "table" then
         arr[#arr + 1] = table.concat(maybe_str, separator or '')
     end
@@ -155,7 +155,7 @@ M.bake_theme = function (colors, escape_seq) -- {{{
         local func = function (write)
             if write == true then
                 io.write(colorcode)
-            -- or just take and write a string
+                -- or just take and write a string
             elseif write then
                 io.write(colorcode)
                 io.write(tostring(write))
@@ -169,6 +169,29 @@ M.bake_theme = function (colors, escape_seq) -- {{{
 end
 -- }}}
 
+-- store a table of flags so they can be stripped from arg but if this is called again they'll be remembered
+local flag_cache = {}
+M.get_flag = function (flag) -- {{{
+    -- check if the flag's been stored and leave it at that if so
+    if flag_cache[flag] then return flag_cache[flag] end
+
+    -- iterate thru args and check for the flag specified
+    local value
+    for i, v in ipairs(arg) do
+        if v == flag then
+            if arg[i + 1] == nil then -- if flag passed by itself
+                M.err("The flag " .. flag .. " requires a path")
+            end
+            value = arg[i + 1]
+            table.remove(arg, i)
+            -- removing both the flag and the value specified after it so we remove twice
+            table.remove(arg, i)
+        end
+    end
+
+    return value
+end
+-- }}}
 
 
 return M
