@@ -144,8 +144,6 @@ M.print_item = function(data, id, level) -- {{{
 end
 -- }}}
 
-
-
 M.queue_print = function (queue, data, id, level) -- {{{
     -- only print top level nodes and nodes with only tag parents at the top level
     -- recurse will print the rest
@@ -153,7 +151,6 @@ M.queue_print = function (queue, data, id, level) -- {{{
     for _,parent in ipairs(data[id].parents or {}) do
         if data[parent].type ~= 'tag' then non_tag_parent = true end
     end
-
     if non_tag_parent then return end
 
     table.insert(queue, { id = id, level = level })
@@ -184,10 +181,8 @@ M.print_all = function(filter) -- {{{
     end
 
     for _, entry in ipairs(queue or {}) do
-
         if type(filter) == 'function' then
-            if filter(data[entry.id], c, require("libs"))
-            then
+            if filter(data[entry.id], c, require("libs")) then
                 M.print_item(data, entry.id, entry.level)
             end
         end

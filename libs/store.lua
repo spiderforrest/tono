@@ -49,7 +49,7 @@ M.load = function(path) --{{{
     file:close()
 
     -- save the data for later if it's the standard data file
-    if not path then
+    if path == c.data_file_location then
         data_cache = data
     end
 
