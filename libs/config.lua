@@ -21,7 +21,7 @@ local util = require("util")
 -- explaination of this before I forget
 -- lua caches stuff when you run require so it doesn't need to re-process the file when you
 -- use require again. That makes it possible to run a setup once and store data. That data is
--- even mutable, and `runtime_config` is the module itself. It's the configs stored during runtime
+-- even mutable, and `config` is the module itself. It's the configs stored during runtime
 -- and then discarded at the end. This means the configs can be more than just static tables, and
 -- I'm primarily using it for two things: one; transforming all the theme colors into functions for
 -- convience, and two; allowing the configs to be modified at any point and then when other files
@@ -42,43 +42,43 @@ local util = require("util")
 
 
 -- we cache the config so that it can be modified on the fly
-local runtime_config = {}
+local config = {}
 
-if #runtime_config == 0 then
+if #config == 0 then
     -- bc this file is a module we're gonna just use active_config like M
     -- and while this is a setup function it's exposed so that's why it's named reset
-    runtime_config.reset = function()  -- {{{
+    config.reset = function()  -- {{{
         local user_config
         -- get default configs
-        local config = require("configs")
-        local config_location = util.get_flag("-c") or config.config_file_location -- lol
+        local default_config = require("configs")
+        local config_location = util.get_flag("-c") or default_config.config_file_location -- lol
 
         -- load config, warn if no config file found and skip clobber code
         if not pcall(function() user_config = dofile(config_location) end) then
             util.warn("Config file not found! Default location is ~/.config/dote/config.lua")
-            config.theme = util.bake_theme(config.theme, config.term_escape_seq)
-            return config
+            user_config = {}
         end
 
         -- clobber tables together
-        config = util.merge_tbl_recurse(config, user_config)
+        default_config = util.merge_tbl_recurse(default_config, user_config)
+        config = util.merge_tbl_recurse(config, default_config)
 
         -- bake and replace theme:
-        config.theme = util.bake_theme(config.theme, config.term_escape_seq)
+        config.theme = util.bake_theme(default_config.theme, default_config.term_escape_seq)
 
         return config
     end
     -- }}}
 
     -- this file is a module, that sets its own contents to the data inside the config
-    runtime_config = runtime_config.reset()
+    config = config.reset()
 
     -- lets you change configs to like, switch formatting rules etc
-    runtime_config.modify = function(altered_config)
-        runtime_config = altered_config
+    config.modify = function(altered_config)
+        config = altered_config
     end
 end
 
-return runtime_config
+return config
 
 -- vim:foldmethod=marker
