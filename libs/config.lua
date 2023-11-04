@@ -60,11 +60,11 @@ if #config == 0 then
         end
 
         -- clobber tables together
-        default_config = util.merge_tbl_recurse(default_config, user_config)
+        default_config = util.merge_tbl_recurse(user_config, default_config)
         config = util.merge_tbl_recurse(config, default_config)
 
         -- bake and replace theme:
-        config.theme = util.bake_theme(default_config.theme, default_config.term_escape_seq)
+        config.theme = util.bake_theme(config.theme, config.term_escape_seq)
 
         return config
     end

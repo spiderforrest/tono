@@ -155,7 +155,7 @@ end
 M.repair = function(data) -- {{{
     if not data then data = store.load() end
 
-    -- make a list of the transforms, go through parents/kids/tags/members and change the ids {{{
+    -- make a list of the transforms, go through parents/kids and change the ids {{{
     c.sort(data)
     -- where it was:where it will be
     local swaps = {}
@@ -164,7 +164,7 @@ M.repair = function(data) -- {{{
     end
 
     -- less repeated code this way
-    local id_related_fields = { "parents", "children", "tags", "members" }
+    local id_related_fields = { "parents", "children" }
     -- for each number \ in each field (that exists) \ in each item, do the swap
     for _,item in ipairs(data) do
         for _,field in ipairs(id_related_fields) do
@@ -196,18 +196,13 @@ M.repair = function(data) -- {{{
             end
         end
 
-        if item.tags then -- tags have members instead of kids so tagged things can still be top level
-            for tag in ipairs(item.tags) do
-                data[tag].members = util.ensure_present(data[tag].members, id)
-            end
-        end
     end
     -- }}}
 
     -- after that, we'll go over again, with the tree intact we can handle tags {{{
     for id, item in ipairs(data) do
-        if item.type == "tag" and item.members then
-            for _,v in ipairs(item.members) do
+        if item.type == "tag" and item.children then
+            for _,v in ipairs(item.children) do
                 util.ensure_present(data[v].tags, id)
             end
         end

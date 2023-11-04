@@ -106,7 +106,7 @@ end
 -- }}}
 
 M.print_item = function(data, id, level) -- {{{
-    local content, base10_digits = {}, nil
+    local content, base10_digits = {}, 0
 
     -- render id {{{
     if c.format.left_align_id then
@@ -152,6 +152,7 @@ M.print_recurse = function(data, id, level, filter) -- {{{
 
     -- increment recurse counter-this is just for indentation
     level = level + 1
+
     for _, child_id in ipairs(data[id].children) do
         -- oopsi whoopsi, don't you hate it when you fall into the recursive void again and again and agai
         -- do not call this function on the same item it was called on, not loop proof but i'll fix later
@@ -167,14 +168,29 @@ M.print_all = function(data, filter) -- {{{
         for id = #data, 1, -1 do -- mom said we have ipairs at home
             -- only print top level nodes at the top level
             -- recurse will print the rest
-            if not data[id].parents then
+            if (not data[id].parents) then
                 M.print_recurse(data, id, 0, filter)
+            else
+                -- also print if all the parents are tags
+                local non_tag_parent = false
+                for _,parent in ipairs(data[id].parents) do
+                    if data[parent].type ~= 'tag' then non_tag_parent = true end
+                end
+                if not non_tag_parent then M.print_recurse(data, id, 0, filter) end
             end
+
         end
     else
+        -- duplicate code annoys me sm even if it'd be stupid to make this a func
         for id in ipairs(data) do
             if not data[id].parents then
                 M.print_recurse(data, id, 0, filter)
+            else
+                local non_tag_parent = false
+                for _,parent in ipairs(data[id].parents) do
+                    if data[parent].type ~= 'tag' then non_tag_parent = true end
+                end
+                if not non_tag_parent then M.print_recurse(data, id, 0, filter) end
             end
         end
     end

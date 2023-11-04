@@ -19,16 +19,16 @@
 local M = {}
 
 M.merge_tbl_recurse = function(primary, aux) -- {{{
-    for k,v in pairs(aux) do
+    for k,v in pairs(primary) do
         -- just clobber
-        if type(primary[k]) ~= "table" then
-            primary[k] = v
+        if type(aux[k]) ~= "table" then
+            aux[k] = v
         else
             -- if it's a table, just recurse this function
-            M.merge_tbl_recurse(primary[k], aux[k] or {})
+            M.merge_tbl_recurse(primary[k] or {}, aux[k])
         end
     end
-    return primary
+    return aux
 end -- }}}
 
 M.dump_table_of_arrays = function(tbl) -- {{{
@@ -189,6 +189,7 @@ M.get_flag = function (flag) -- {{{
         end
     end
 
+    flag_cache[flag] = value
     return value
 end
 -- }}}
