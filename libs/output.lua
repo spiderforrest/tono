@@ -22,6 +22,54 @@ local store = require("store")
 
 local M = {}
 
+M.format_field = function (field, item, content) -- {{{
+    -- format the actual field content
+    util.safe_app(content, c.theme.primary())
+
+    if c.format.field_type[field] == "date" then
+        util.safe_app(content, os.date(c.format.date, item[field]))
+
+    elseif c.format.field_type[field] == "int" then
+        util.safe_app(content, tostring(item[field]))
+
+    elseif c.format.field_type[field] == "bool" then
+        if item[field] then
+            util.safe_app(content, c.format.true_string)
+        else
+            util.safe_app(content, c.format.false_string)
+        end
+
+    elseif c.format.field_type[field] == "deref" then
+        local data = store.load()
+
+        -- if only one id
+        if type(item[field]) == "number" then
+            if c.deref_show_id then
+                util.safe_app(content, item[field])
+                util.safe_app(content, c.format.ascii_diagram.after_id)
+            end
+            util.safe_app(content, data[item[field]].title)
+        else
+
+            -- if array of ids
+            for k, id in ipairs(item[field]) do
+                if k ~= 1 then util.safe_app(content, c.format.ascii_diagram.list_sep) end
+
+                if c.deref_show_id then
+                    util.safe_app(content, id)
+                    util.safe_app(content, c.format.ascii_diagram.after_id)
+                end
+                util.safe_app(content, data[id].title, ' ')
+            end
+        end
+
+    else -- strings
+        util.safe_app(content, item[field], ' ')
+    end
+
+end
+-- }}}
+
 local function render_fields(content, item, field_list, indent) -- {{{
     for i, field in ipairs(field_list) do
         -- the symbol at the start of the field
@@ -48,25 +96,7 @@ local function render_fields(content, item, field_list, indent) -- {{{
         util.safe_app(content, field)
         util.safe_app(content, c.format.ascii_diagram["field_key_val"])
 
-        -- format the actual field content
-        util.safe_app(content, c.theme.primary())
-        if c.format.field_type[field] == "date" then
-            util.safe_app(content, os.date(c.format.date, item[field]))
-
-        elseif c.format.field_type[field] == "int" then
-            util.safe_app(content, tostring(item[field]))
-
-
-        elseif c.format.field_type[field] == "bool" then
-            if item[field] then
-                util.safe_app(content, c.format.true_string)
-            else
-                util.safe_app(content, c.format.false_string)
-            end
-
-        else -- strings
-            util.safe_app(content, item[field], ' ')
-        end
+        M.format_field(field, item, content)
 
         -- format space between fields
         if c.format.line_split_fields then
@@ -126,7 +156,7 @@ M.print_item = function(id, level) -- {{{
     else
         util.safe_app(content, tostring(id), '')
     end
-    util.safe_app(content, ": ") -- }}}
+    util.safe_app(content, c.format.ascii_diagram.after_id) -- }}}
 
     -- calculate indentation
     local whitespace = level * c.format.indentation

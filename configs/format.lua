@@ -40,6 +40,8 @@ M.ascii_diagram = {
     only_line = '═', -- for if there's only one item on a line
     field_key_val = "> ", -- separator between field key/content
     inline = " | ", -- separator between fields when it's not split by lines
+    after_id = ": ", -- idk how to name this bc a colon is the only thing that makes sense to me
+    list_sep = ", ", -- for inline lists; see deref
 }
 M.line_split_fields = true
 -- M.line_split_fields = false
@@ -60,7 +62,11 @@ M.field_type = {
     target = "date",
     deadline = "date",
     done = "bool",
-    id = "int"
+    hidden = "bool",
+    id = "int",
+    tags = "deref", -- for lists of ids
 }
+
+M.deref_show_id = true
 
 return M

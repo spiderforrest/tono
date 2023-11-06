@@ -46,11 +46,11 @@ M.safe_app = function(arr, maybe_str, separator)  -- {{{
     -- we're working with arrays of strings instead of strings here
     -- that's just better in lua so here's a function that appends strings or arrays safely
 
-    if type(maybe_str) == "string" then
-        arr[#arr + 1] = maybe_str
         -- allows treating table stuff just like a string, it's nice
-    elseif type(maybe_str) == "table" then
+    if type(maybe_str) == "table" then
         arr[#arr + 1] = table.concat(maybe_str, separator or '')
+    else
+        arr[#arr + 1] = tostring(maybe_str)
     end
     return arr
 end
