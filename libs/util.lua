@@ -194,6 +194,24 @@ M.get_flag = function (flag) -- {{{
 end
 -- }}}
 
+M.get_id_by_maybe_title = function (word, data, filter) -- {{{
+    if not filter then filter = function(_,_) return true end end
+
+    if string.find(word, "^%d+$") then
+        if data[word] then return word end
+    else
+        -- check everything for tags with the same name
+        for _, item in ipairs(data) do
+            if item.title and item.title[1] == word and filter(item, data) then
+                return item.id
+            end
+        end
+        -- rip
+        M.err("Search for title " .. tostring(word) .. " failed!")
+    end
+end
+
+-- }}}
 
 return M
 -- vim:foldmethod=marker

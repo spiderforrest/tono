@@ -72,7 +72,15 @@ end
 --  }}}
 
 M.tag = function(word, data, id)  -- {{{
-    return M.add_to_field("tags", word, data[id])
+    -- if user puts the tag name in because duh that's how it works in your brain
+    -- i thought there was a bug where somehow the tag name was getting inserted where id's should be
+    -- lol no that was just me PEBKAC
+    local filter = function (item)
+        if item.type == 'tag' then return true end
+        return false
+    end
+    local tag = util.get_id_by_maybe_title(word, data, filter)
+    return M.add_to_field("tags", tag, data[id])
 end
 -- }}}
 

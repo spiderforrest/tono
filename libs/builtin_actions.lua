@@ -106,7 +106,7 @@ M.print = function()  -- {{{
     -- get multi filter
     local filters = {}
     for _, word in ipairs(arg) do
-        if string.find(word, "%w") and c.filter[word] then -- only match alpha words, not numbers/symbols
+        if string.find(word, "^%w+$") and c.filter[word] then -- only match alpha words, not numbers/symbols
             table.insert(filters, word)
         end
     end
