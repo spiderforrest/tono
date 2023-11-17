@@ -26,13 +26,14 @@ local M = {}
 
 local function create (type)  -- {{{
     local data = store.load()
+    -- create new item
+    local item = {
+        type = type,
+        created = os.time(),
+        id = #data + 1,
+    }
 
-    local item = {} -- create new item
-    item.type = type
-    item.created = os.time()
-
-    item.id = #data + 1
-    data[#data + 1] = item
+    table.insert(data, item)
     -- hand it off to get it populated
     fields.process_all(data, #data)
 
@@ -94,6 +95,9 @@ M.modify = function()  -- {{{
 
         -- strings are arrays internally so just dump what's left of arg in
         data[id][field] = { table.unpack(arg) }
+
+        -- mark er as modifyied
+        data[id].updated = os.time()
 
         store.save(data)
     end
@@ -184,7 +188,7 @@ M.repair = function(data) -- {{{
     if not data then data = store.load() end
 
     -- make a list of the transforms, go through parents/kids/tags and change the ids {{{
-    c.sort(data)
+    table.sort(data, c.hard_sort)
     -- where it was:where it will be
     local swaps = {}
     for k,item in ipairs(data) do
@@ -209,33 +213,49 @@ M.repair = function(data) -- {{{
     -- i'm going to bed.
     --}}}
 
-    -- now we can iteratete; handle parents, children {{{
-    for id, item in ipairs(data) do
-        -- this is gonna get messy ::::/
-        if item.children then
-            for child in ipairs(item.children) do
-                data[child].parents = util.ensure_present(data[child].parents, id)
+    -- now we can iteratete; handle parents, children, tags {{{
+    -- this is gonna get messy ::::/
+    local function fix_relationships()  -- my ex shoulda tried that nyeheheh
+        local changed = false
+        for id, item in ipairs(data) do
+            if item.children and item.type ~= 'tag' then
+                for child in ipairs(item.children) do
+                     if util.ensure_present(data[child].parents, id) then changed = true end
+                end
             end
-        end
 
-        if item.parents then
-            for parent in ipairs(item.parents) do
-                data[parent].children = util.ensure_present(data[parent].children, id)
+            if item.parents then
+                for parent in ipairs(item.parents) do
+                     if util.ensure_present(data[parent].children, id) then changed = true end
+                end
             end
-        end
 
+            -- tags have children, but their children have tags instead of parents
+            if item.tags then
+                for tag in ipairs(item.tags) do
+                     if util.ensure_present(data[tag].children, id) then changed = true end
+                end
+            end
+
+            if item.type == "tag" and item.children then
+                for _,v in ipairs(item.children) do
+                    if util.ensure_present(data[v].tags, id) then changed = true end
+                end
+            end
+
+        end
+        -- track if modified
+        return changed
     end
+    -- try it until nothings gets changed, since it only does one level and doesn't recurse
+    -- it would recurse if i had thought of that before writing it
+    local i = 0
+    while not fix_relationships() do
+        i = i + 1
+        if i > 10000 then util.err("issue fixing your data! It will not be changed.") end
+    end -- 'while not fix relationships do end' these jokes write themselves
     -- }}}
 
-    -- after that, we'll go over again, with the tree intact we can handle tags {{{
-    for id, item in ipairs(data) do
-        if item.type == "tag" and item.children then
-            for _,v in ipairs(item.children) do
-                util.ensure_present(data[v].tags, id)
-            end
-        end
-    end
-    -- }}}
 
     store.save(data)
 end

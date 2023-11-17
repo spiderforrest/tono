@@ -65,8 +65,10 @@ M.field_type = {
     hidden = "bool",
     id = "int",
     tags = "deref", -- for lists of ids
+    children = "deref",
+    parents = "deref",
 }
 
-M.deref_show_id = true
+M.deref_show_id = false
 
 return M

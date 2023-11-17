@@ -11,7 +11,7 @@ M.format = require('format')
 M.warn = require('warn')
 M.theme = require('theme')
 M.filter = require('filter')
-M.actions = require('actions')
+M.action = require('action')
 
 package.path = package_tmp
 
@@ -66,21 +66,19 @@ M.field_lookup = {
     ['}'] = "",
 }
 
--- this is called to sort the list whenever things are removed
-M.sort = function(data)
-    -- so the sort order
-    table.sort(data, function(a, b)
-        if b.done and not a.done then -- sort done seperately from not done, all after
-            return true
-        elseif a.done and not b.done then
-            return false
-        elseif a.created < b.created then -- and sort both groups by date, this is FIFO
-            return true
-        else
-            return false
-        end
-        end)
-    return data
+-- this is called to sort the list whenever things are removed, etc, controls order of ids
+-- a and b are items
+M.hard_sort = function(a, b)
+    -- so the sort order is just "return true means a go first"
+    if b.done and not a.done then -- sort done seperately from not done, all after
+        return true
+    elseif a.done and not b.done then
+        return false
+    elseif a.created < b.created then -- and sort both groups by date, this is FIFO
+        return true
+    else
+        return false
+    end
 end
 
 return M

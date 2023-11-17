@@ -32,6 +32,7 @@ M.merge_tbl_recurse = function(primary, aux) -- {{{
 end -- }}}
 
 M.dump_table_of_arrays = function(tbl) -- {{{
+    if not tbl then return end
     for k, v in pairs(tbl) do
         if type(v) == 'table' then
             print(k .. ": " .. table.concat(v, " "))
@@ -46,7 +47,7 @@ M.safe_app = function(arr, maybe_str, separator)  -- {{{
     -- we're working with arrays of strings instead of strings here
     -- that's just better in lua so here's a function that appends strings or arrays safely
 
-        -- allows treating table stuff just like a string, it's nice
+    -- allows treating table stuff just like a string, it's nice
     if type(maybe_str) == "table" then
         arr[#arr + 1] = table.concat(maybe_str, separator or '')
     else
@@ -62,12 +63,12 @@ M.ensure_present = function (tbl, item) -- {{{
     -- go thru and check if the thing is in the table
     for _,v in pairs(tbl) do
         if v == item then
-            return tbl
+            return false, tbl
         end
     end
     -- if not, toss er in!
     table.insert(tbl, item)
-    return tbl
+    return true, tbl
 end -- }}}
 
 M.warn = function(body) -- {{{

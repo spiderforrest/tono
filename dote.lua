@@ -24,7 +24,7 @@ package.path = package.path .. ";./libs/?.lua;"
 local c = require("config")
 
 -- this contains functions for each command
-local actions = require("builtin_actions")
+local builtins = require("builtin_actions")
 
 -- lookup the user's aliases
 local action = c.action_lookup[arg[1]]
@@ -32,21 +32,21 @@ local action = c.action_lookup[arg[1]]
 local function user_action_handler()
     -- hand config and libs to the custom function.. in the configs
     -- bit contrived but I like the interface
-    c.actions[action](c, require('libs'))
+    c.action[action](c, require('libs'))
 end
 
 -- flow to user actions, builtin actions, and then the default action
-if c.actions[action] then
+if c.action[action] then
     table.remove(arg, 1)
     user_action_handler()
 else
 
-    if actions[action] then
+    if builtins[action] then
         table.remove(arg, 1)
     else
         action = c.default_action
     end
-    actions[action]()
+    builtins[action]()
 end
 
 

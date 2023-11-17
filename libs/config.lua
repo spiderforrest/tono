@@ -42,12 +42,12 @@ local util = require("util")
 
 
 -- we cache the config so that it can be modified on the fly
-local config = {}
+local Config = {}
 
-if #config == 0 then
+if #Config == 0 then
     -- bc this file is a module we're gonna just use active_config like M
     -- and while this is a setup function it's exposed so that's why it's named reset
-    config.reset = function()  -- {{{
+    Config.reset = function()  -- {{{
         local user_config
         -- get default configs
         local default_config = require("configs")
@@ -55,30 +55,30 @@ if #config == 0 then
 
         -- load config, warn if no config file found and skip clobber code
         if not pcall(function() user_config = dofile(config_location) end) then
-            util.warn("Config file not found! Default location is ~/.config/dote/config.lua")
+            util.warn("Config file not found or erroring! Default location is ~/.config/dote/config.lua")
             user_config = {}
         end
 
         -- clobber tables together
         default_config = util.merge_tbl_recurse(user_config, default_config)
-        config = util.merge_tbl_recurse(config, default_config)
+        Config = util.merge_tbl_recurse(Config, default_config)
 
         -- bake and replace theme:
-        config.theme = util.bake_theme(config.theme, config.term_escape_seq)
+        Config.theme = util.bake_theme(Config.theme, Config.term_escape_seq)
 
-        return config
+        return Config
     end
     -- }}}
 
     -- this file is a module, that sets its own contents to the data inside the config
-    config = config.reset()
+    Config = Config.reset()
 
     -- lets you change configs to like, switch formatting rules etc
-    config.modify = function(altered_config)
-        config = altered_config
+    Config.modify = function(altered_config)
+        Config = altered_config
     end
 end
 
-return config
+return Config
 
 -- vim:foldmethod=marker

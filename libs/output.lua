@@ -44,7 +44,7 @@ M.format_field = function (field, item, content) -- {{{
 
         -- if only one id
         if type(item[field]) == "number" then
-            if c.deref_show_id then
+            if c.format.deref_show_id then
                 util.safe_app(content, item[field])
                 util.safe_app(content, c.format.ascii_diagram.after_id)
             end
@@ -55,7 +55,7 @@ M.format_field = function (field, item, content) -- {{{
             for k, id in ipairs(item[field]) do
                 if k ~= 1 then util.safe_app(content, c.format.ascii_diagram.list_sep) end
 
-                if c.deref_show_id then
+                if c.format.deref_show_id then
                     util.safe_app(content, id)
                     util.safe_app(content, c.format.ascii_diagram.after_id)
                 end
@@ -176,6 +176,7 @@ end
 -- }}}
 
 M.queue_print = function (queue, id, level) -- {{{
+    -- print("queuer called on " .. tostring(id))
     local data = store.load()
 
     -- let recursion handle non top level nodes
