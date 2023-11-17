@@ -25,7 +25,7 @@ local c = require("config")
 local M = {}
 
 local function create (type)  -- {{{
-    local data = store.load()
+    local data = store.get()
     -- create new item
     local item = {
         type = type,
@@ -50,7 +50,7 @@ M.create_tag = function() create('tag') end
 
 M.done = function()  -- {{{
     local id = tonumber(arg[1])
-    local data = store.load()
+    local data = store.get()
 
     c.theme.primary("Completed ")
     c.theme.ternary(table.concat(data[id].title, ' '))
@@ -65,12 +65,12 @@ end
 
 M.delete = function()  -- {{{
     local id = tonumber(arg[1])
-    local data = store.load()
+    local data = store.get()
     c.theme.primary("Trashing ")
-    c.theme.ternary(table.concat(data[id].title, ' '))
+    c.theme.ternary(table.concat(data[id].title or {'<no title>'}, ' '))
     io.write('\n')
 
-    local trash = store.load(c.trash_file_location)
+    local trash = store.get(c.trash_file_location)
     table.insert(trash, data[id])
     store.save(trash, c.trash_file_location)
 
@@ -84,7 +84,7 @@ end
 -- }}}
 
 M.modify = function()  -- {{{
-    local data = store.load()
+    local data = store.get()
     -- non interactive
     if arg[2] then
         -- pull the target and field
@@ -121,23 +121,33 @@ M.print = function()  -- {{{
         multifilter = c.filter.default
     else
         -- bake the multifilter function
-        -- this is any fail bans the item
-        multifilter = function (item, conf, libs)
-            local pass = true
-            for _,filter in ipairs(filters) do
-                if not c.filter[filter](item, conf, libs) then pass = false end
+        if c.filter.multifilter_whitelist then
+            -- whitelist filter
+            multifilter = function (item, conf, libs)
+                for _,filter in ipairs(filters) do
+                    if c.filter[filter](item, conf, libs) then return true end
+                end
+                return false
             end
-            return pass
+
+        else
+            -- blacklist filter
+            multifilter = function (item, conf, libs)
+                for _,filter in ipairs(filters) do
+                    if not c.filter[filter](item, conf, libs) then return false end
+                end
+                return true
+            end
         end
     end
 
     -- handle single item prints, notably, these bypass the filter
-    local data = store.load()
+    local data = store.get()
     if data[tonumber(arg[1])] then
         -- if flagged or configs say to recurse
         if arg[2] == 'recurse' or (c.format.single_item_recurse and not arg[2]) then
             -- fill the queue
-            local queue = output.queue_print({}, tonumber(arg[1]), 1) -- shh ignore that 1 you'll nver notice
+            local queue = output.queue({}, tonumber(arg[1]), 1) -- shh ignore that 1 you'll nver notice
             for _, entry in ipairs(queue or {}) do
                 output.print_item(entry.id, entry.level)
             end
@@ -151,7 +161,7 @@ end
 -- }}}
 
 M.archive = function() -- {{{
-    local data = store.load()
+    local data = store.get()
     c.theme.primary("Where do you want to archive to? (")
     c.theme.ternary(c.archive_file_location)
     c.theme.primary("): ")
@@ -168,7 +178,7 @@ M.archive = function() -- {{{
     c.theme.primary("): ")
     local end_range = tonumber(io.read()) or #data - 10
 
-    local archive = store.load(path)
+    local archive = store.get(path)
     -- merge and cut
     for i = start_range, end_range do
         table.insert(archive, data[i])
@@ -185,7 +195,7 @@ end
 -- }}}
 
 M.repair = function(data) -- {{{
-    if not data then data = store.load() end
+    if not data then data = store.get() end
 
     -- make a list of the transforms, go through parents/kids/tags and change the ids {{{
     table.sort(data, c.hard_sort)
@@ -250,7 +260,7 @@ M.repair = function(data) -- {{{
     -- try it until nothings gets changed, since it only does one level and doesn't recurse
     -- it would recurse if i had thought of that before writing it
     local i = 0
-    while not fix_relationships() do
+    while fix_relationships() do
         i = i + 1
         if i > 10000 then util.err("issue fixing your data! It will not be changed.") end
     end -- 'while not fix relationships do end' these jokes write themselves

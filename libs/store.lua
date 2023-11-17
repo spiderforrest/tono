@@ -24,7 +24,7 @@ local c = require("config")
 -- hold the datafile in this module's scope, prevent reperated re openings
 local data_cache = nil
 
-M.load = function(path) --{{{
+M.get = function(path) --{{{
 
     if not path then
         -- quickly return the data on subsequent actions

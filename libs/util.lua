@@ -63,12 +63,12 @@ M.ensure_present = function (tbl, item) -- {{{
     -- go thru and check if the thing is in the table
     for _,v in pairs(tbl) do
         if v == item then
-            return false, tbl
+            return false
         end
     end
     -- if not, toss er in!
     table.insert(tbl, item)
-    return true, tbl
+    return true
 end -- }}}
 
 M.warn = function(body) -- {{{

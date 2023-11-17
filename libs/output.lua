@@ -40,7 +40,7 @@ M.format_field = function (field, item, content) -- {{{
         end
 
     elseif c.format.field_type[field] == "deref" then
-        local data = store.load()
+        local data = store.get()
 
         -- if only one id
         if type(item[field]) == "number" then
@@ -141,7 +141,7 @@ end
 -- }}}
 
 M.print_item = function(id, level) -- {{{
-    local data = store.load()
+    local data = store.get()
     local content, base10_digits = {}, 0
 
     -- render id {{{
@@ -175,9 +175,9 @@ M.print_item = function(id, level) -- {{{
 end
 -- }}}
 
-M.queue_print = function (queue, id, level) -- {{{
+M.queue = function (queue, id, level) -- {{{
     -- print("queuer called on " .. tostring(id))
-    local data = store.load()
+    local data = store.get()
 
     -- let recursion handle non top level nodes
     if level == 0 and data[id].parents then return queue end
@@ -189,7 +189,7 @@ M.queue_print = function (queue, id, level) -- {{{
     for _, child_id in ipairs(data[id].children or {}) do
         -- checks to keep recursion finite
         if id ~= child_id and (not queue[child_id]) then
-            queue = M.queue_print(queue, child_id, level)
+            queue = M.queue(queue, child_id, level)
         end
     end
     return queue
@@ -198,15 +198,15 @@ end
 --}}}
 
 M.print_all = function(filter) -- {{{
-    local data = store.load()
+    local data = store.get()
     local queue = {}
     if c.format.order_decending then
         for id = #data, 1, -1 do -- mom said we have ipairs at home
-            queue = M.queue_print(queue, id, 0)
+            queue = M.queue(queue, id, 0)
         end
     else
         for id in ipairs(data) do
-            queue = M.queue_print(queue, id, 0)
+            queue = M.queue(queue, id, 0)
         end
     end
 
