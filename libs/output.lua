@@ -175,12 +175,14 @@ M.print_item = function(id, level) -- {{{
 end
 -- }}}
 
-M.queue = function (queue, id, level) -- {{{
+M.queue = function (queue, id, level, filter) -- {{{
     -- print("queuer called on " .. tostring(id))
     local data = store.get()
 
+    -- print(id .. level)
     -- let recursion handle non top level nodes
-    if level == 0 and data[id].parents then return queue end
+    if (level == 0) and data[id].parents then return queue end
+    if not filter(data[id], c, require("libs")) then return queue end
 
     table.insert(queue, { id = id, level = level })
 
@@ -189,7 +191,7 @@ M.queue = function (queue, id, level) -- {{{
     for _, child_id in ipairs(data[id].children or {}) do
         -- checks to keep recursion finite
         if id ~= child_id and (not queue[child_id]) then
-            queue = M.queue(queue, child_id, level)
+            queue = M.queue(queue, child_id, level, filter)
         end
     end
     return queue
@@ -202,18 +204,16 @@ M.print_all = function(filter) -- {{{
     local queue = {}
     if c.format.order_decending then
         for id = #data, 1, -1 do -- mom said we have ipairs at home
-            queue = M.queue(queue, id, 0)
+            queue = M.queue(queue, id, 0, filter)
         end
     else
         for id in ipairs(data) do
-            queue = M.queue(queue, id, 0)
+            queue = M.queue(queue, id, 0, filter)
         end
     end
 
     for _, entry in ipairs(queue or {}) do
-        if filter(data[entry.id], c, require("libs")) then
-            M.print_item(entry.id, entry.level)
-        end
+        M.print_item(entry.id, entry.level)
     end
 
 

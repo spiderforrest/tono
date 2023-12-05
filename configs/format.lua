@@ -53,6 +53,7 @@ M.blacklist = {
     type = true,
     created = true,
     id = true,
+    hide = true,
 }
 
 -- list of fields with special types that need to be rendered in different formats etc

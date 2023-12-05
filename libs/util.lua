@@ -59,13 +59,16 @@ end
 
 M.ensure_present = function (tbl, item) -- {{{
     -- oh sometimes tbl will be part of a bigger table and nil
-    if not tbl then tbl = {} end
+    -- if not tbl then tbl = {} end
     -- go thru and check if the thing is in the table
     for _,v in pairs(tbl) do
         if v == item then
+            print'nil'
             return false
         end
     end
+    print'toss'
+    print(item)
     -- if not, toss er in!
     table.insert(tbl, item)
     return true
@@ -198,9 +201,9 @@ end
 M.get_id_by_maybe_title = function (word, data, filter) -- {{{
     if not filter then filter = function(_,_) return true end end
 
-    if string.find(word, "^%d+$") then
-        if data[word] then return word end
-    else
+    -- if valid id just return
+        if data[tonumber(word)] then return tonumber(word) end
+
         -- check everything for tags with the same name
         for _, item in ipairs(data) do
             if item.title and item.title[1] == word and filter(item, data) then
@@ -209,7 +212,6 @@ M.get_id_by_maybe_title = function (word, data, filter) -- {{{
         end
         -- rip
         M.err("Search for title " .. tostring(word) .. " failed!")
-    end
 end
 
 -- }}}

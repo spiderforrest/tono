@@ -18,11 +18,13 @@
 
 local util = require("util")
 local c = require("config")
+local store = require("store")
 
 local M = {}
 
 -- this one goes through the input text, parses it, and calls all the field handlers appropriately
-M.process_all = function(data, id)  --{{{
+M.process_all = function(id)  --{{{
+    local data = store.get()
     local separator_status = "title"
     for _, word in ipairs(arg) do
         -- match the largest non-letter chain at the start of the arg
@@ -39,13 +41,13 @@ M.process_all = function(data, id)  --{{{
 
         -- if field has handler
         if M[key_actual] then
-            M[key_actual](body, data, id)
+            M[key_actual](body, id)
             goto continue
         end
 
         -- if field is defined but doesn't have a handler just add it
         if key_actual and not key_actual == '' then
-            M.add_to_field(key_actual, body, data[id])
+            M.add_to_field(key_actual, body, id)
             goto continue
         end
 
@@ -53,7 +55,7 @@ M.process_all = function(data, id)  --{{{
         if sym and c.warn.unmatched_sym then
             util.warn("No defined field for '" .. sym .. "'! Treating as plaintext.")
         end
-        M.add_to_field(separator_status, word, data[id])
+        M.add_to_field(separator_status, word, id)
 
         ::continue::
     end
@@ -61,17 +63,26 @@ M.process_all = function(data, id)  --{{{
 end
 -- }}}
 
-M.add_to_field = function(field, word, item) -- {{{
+M.add_to_field = function(field, word, id) -- {{{
+    local data = store.get()
+
     -- create field if needed
-    if not item[field] then
-        item[field] = {}
+    if not data[id][field] then
+        data[id][field] = {}
     end
-    table.insert(item[field], word)
-    return item
+
+    -- ids should not be duplicated, so use ensure_present for them
+    if data[tonumber(word)] then
+        util.ensure_present(data[id][field], word)
+    else
+        table.insert(data[id][field], word)
+    end
+
 end
 --  }}}
 
-M.tag = function(word, data, id)  -- {{{
+M.tag = function(word, id)  -- {{{
+    local data = store.get()
     local filter = function (item)
         if item.type == 'tag' then return true end
         return false
@@ -81,28 +92,34 @@ M.tag = function(word, data, id)  -- {{{
     -- i thought there was a bug where somehow the tag name was getting inserted where id's should be
     -- lol no that was just me PEBKAC
     local tag = util.get_id_by_maybe_title(word, data, filter)
-    util.ensure_present(data[tag].children, id)
 
-    return M.add_to_field("tags", tag, data[id])
+    -- the LAST arg is the id of the item you want to modify
+    M.add_to_field("children", id, tag) -- so the tag gets it's children field messed with
+    M.add_to_field("tags", tag, id) -- and the target item gets it's tags field messed with
+    -- you don't wanna know how many times i screwed that up, easy as it is now
 end
 -- }}}
 
-M.target = function(word, data, id)  -- {{{
-    return M.add_to_field("target", word, data[id])
+M.target = function(word, id)  -- {{{
+    M.add_to_field("target", word, id)
 end
 -- }}}
 
-M.parents = function(parent_id, data, id)  -- {{{
-    -- that tonumber is important bc t[1] ~= t['1']
-    -- thse look backwards, but when you make an item a child it actually wants to set its parent
-    M.add_to_field("children", tonumber(parent_id), data[id])
-    M.add_to_field("parents", id, data[tonumber(parent_id)])
+M.parent = function(word, id)  -- {{{
+    local data = store.get()
+    local parent_id = util.get_id_by_maybe_title(word, data)
+
+    M.add_to_field("children", id, parent_id)
+    M.add_to_field("parents", parent_id, id)
 end
 -- }}}
 
-M.child = function(child_id, data, id)  -- {{{
-    M.add_to_field("parents", tonumber(child_id), data[id])
-    M.add_to_field("children", id, data[tonumber(child_id)])
+M.child = function(word, id)  -- {{{
+    local data = store.get()
+    local child_id = util.get_id_by_maybe_title(word, data)
+
+    M.add_to_field("parents", id, child_id)
+    M.add_to_field("children", child_id, id)
 end
 -- }}}
 

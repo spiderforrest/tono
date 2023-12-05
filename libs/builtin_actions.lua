@@ -35,7 +35,7 @@ local function create (type)  -- {{{
 
     table.insert(data, item)
     -- hand it off to get it populated
-    fields.process_all(data, #data)
+    fields.process_all(#data)
 
     store.save(data)
 
@@ -228,30 +228,39 @@ M.repair = function(data) -- {{{
     local function fix_relationships()  -- my ex shoulda tried that nyeheheh
         local changed = false
         for id, item in ipairs(data) do
-            if item.children and item.type ~= 'tag' then
+            if item.type == "tag" and item.children then
+                for _,v in ipairs(item.children) do
+                    if util.ensure_present(data[v].tags, id) then
+                        changed = true
+                    end
+                end
+            elseif item.children then
                 for child in ipairs(item.children) do
-                     if util.ensure_present(data[child].parents, id) then changed = true end
+                     if util.ensure_present(data[child].parents, id) then
+                        print(id .. child)
+                        print'child'
+                        changed = true
+                    end
                 end
             end
 
             if item.parents then
                 for parent in ipairs(item.parents) do
-                     if util.ensure_present(data[parent].children, id) then changed = true end
+                     if util.ensure_present(data[parent].children, id) then
+                        changed = true
+                    end
                 end
             end
 
             -- tags have children, but their children have tags instead of parents
             if item.tags then
                 for tag in ipairs(item.tags) do
-                     if util.ensure_present(data[tag].children, id) then changed = true end
+                     if util.ensure_present(data[tag].children, id) then
+                        changed = true
+                    end
                 end
             end
 
-            if item.type == "tag" and item.children then
-                for _,v in ipairs(item.children) do
-                    if util.ensure_present(data[v].tags, id) then changed = true end
-                end
-            end
 
         end
         -- track if modified
@@ -262,7 +271,10 @@ M.repair = function(data) -- {{{
     local i = 0
     while fix_relationships() do
         i = i + 1
-        if i > 10000 then util.err("issue fixing your data! It will not be changed.") end
+        if i > 10000 then
+        print(require'json'.stringify(data))
+            util.err("issue fixing your data! It will not be changed.")
+        end
     end -- 'while not fix relationships do end' these jokes write themselves
     -- }}}
 
