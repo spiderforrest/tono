@@ -206,7 +206,13 @@ M.repair = function(data) -- {{{
     end
 
     -- less repeated code this way
-    local id_related_fields = { "parents", "children" }
+    local id_related_fields = { "parents", "children", "tags" }
+    -- local id_related_fields = {
+    --     { field = "parents", complement = "children" },
+    --     { field = "children", complement = "parents" },
+    --     { field = "tags", complement = "members" }
+    --     { field = "members", complement = "tags" }
+    -- }
     -- for each number \ in each field (that exists) \ in each item, do the swap
     for _,item in ipairs(data) do
         for _,field in ipairs(id_related_fields) do
@@ -229,13 +235,13 @@ M.repair = function(data) -- {{{
         local changed = false
         for id, item in ipairs(data) do
             if item.type == "tag" and item.children then
-                for _,v in ipairs(item.children) do
-                    if util.ensure_present(data[v].tags, id) then
+                for _,child in ipairs(item.children) do
+                    if util.ensure_present(data[child].tags, id) then
                         changed = true
                     end
                 end
             elseif item.children then
-                for child in ipairs(item.children) do
+                for _,child in ipairs(item.children) do
                      if util.ensure_present(data[child].parents, id) then
                         print(id .. child)
                         print'child'
@@ -245,7 +251,7 @@ M.repair = function(data) -- {{{
             end
 
             if item.parents then
-                for parent in ipairs(item.parents) do
+                for _,parent in ipairs(item.parents) do
                      if util.ensure_present(data[parent].children, id) then
                         changed = true
                     end
@@ -254,7 +260,7 @@ M.repair = function(data) -- {{{
 
             -- tags have children, but their children have tags instead of parents
             if item.tags then
-                for tag in ipairs(item.tags) do
+                for _,tag in ipairs(item.tags) do
                      if util.ensure_present(data[tag].children, id) then
                         changed = true
                     end
