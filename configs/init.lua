@@ -39,6 +39,7 @@ M.action_lookup = {
     ['fix'] = "repair",
 
     ['compact'] = "compact",
+    ['debug'] = "debug",
 }
 
 -- default command
