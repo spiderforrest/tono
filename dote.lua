@@ -29,18 +29,13 @@ local builtins = require("builtin_actions")
 -- lookup the user's aliases
 local action = c.action_lookup[arg[1]]
 
-local function user_action_handler()
-    -- hand config and libs to the custom function.. in the configs
-    -- bit contrived but I like the interface
-    c.action[action](c, require('libs'))
-end
-
 -- flow to user actions, builtin actions, and then the default action
 if c.action[action] then
     table.remove(arg, 1)
-    user_action_handler()
+    -- hand config and libs to the custom function.. in the configs
+    -- bit contrived but I like the interface
+    c.action[action](c, require('libs'))
 else
-
     if builtins[action] then
         table.remove(arg, 1)
     else
