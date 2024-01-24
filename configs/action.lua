@@ -13,19 +13,19 @@ M.compact = function(c, lib)
     lib.actions.print()
 end
 
- M.action.debug = function (c, lib)
-    c.format.deref_show_id = true
-    c.format.blacklist = {
-        title = false,
-        children = false,
-        parents = false,
-        type = false,
-        created = false,
-        id = false,
-    }
-    arg[1] = "all"
-    c.modify(c)
-    lib.actions.print()
+M.debug = function (c, lib)
+  c.format.deref_show_id = true
+  c.format.blacklist = {
+      title = false,
+      children = false,
+      parents = false,
+      type = false,
+      created = false,
+      id = false,
+  }
+  arg[1] = "all"
+  c.modify(c)
+  lib.actions.print()
 end
 
 
