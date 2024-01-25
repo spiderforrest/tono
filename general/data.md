@@ -21,12 +21,14 @@ Users should avoid naming their custom keys anything that Dote recognizes as hav
 
 ### Properties (global)
 
-All items have three required properties.
-`created`: (int, unix timestamp) Date of item creation.
-`id`: (int, unique, primary key for items) May be reassigned when archiving data. *`id` must be continuous from 1 to `n`, where `n` is the number of items in the file.*
-`type`: (string) Type of item. For now, only ever `todo`, `tag`, `note`.
+All items have three required properties:
+
+- `created`: (int, unix timestamp) Date of item creation.
+- `id`: (int, unique, primary key for items) May be reassigned when archiving data. *`id` must be continuous from 1 to `n`, where `n` is the number of items in the file.*
+- `type`: (string) Type of item. For now, only ever `todo`, `tag`, `note`.
 
 Specific properties expect specific datatypes. Quick list:
+
 ```
 created = "date",
 updated = "date",
@@ -42,7 +44,7 @@ parents = "deref"
 
 ### Properties (todo/note)
 
-Todo and note types are internally identical: their only difference is in how clients render them.
+Todo and note types are internally identical aside from their `type` value: their only other difference is in how clients render them.
 
 ### Properties (tag)
 
