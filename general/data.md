@@ -1,7 +1,7 @@
 # Dote data structure notes
 
 Dote stores user data as individual-per-user JSON files; when one user's file is loaded, it should contain all their currently relevant data.
-(In other words, one user's JSON data file should contain everything a Dote client needs to render the user's full todo/notes list, excluding archived items.)
+(In other words, one user's JSON data file should contain all the data a Dote client needs to render the user's full todo/notes list, excluding archived items and any non-default configuration files.)
 
 Dote is also designed with the assumption that each user's datafile comes from a singular, authoritative source; when loading data, a Dote client expects to retrieve a complete JSON document from either a remote server or local device storage.
 If a user's datafile needs to be synchronized across multiple servers or dynamically assembled from multiple sources on demand, *that work must be done before the datafile is provided to the Dote client.*
