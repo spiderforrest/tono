@@ -179,9 +179,6 @@ M.queue = function (queue, id, level, filter) -- {{{
     -- print("queuer called on " .. tostring(id))
     local data = store.get()
 
-    -- print(id .. level)
-    -- let recursion handle non top level nodes
-    if (level == 0) and data[id].parents then return queue end
     if not filter(data[id], c, require("libs")) then return queue end
 
     table.insert(queue, { id = id, level = level })
@@ -198,27 +195,6 @@ M.queue = function (queue, id, level, filter) -- {{{
 end
 
 --}}}
-
-M.print_all = function(filter) -- {{{
-    local data = store.get()
-    local queue = {}
-    if c.format.order_decending then
-        for id = #data, 1, -1 do -- mom said we have ipairs at home
-            queue = M.queue(queue, id, 0, filter)
-        end
-    else
-        for id in ipairs(data) do
-            queue = M.queue(queue, id, 0, filter)
-        end
-    end
-
-    for _, entry in ipairs(queue or {}) do
-        M.print_item(entry.id, entry.level)
-    end
-
-
-end
--- }}}
 
 return M
 -- vim:foldmethod=marker

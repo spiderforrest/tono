@@ -107,7 +107,8 @@ end
 -- }}}
 
 M.print = function()  -- {{{
-    -- get multi filter
+
+    -- filter {{{
     local filters = {}
     for _, word in ipairs(arg) do
         if string.find(word, "^%w+$") and c.filter[word] then -- only match alpha words, not numbers/symbols
@@ -115,47 +116,63 @@ M.print = function()  -- {{{
         end
     end
 
-    -- set the default filter
-    local multifilter
-    if #filters == 0 then
-        multifilter = c.filter.default
-    else
-        -- bake the multifilter function
-        if c.filter.multifilter_whitelist then
-            -- whitelist filter
-            multifilter = function (item, conf, libs)
-                for _,filter in ipairs(filters) do
-                    if c.filter[filter](item, conf, libs) then return true end
-                end
-                return false
-            end
+    -- set the default filter if there's none
+    if #filters == 0 then filters[1] = "default" end
 
-        else
-            -- blacklist filter
-            multifilter = function (item, conf, libs)
-                for _,filter in ipairs(filters) do
-                    if not c.filter[filter](item, conf, libs) then return false end
-                end
-                return true
-            end
+    -- bake the multifilter function
+    local multifilter = function (item, conf, libs)
+        for _,filter in ipairs(filters) do
+            -- eval the current filter
+            local filter_result = c.filter[filter](item, conf, libs)
+            -- if it's set to blacklist, return false if any filters return false
+            -- if whitelisting, do the same backwards
+            if c.filter.multifilter_whitelist == filter_result then return filter_result end
         end
+        -- if no matches to the filter white/blacklist mode, return the opposite
+        return not c.filter.multifilter_whitelist
     end
+    -- }}}
 
-    -- handle single item prints, notably, these bypass the filter
+    -- fill queue {{{
+    local queue = {}
     local data = store.get()
+    -- handle single item prints, notably, these bypass the filter
     if data[tonumber(arg[1])] then
         -- if flagged or configs say to recurse
         if arg[2] == 'recurse' or (c.format.single_item_recurse and not arg[2]) then
             -- fill the queue
-            local queue = output.queue({}, tonumber(arg[1]), 1) -- shh ignore that 1 you'll nver notice
-            for _, entry in ipairs(queue or {}) do
-                output.print_item(entry.id, entry.level)
-            end
+            queue = output.queue(queue, tonumber(arg[1]), 0)
         else
+            -- else print one and bail
             output.print_item(tonumber(arg[1]), 0)
+            return
         end
     else
-        output.print_all(multifilter)
+        -- for printing the whole list
+        if c.format.order_decending then
+            for id = #data, 1, -1 do -- mom said we have ipairs at home
+                -- yikes. check if any of the parents are not tags, and skip.
+                for _, parent in ipairs(data[id].parents or {}) do
+                    if data[parent].type ~= 'tag' then goto skip end
+                end
+                queue = output.queue(queue, id, 0, multifilter)
+                ::skip::
+            end
+        else
+            for id in ipairs(data) do
+                for _, parent in ipairs(data[id].parents or {}) do
+                    if data[parent].type ~= 'tag' then goto skip end
+                end
+                queue = output.queue(queue, id, 0, multifilter)
+                ::skip::
+            end
+        end
+    end
+    -- }}}
+
+    -- actually print the queue
+    for _, entry in ipairs(queue or {}) do
+        output.print_item(entry.id, entry.level)
     end
 end
 -- }}}
@@ -205,14 +222,16 @@ M.repair = function(data) -- {{{
         swaps[item.id] = k
     end
 
-    -- less repeated code this way
-    local id_related_fields = { "parents", "children", "tags" }
+    -- less repeated code this way... theoretically.
+    local id_related_fields = { "parents", "children" }
+    -- local id_related_fields = { "parents", "children", "tags" }
     -- local id_related_fields = {
     --     { field = "parents", complement = "children" },
     --     { field = "children", complement = "parents" },
     --     { field = "tags", complement = "members" }
     --     { field = "members", complement = "tags" }
     -- }
+
     -- for each number \ in each field (that exists) \ in each item, do the swap
     for _,item in ipairs(data) do
         for _,field in ipairs(id_related_fields) do
@@ -229,56 +248,34 @@ M.repair = function(data) -- {{{
     -- i'm going to bed.
     --}}}
 
-    -- now we can iteratete; handle parents, children, tags {{{
+    -- now we can iteratete; handle parents and children {{{
     -- this is gonna get messy ::::/
     local function fix_relationships()  -- my ex shoulda tried that nyeheheh
         local changed = false
         for id, item in ipairs(data) do
-            if item.type == "tag" and item.children then
+            if item.children then
                 for _,child in ipairs(item.children) do
-                    if util.ensure_present(data[child].tags, id) then
-                        changed = true
-                    end
-                end
-            elseif item.children then
-                for _,child in ipairs(item.children) do
-                     if util.ensure_present(data[child].parents, id) then
-                        print(id .. child)
-                        print'child'
-                        changed = true
-                    end
+                    -- make sure the item is in the list and save if that required a change
+                    changed = util.ensure_present(data[child].parents, id) or changed
                 end
             end
 
             if item.parents then
                 for _,parent in ipairs(item.parents) do
-                     if util.ensure_present(data[parent].children, id) then
-                        changed = true
-                    end
+                    changed = util.ensure_present(data[parent].children, id) or changed
                 end
             end
-
-            -- tags have children, but their children have tags instead of parents
-            if item.tags then
-                for _,tag in ipairs(item.tags) do
-                     if util.ensure_present(data[tag].children, id) then
-                        changed = true
-                    end
-                end
-            end
-
-
         end
         -- track if modified
         return changed
     end
     -- try it until nothings gets changed, since it only does one level and doesn't recurse
-    -- it would recurse if i had thought of that before writing it
+    -- it would recurse if i had thought of (a good way to do) that before writing it
     local i = 0
     while fix_relationships() do
         i = i + 1
         if i > 10000 then
-        print(require'json'.stringify(data))
+            print(require'json'.stringify(data))
             util.err("issue fixing your data! It will not be changed.")
         end
     end -- 'while not fix relationships do end' these jokes write themselves
