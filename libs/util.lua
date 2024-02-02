@@ -33,11 +33,14 @@ end -- }}}
 
 M.dump_table_of_arrays = function(tbl) -- {{{
     if not tbl then return end
+    print('dumping table with continuous legnth ' .. tostring(#tbl))
     for k, v in pairs(tbl) do
         if type(v) == 'table' then
-            print(k .. ": " .. table.concat(v, " "))
+            print(k .. ": " .. table.concat(v, "; "))
         elseif type(v) == 'string' then
             print(k .. ": " .. v)
+        else
+            print(k .. ": " .. tostring(v))
         end
     end
 end
@@ -57,21 +60,18 @@ M.safe_app = function(arr, maybe_str, separator)  -- {{{
 end
 -- }}}
 
-M.ensure_present = function (tbl, item) -- {{{
+M.ensure_present = function(tbl, item) -- {{{
     -- oh sometimes tbl will be part of a bigger table and nil
-    -- if not tbl then tbl = {} end
+    if not tbl then tbl = {} end
     -- go thru and check if the thing is in the table
     for _,v in pairs(tbl) do
         if v == item then
-            print'nil'
-            return false
+            return tbl, false
         end
     end
-    print'toss'
-    print(item)
     -- if not, toss er in!
     table.insert(tbl, item)
-    return true
+    return tbl, true
 end -- }}}
 
 M.warn = function(body) -- {{{
@@ -198,15 +198,16 @@ M.get_flag = function (flag) -- {{{
 end
 -- }}}
 
-M.get_id_by_maybe_title = function (word, data, filter) -- {{{
-    if not filter then filter = function(_,_) return true end end
+M.get_id_by_maybe_title = function (word, data) -- {{{
+    -- if not filter then filter = function(_,_) return true end end
 
     -- if valid id just return
         if data[tonumber(word)] then return tonumber(word) end
 
         -- check everything for tags with the same name
         for _, item in ipairs(data) do
-            if item.title and item.title[1] == word and filter(item, data) then
+            -- if item.title and item.title[1] == word and filter(item, data) then
+            if item.title and item.title[1] == word  then
                 return item.id
             end
         end

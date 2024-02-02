@@ -81,36 +81,8 @@ M.add_to_field = function(field, word, id) -- {{{
 end
 --  }}}
 
-M.tag = function(word, id)  -- {{{
-    local data = store.get()
-    local filter = function (item)
-        if item.type == 'tag' then return true end
-        return false
-    end
-
-    -- if user puts the tag name in because duh that's how it works in your brain
-    -- i thought there was a bug where somehow the tag name was getting inserted where id's should be
-    -- lol no that was just me PEBKAC
-    local tag = util.get_id_by_maybe_title(word, data, filter)
-
-    -- the LAST arg is the id of the item you want to modify
-    M.add_to_field("children", id, tag) -- so the tag gets it's children field messed with
-    M.add_to_field("tags", tag, id) -- and the target item gets it's tags field messed with
-    -- you don't wanna know how many times i screwed that up, easy as it is now
-end
--- }}}
-
 M.target = function(word, id)  -- {{{
     M.add_to_field("target", word, id)
-end
--- }}}
-
-M.parent = function(word, id)  -- {{{
-    local data = store.get()
-    local parent_id = util.get_id_by_maybe_title(word, data)
-
-    M.add_to_field("children", id, parent_id)
-    M.add_to_field("parents", parent_id, id)
 end
 -- }}}
 
@@ -123,6 +95,25 @@ M.child = function(word, id)  -- {{{
 end
 -- }}}
 
+M.parent = function(word, id)  -- {{{
+    local data = store.get()
+    -- if user puts the parent name in because duh that's how it works in your brain
+    -- i thought there was a bug where somehow the parent name was getting inserted where id's should be
+    -- lol no that was just me PEBKAC
+    local parent = util.get_id_by_maybe_title(word, data)
+
+    -- the LAST arg is the id of the item you want to modify
+    M.add_to_field("children", id, parent) -- so the tag gets it's children field messed with
+    M.add_to_field("parents", parent, id) -- and the target item gets it's parents field messed with
+    -- you don't wanna know how many times i screwed that up, easy as it is now
+end
+-- }}}
+
+M.tag = function(word, id)  -- {{{
+    -- tags r just parents
+    return M.parent(word, id)
+end
+-- }}}
 
 return M
 

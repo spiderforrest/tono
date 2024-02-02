@@ -65,9 +65,8 @@ M.field_type = {
     done = "bool",
     hidden = "bool",
     id = "int",
-    tags = "deref", -- for lists of ids
-    children = "deref",
-    parents = "deref",
+    children = "deref", -- for lists of ids
+    parents = "deref", -- this is also tags, secretly
 }
 
 M.deref_show_id = false

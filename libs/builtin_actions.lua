@@ -110,9 +110,11 @@ M.print = function()  -- {{{
 
     -- filter {{{
     local filters = {}
-    for _, word in ipairs(arg) do
+    for idx, word in ipairs(arg) do
         if string.find(word, "^%w+$") and c.filter[word] then -- only match alpha words, not numbers/symbols
             table.insert(filters, word)
+            -- strip arg
+            table.remove(arg, idx)
         end
     end
 
@@ -137,14 +139,15 @@ M.print = function()  -- {{{
     local queue = {}
     local data = store.get()
     -- handle single item prints, notably, these bypass the filter
-    if data[tonumber(arg[1])] then
+    if arg[1] then
+        local item = util.get_id_by_maybe_title(arg[1], data)
         -- if flagged or configs say to recurse
         if arg[2] == 'recurse' or (c.format.single_item_recurse and not arg[2]) then
-            -- fill the queue
-            queue = output.queue(queue, tonumber(arg[1]), 0)
+            -- fill the queue, no filter here
+            queue = output.queue(queue, tonumber(item), 0, function() return true end)
         else
             -- else print one and bail
-            output.print_item(tonumber(arg[1]), 0)
+            output.print_item(tonumber(item), 0)
             return
         end
     else
@@ -251,23 +254,52 @@ M.repair = function(data) -- {{{
     -- now we can iteratete; handle parents and children {{{
     -- this is gonna get messy ::::/
     local function fix_relationships()  -- my ex shoulda tried that nyeheheh
-        local changed = false
+        local needs_another_pass = false
         for id, item in ipairs(data) do
+            -- correct relationships with parents and kids
+            -- note, only does one level, so this whole function gets looped until nothing is changed to recurse
             if item.children then
-                for _,child in ipairs(item.children) do
-                    -- make sure the item is in the list and save if that required a change
-                    changed = util.ensure_present(data[child].parents, id) or changed
+                for k, child in ipairs(item.children) do
+                    -- check if self reference and remove
+                    if id == child then
+                        table.remove(data[id].children, k)
+                    else
+
+                    -- put the id in the kids parents table and check if it's already there
+                     local tbl, updated = util.ensure_present(data[child].parents, id)
+                    data[child].parents = tbl
+
+
+                    -- save if anything was changed so we can run another pass
+                    needs_another_pass = updated or needs_another_pass
+                    end
+                end
+            end
+            if item.parents then
+                for k, parent in ipairs(item.parents) do
+                    if id == parent then
+                        table.remove(data[id].parents, k)
+                    else
+
+                     local tbl, updated = util.ensure_present(data[parent].children, id)
+                    data[parent].children = tbl
+
+
+                    needs_another_pass = updated or needs_another_pass
+                    end
                 end
             end
 
-            if item.parents then
-                for _,parent in ipairs(item.parents) do
-                    changed = util.ensure_present(data[parent].children, id) or changed
+            -- strip all empty fields
+            for k,v in pairs(item) do
+                if type(v) == 'table' and not next(v, nil) then
+                    data[id][k] = nil
                 end
             end
+            -- util.dump_table_of_arrays(item)
         end
         -- track if modified
-        return changed
+        return needs_another_pass
     end
     -- try it until nothings gets changed, since it only does one level and doesn't recurse
     -- it would recurse if i had thought of (a good way to do) that before writing it
