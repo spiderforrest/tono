@@ -66,10 +66,10 @@ M.save = function(data, path) -- {{{
     jsonified = json.stringify(data)
 
     if not pcall(function()
-                datafile = assert(io.open(path, "w+"))
-                datafile:write(jsonified)
-            end)
-        then
+        datafile = assert(io.open(path, "w+"))
+        datafile:write(jsonified)
+    end)
+    then
         -- dump and crash
         c.theme.ternary("/// Old file contents: ///")
         io.write(safety .. "\n\n")

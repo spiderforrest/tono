@@ -94,26 +94,28 @@ local function render_fields(content, item, field_list, indent) -- {{{
         -- the field name
         util.safe_app(content, c.theme.ternary())
         util.safe_app(content, field)
-        util.safe_app(content, c.format.ascii_diagram["field_key_val"])
+        util.safe_app(content, c.format.ascii_diagram.field_key_val)
 
         M.format_field(field, item, content)
 
         -- format space between fields
         if c.format.line_split_fields then
-            if field_list[i+1] then -- this just strips the newline between them
+            if field_list[i+1] then -- prevents putting a trailing one at the end
                 util.safe_app(content, '\n')
                 -- stinky padding, can't believe that worked i can't count
                 util.safe_app(content, string.format('%' .. indent .. 's', ''))
             end
         else
-            util.safe_app(content, c.theme.accent())
-            util.safe_app(content, c.format.ascii_diagram["inline"])
+            if field_list[i+1] then
+                util.safe_app(content, c.theme.accent())
+                util.safe_app(content, c.format.ascii_diagram.inline)
+            end
         end
     end
 end
 -- }}}
 
-local function sort_fields(item, indent) -- {{{
+local function arrange_fields(item, indent) -- {{{
     local content, rendered, ordered, i = {}, {}, {}, 1 -- lua brain small i no kno what a zee ro is
     -- first go through their fav fields
     for _,v in ipairs(c.format.field_order) do
@@ -124,6 +126,17 @@ local function sort_fields(item, indent) -- {{{
             -- track that it's been done
             rendered[v] = true
             i = i + 1
+        end
+
+        -- create the tags field in place by reading parents
+        if v == "tags" and item.parents then
+            local data = store.get()
+            item.tags = {}
+            for _, parent in ipairs(item.parents) do
+                if data[parent].type == "tag" then
+                    table.insert(item.tags, parent)
+                end
+            end
         end
     end
 
@@ -166,7 +179,7 @@ M.print_item = function(id, level) -- {{{
     end
 
     util.safe_app(content,
-        sort_fields(data[id], whitespace + base10_digits + 2)
+        arrange_fields(data[id], whitespace + base10_digits + 2)
     )
 
     util.safe_app(content, '\n')

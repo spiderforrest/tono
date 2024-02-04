@@ -20,7 +20,7 @@ M.field_order = {
     'done',
     'title',
     'body',
-    'tag',
+    'tags',
     'date',
     'type',
     'created',
@@ -66,7 +66,8 @@ M.field_type = {
     hidden = "bool",
     id = "int",
     children = "deref", -- for lists of ids
-    parents = "deref", -- this is also tags, secretly
+    parents = "deref",
+    tags = "deref", -- this field isn't real, but the renderer thinks it is
 }
 
 M.deref_show_id = false
