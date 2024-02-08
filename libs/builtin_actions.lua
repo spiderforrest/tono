@@ -70,6 +70,14 @@ M.delete = function()  -- {{{
     c.theme.ternary(table.concat(data[id].title or {'<no title>'}, ' '))
     io.write('\n')
 
+    -- wipe connections
+    for item in ipairs(data[id].parents or {}) do
+        data[item].children = util.ensure_not_present(data[item].children, id)
+    end
+    for item in ipairs(data[id].children or {}) do
+        data[item].parents = util.ensure_not_present(data[item].parents, id)
+    end
+
     local trash = store.get(c.trash_file_location)
     table.insert(trash, data[id])
     store.save(trash, c.trash_file_location)

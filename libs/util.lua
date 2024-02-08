@@ -74,6 +74,18 @@ M.ensure_present = function(tbl, item) -- {{{
     return tbl, true
 end -- }}}
 
+M.ensure_not_present = function(tbl, val) -- {{{
+    if not tbl then tbl = {} end
+    -- go thru and check if the thing is in the table
+    for k,v in pairs(tbl) do
+        if v == val then
+            table.remove(tbl, k)
+            return tbl, true
+        end
+    end
+    return tbl, false
+end -- }}}
+
 M.warn = function(body) -- {{{
     io.write("\27[33m") -- hard code error color strings because it feels right
     io.write(body .. '\n')
