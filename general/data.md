@@ -52,9 +52,7 @@ Parent and child relationships have special meaning when used with tags.
 Parent-child relationships are not different in internal function when used with tags--the difference is in how clients render tags as categories rather than items.
 
 - A child item with a tag as a parent is considered to be tagged by that parent.
-- A tag item's list of children is a list of items considered to be tagged with that tag.
-    - **Are indirect children of a tag (a grandchild of a tag) considered to be tagged with their grandparent tag?**
-        - *If so, make sure to put a cap on tag-checking inheritance rules--users can make loops with parent/child structures*
+- A tag item's list of children is a list of items considered to be tagged with that tag. Tags function similarly to categories in this way.
     - When tagging/untagging items, make sure to update both the parent tag's `children` field and the tagged items' `parents` fields.
 - When a tag item is the child of a non-tag item, the tag is considered "scoped" to that item (although this does not actually limit what items the tag in question may have as children).
 - Tags tagged with other tags (tags with tag items as children) can also be considered "scoped" tags (though this again does not limit either tag's use at all.)
