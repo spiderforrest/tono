@@ -1,15 +1,14 @@
 {
-  "name": "outside-cli",
+  "name": "dote-serv",
   "version": "1.0.0",
-  "license": "MIT",
+  "license": "AGPLv3",
   "scripts": {},
-  "main": "index.js",
-  "type": "module",
-  "devDependencies": {
-    "eslint": "^8.35.0"
-  },
+  "main": "server.js",
   "dependencies": {
-    "chalk": "^5.2.0",
-    "stdio": "^2.1.1"
+    "bcrypt": "^5.1.1",
+    "express": "^4.18.2",
+    "express-session": "^1.18.0",
+    "stdio": "^2.1.1",
+    "uuid": "^9.0.1"
   }
 }
