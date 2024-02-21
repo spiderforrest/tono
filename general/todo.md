@@ -7,8 +7,9 @@ yeah yeah listen we gotta track stuff somehow before dote exists
 ### Preliminary steps for GUI/web client
 
 - ~draw primary UI mockup~
-    - draw item editing mockup (slideup-from-bottom window?)
+    - item editing mockup (slideup-from-bottom window?)
     - item relationship editing mockup (using drag+drop library?)
+    - single-item ui element mockup (deciding what info should be positioned where, etc)
 - ~decide on tooling (or yknow just vanilla JS)~
     - I'm sick of looking at sites for frameworks sponsored by panera bread i'm writing vanilla js
     - okay hold on a library with drag+drop functions would be super useful
