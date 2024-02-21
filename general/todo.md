@@ -28,7 +28,10 @@ yeah yeah listen we gotta track stuff somehow before dote exists
 
 ### farther out features
 
-- user data encryption
+- ability to encrypt an item's potentially sensitive fields (titles, bodies, other stuff)
+    - although it does leak some information, fields like `created` and `type` should probably never be encrypted
+    - likely add an `encrypted` field to mark encrypted items
+    - likely implement as clientside encryption--server only gets sent encrypted item, client must decrypt w/private key/password
 - client delivers reminders/notifs via operating system notifications
     - will probably need to package into an app for this on mobile
 - ability to share items with users on same doteserver, with or without shared item state
