@@ -1,9 +1,7 @@
-
 const submitBtn = document.querySelector('#submit');
 
-
 submitBtn.addEventListener('click', () => {
-  fetch('/api/login', {
+  fetch('/api/signup', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'

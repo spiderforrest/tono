@@ -1,4 +1,5 @@
 
+require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 
@@ -8,7 +9,7 @@ const auth_middleware = require('./lib/auth')
 const app = express();
 
 app.use(session({
-  secret: 'yipee',
+  secret: process.env.SECRET,
   cookie: {
     maxAge: 300000,
     sameSite: 'strict',

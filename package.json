@@ -6,6 +6,7 @@
   "main": "server.js",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.5",
     "express": "^4.18.2",
     "express-session": "^1.18.0",
     "stdio": "^2.1.1",
