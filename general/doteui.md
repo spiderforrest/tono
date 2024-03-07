@@ -23,4 +23,25 @@ Each viewmode has a client-visible name and (not client-visible) render function
 
 *See `data.md` for information on how Dote items are structured.*
 
-When items with children are displayed (and Doteui is in a viewmode that displayes items in a list format), items with children are rendered in a "cascading list" style, where each item can be minimized, hiding its children.
+The exact method of rendering items varies based on the `viewmode` Dote is currently in.
+Each `viewmode` should, as its name suggest, provide a *different view or perspective* of the user's data.
+
+For example, the `overview` mode shows everything in the user's tree, with a focus on items and elements relevant to the current moment; thus, by default, when opening in this mode, completed tasks and item bodies are collapsed and minimized. It's an overview of everything relevant to when you retrieve the data, in other words.
+
+#### In `overview` viewmode
+
+When items with children are displayed (and Doteui is in a viewmode that displayes items in a list format), they're rendered in a "cascading list" style, where each item's children are displayed within their parent's UI element.
+Items in `overview` are rendered like this.
+
+(`+` symbols denote toggle-able section show/hide buttons.)
+
+```
+= --------------------------------------------------------------------------------------------------- =
+| + [item title] | ([item type]) [show/hide body toggle (if body exists)] [item creation/update date] |
+| \ [ if set to display and existent, body displays here, otherwise this section is absent]           |
+|  | [ other item properties on this line: target, deadline, so on ]                                  |
+|  | + ------------------------------------------------------------------------------------------ = - =
+|  | \ [ item children, if any exist ]                                                            |   |
+|  |  = ----------------------------------------------------------------------------------------- = - =
+= --------------------------------------------------------------------------------------------------- =
+```

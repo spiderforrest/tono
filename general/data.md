@@ -24,12 +24,14 @@ Users should avoid naming their custom keys anything that Dote recognizes as hav
 All items have three required properties:
 
 - `created`: (int, unix timestamp) Date of item creation.
-- `id`: (int, unique, primary key for items) May be reassigned when archiving data. *`id` must be continuous from 1 to `n`, where `n` is the number of items in the file.*
-- `type`: (string) Type of item. For now, only ever `todo`, `tag`, `note`.
+- `id`: (int, unique, primary key for items) UUID. Assigned by server if using client-server setup, assigned by client if using local-only mode.
+- `type`: (string) Type of item. For now, only `todo`, `tag`, `note`.
 
 Specific properties expect specific datatypes. Quick list:
 
 ```
+title = "string",
+body = "string",
 created = "date",
 updated = "date",
 target = "date",
@@ -37,7 +39,6 @@ deadline = "date",
 done = "bool",
 hidden = "bool",
 id = "int",
-tags = "deref", -- for lists of ids
 children = "deref",
 parents = "deref"
 ```
