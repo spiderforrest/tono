@@ -24,7 +24,7 @@ Users should avoid naming their custom keys anything that Dote recognizes as hav
 All items have three required properties:
 
 - `created`: (int, unix timestamp) Date of item creation.
-- `id`: (int, unique, primary key for items) UUID. Assigned by server if using client-server setup, assigned by client if using local-only mode.
+- `id`: (int, unique per individual user's item list) Numeric. Assigned by server if using client-server setup, assigned by client if using local-only mode.
 - `type`: (string) Type of item. For now, only `todo`, `tag`, `note`.
 
 Specific properties expect specific datatypes. Quick list:
