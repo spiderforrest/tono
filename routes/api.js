@@ -1,5 +1,5 @@
 const { auth, add } = require("../lib/users");
-const { get_data_from_disk, get_uuid, remove } = require("../lib/userdata");
+const { get_data_from_disk, get_range, get_uuid, remove } = require("../lib/userdata");
 const auth_middleware = require("../lib/auth");
 const router = require('express').Router();
 
@@ -39,10 +39,6 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-router.get("/logout", (req, res) => {
-  req.session.destroy();
-  res.redirect("/login");
-});
 
 
 // data stuff
@@ -60,7 +56,12 @@ router.get("/data/all", auth_middleware, (req, res) => {
 });
 
 router.get("/data/range", auth_middleware, (req, res) => {
-// todo lol
+  const range = get_range(req.session.user, req.body.start, req.body.end)
+  if (range) {
+    res.status(200).json({ range });
+  } else {
+    res.status(400).json({ message: 'range empty'});
+  }
 })
 
 router.get("/data/uuid", auth_middleware, (req, res) => {
