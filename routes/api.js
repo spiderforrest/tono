@@ -42,10 +42,6 @@ router.post("/signup", async (req, res) => {
 
 
 // data stuff
-// honestly should split this file into two controllers files and a routes file
-// dare i say
-// stinky
-
 router.get("/data/all", auth_middleware, (req, res) => {
   // shared notes will probably be a seperate file
   // named `${shared_tag_uid}.json`, like the user stores
@@ -55,7 +51,8 @@ router.get("/data/all", auth_middleware, (req, res) => {
   res.status(200).json({ data: req.session.user.data });
 });
 
-router.get("/data/range", auth_middleware, (req, res) => {
+// still think GET should be used for this but i don't write rfcs
+router.post("/data/range", auth_middleware, (req, res) => {
   const range = get_range(req.session.user, req.body.start, req.body.end)
   if (range) {
     res.status(200).json({ range });
@@ -64,7 +61,7 @@ router.get("/data/range", auth_middleware, (req, res) => {
   }
 })
 
-router.get("/data/uuid", auth_middleware, (req, res) => {
+router.post("/data/uuid", auth_middleware, (req, res) => {
   const item = get_uuid(req.session.user, req.body.uuid)
   if (item) {
     res.status(200).json({ item });
