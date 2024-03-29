@@ -1,5 +1,5 @@
 const { auth, add } = require("../lib/users");
-const UserData = require("../lib/UserData");
+const { get_data_from_disk, get_uuid, remove } = require("../lib/userdata");
 const auth_middleware = require("../lib/auth");
 const router = require('express').Router();
 
@@ -17,14 +17,7 @@ router.post("/login", async (req, res) => {
     req.session.user = checked_user;
 
     // lack of error handling is stinky, also ram bloat
-    
-    // haaah
-    // so
-    // don't work
-    // express flattens classes to json
-    req.session.UserData = new UserData(checked_user.uuid);
-    await req.session.UserData.get_data_from_disk();
-    console.log(req.session.UserData.data)
+    req.session.user.data = await get_data_from_disk(checked_user.uuid);
 
     res.status(200).json({ message: 'logged in' });
   } else {
@@ -37,8 +30,7 @@ router.post("/signup", async (req, res) => {
   if (new_user) {
     req.session.user = new_user;
 
-    req.session.UserData = new UserData(checked_user.uuid);
-    await req.session.UserData.get_data_from_disk();
+    req.session.user.data = await get_data_from_disk(new_user.uuid); // unneeded but honestly just a sanity check
 
     res.status(200).json({ message: 'signed up' });
 
@@ -64,10 +56,7 @@ router.get("/data/all", auth_middleware, (req, res) => {
   // this wouldn't work with that, deal with it when i implement that
   // does that make this not futere proof
   // and ssssstinky?
-  console.log(req.session)
-  console.log(req.session.UserData.data)
-
-  res.status(200).json({ data: req.session.UserData.data });
+  res.status(200).json({ data: req.session.user.data });
 });
 
 router.get("/data/range", auth_middleware, (req, res) => {
@@ -75,7 +64,7 @@ router.get("/data/range", auth_middleware, (req, res) => {
 })
 
 router.get("/data/uuid", auth_middleware, (req, res) => {
-  const item = req.session.UserData.get_uuid(req.body.uuid)
+  const item = get_uuid(req.session.user, req.body.uuid)
   if (item) {
     res.status(200).json({ item });
   } else {
@@ -83,10 +72,13 @@ router.get("/data/uuid", auth_middleware, (req, res) => {
   }
 })
 
+router.put("/data/add", auth_middleware, (req, res) => {
+})
+
 router.delete("/data/uuid", auth_middleware, (req, res) => {
-  const id = req.session.UserData.get_uuid(req.body.uuid);
+  const id = get_uuid(req.session.user, req.body.uuid).id
   if (id) {
-    req.session.UserData.remove(id);
+    remove(req.session.user, id)
   }
 })
 
