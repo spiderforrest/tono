@@ -1,5 +1,5 @@
 
-const dat = new Data()
+const dat = new Items()
 
 dat.get_range(4,10).then(()=> {
   console.log(dat.get_cache())

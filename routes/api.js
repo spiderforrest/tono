@@ -1,5 +1,5 @@
 const { auth, add } = require("../lib/users");
-const { get_data_from_disk, get_range, get_uuid, remove } = require("../lib/userdata");
+const { get_data_from_disk, get_range, get_uuid, create, remove } = require("../lib/items");
 const auth_middleware = require("../lib/auth");
 const router = require('express').Router();
 
@@ -71,12 +71,17 @@ router.post("/data/uuid", auth_middleware, (req, res) => {
 })
 
 router.put("/data/add", auth_middleware, (req, res) => {
+  create(req.session.user, req.body.fields);
+  res.status(200);
 })
 
 router.delete("/data/uuid", auth_middleware, (req, res) => {
   const id = get_uuid(req.session.user, req.body.uuid).id
   if (id) {
     remove(req.session.user, id)
+    res.status(200);
+  } else {
+    res.status(400).json({ message: 'i don\'t know|i\'m bald|some other infinitely nuanced error'});
   }
 })
 

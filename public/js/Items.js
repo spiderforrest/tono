@@ -1,22 +1,22 @@
-class Data {
-  // the client copy of the data array is stored as this.#data-as requests get made, it's populated
+class Items {
+  // the client copy of the items array is stored as this.#items-as requests get made, it's populated
   // _sparsely_ with any data its gotten sent over. This is all done in the update_cache() function,
   // which needs to be called by any functions that get more data from the server.
-  #data;
+  #items;
   constructor() {
-    this.#data = [];
+    this.#items = [];
   }
   update_cache(start, new_list) {
     console.log(new_list.length)
     // go over each of the new items
     for (let i = 0; i <= new_list.length; ++i) {
       // assign them DIRECTLY to the cache array in their id slot
-      this.#data[i + start - 1/*offset reminder*/] = new_list[i];
+      this.#items[i + start - 1/*offset reminder*/] = new_list[i];
     }
   }
 
   get_cache() {
-    return this.#data;
+    return this.#items;
   }
   // start/end is the id, not the index, of the first item in the range
   async get_range(start, end) {
@@ -34,7 +34,7 @@ class Data {
   }
 
   async get_uuid(uuid) {
-    const match = this.#data.find(item => item?.uuid == uuid);
+    const match = this.#items.find(item => item?.uuid == uuid);
     if (match) return match;
 
     // searches may need to fallback to serverside
@@ -73,12 +73,12 @@ class Data {
 
         // TODO: REWRITE FOR TREE STRUCTURE, THIS IS STILL LIST CODE
         // no dupes
-        if (!items_tree.includes(this.#data[id-1])) {
-          items_tree.push(this.#data[id-1]);
+        if (!items_tree.includes(this.#items[id-1])) {
+          items_tree.push(this.#items[id-1]);
         }
 
         // recurse on them kids
-        for (const kid of this.#data[id-1]?.children) {
+        for (const kid of this.#items[id-1]?.children) {
           recurse(kid, depth + 1);
         }
       }
@@ -86,7 +86,7 @@ class Data {
       return items_tree;
 
     } else {
-      return this.#data[id-1]; // random items start at 1 reminder
+      return this.#items[id-1]; // random items start at 1 reminder
     }
   }
 }
