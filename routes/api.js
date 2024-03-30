@@ -17,7 +17,7 @@ router.post("/login", async (req, res) => {
     req.session.user = checked_user;
 
     // lack of error handling is stinky, also ram bloat
-    req.session.user.data = await get_data_from_disk(checked_user.uuid);
+    req.session.user.items = await get_data_from_disk(checked_user.uuid);
 
     res.status(200).json({ message: 'logged in' });
   } else {
@@ -30,7 +30,7 @@ router.post("/signup", async (req, res) => {
   if (new_user) {
     req.session.user = new_user;
 
-    req.session.user.data = await get_data_from_disk(new_user.uuid); // unneeded but honestly just a sanity check
+    req.session.user.items = await get_data_from_disk(new_user.uuid); // unneeded but honestly just a sanity check
 
     res.status(200).json({ message: 'signed up' });
 
@@ -48,7 +48,7 @@ router.get("/data/all", auth_middleware, (req, res) => {
   // this wouldn't work with that, deal with it when i implement that
   // does that make this not futere proof
   // and ssssstinky?
-  res.status(200).json({ data: req.session.user.data });
+  res.status(200).json({ data: req.session.user.items });
 });
 
 router.get("/data/range", auth_middleware, (req, res) => {

@@ -7,7 +7,6 @@ class Items {
     this.#items = [];
   }
   update_cache(start, new_list) {
-    console.log(new_list.length)
     // go over each of the new items
     for (let i = 0; i <= new_list.length; ++i) {
       // assign them DIRECTLY to the cache array in their id slot
