@@ -6,11 +6,12 @@ class Items {
   constructor() {
     this.#items = [];
   }
-  update_cache(start, new_list) {
+  #update_cache(new_list) {
     // go over each of the new items
     for (let i = 0; i <= new_list.length; ++i) {
+      const id = new_list[i].id
       // assign them DIRECTLY to the cache array in their id slot
-      this.#items[i + start - 1/*offset reminder*/] = new_list[i];
+      this.#items[id - 1] = new_list[i]
     }
   }
 
@@ -25,8 +26,20 @@ class Items {
     })
 
     const range = await res.json()
-    if (range) this.update_cache(first, range); // no overwrite bad resp
+    if (range) this.#update_cache(range); // no overwrite bad resp
     return range;
+  }
+
+
+  async get_recursive(id, depth) {
+    const res = await fetch(`/api/data/range?id=${id}&depth=${depth}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    const bundle = await res.json()
+    if (bundle) this.#update_cache(bundle); // no overwrite bad resp
+    return bundle;
   }
 
   async get_uuid(uuid) {
@@ -40,7 +53,7 @@ class Items {
     })
     const item = await res.json();
 
-    if (item) this.update_cache(item.id, [item]);
+    if (item) this.#update_cache([item]);
     return item;
   }
 
@@ -52,7 +65,7 @@ class Items {
     })
     const item = await res.json()
 
-    if (item) this.update_cache(item.id, [item]);
+    if (item) this.#update_cache([item]);
     return item;
   }
 
@@ -64,7 +77,7 @@ class Items {
     })
     const item = await res.json()
 
-    if (item) this.update_cache(item.id, [item]);
+    if (item) this.#update_cache([item]);
     return item;
   }
 

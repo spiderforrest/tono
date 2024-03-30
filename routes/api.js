@@ -1,5 +1,5 @@
 const { auth, add } = require("../lib/users");
-const { get_data_from_disk, get_range, get_uuid: get_by_uuid, create, modify, remove } = require("../lib/items");
+const { get_data_from_disk, get_range, get_recursive, get_by_uuid, create, modify, remove } = require("../lib/items");
 const auth_middleware = require("../lib/auth");
 const router = require('express').Router();
 
@@ -57,6 +57,15 @@ router.get("/data/range", auth_middleware, (req, res) => {
     res.status(200).json(range);
   } else {
     res.status(400).json({ message: 'range empty'});
+  }
+})
+
+router.get("/data/recursive", auth_middleware, (req, res) => {
+  const bundle = get_recursive(req.session.user, req.query.id, req.query.depth)
+  if (bundle) {
+    res.status(200).json(bundle);
+  } else {
+    res.status(400).json({ message: 'item not found'});
   }
 })
 
