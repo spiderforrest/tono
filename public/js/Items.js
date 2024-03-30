@@ -18,19 +18,16 @@ class Items {
   get_cache() {
     return this.#items;
   }
-  // start/end is the id, not the index, of the first item in the range
-  async get_range(start, end) {
-    const res = await fetch('/api/data/range', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ start, end })
+  // first/last is the id, not the index, of the first item in the range
+  async get_range(first, last) {
+    const res = await fetch(`/api/data/range?first=${first}&last=${last}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
     })
 
-    const parsed = await res.json() // i dislike the internet
-    if (parsed.range) this.update_cache(start, parsed.range); // no overwrite bad resp
-    return parsed.range;
+    const range = await res.json()
+    if (range) this.update_cache(first, range); // no overwrite bad resp
+    return range;
   }
 
   async get_uuid(uuid) {
@@ -38,28 +35,50 @@ class Items {
     if (match) return match;
 
     // searches may need to fallback to serverside
-    const res = await fetch('/api/data/uuid', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ uuid })
+    const res = await fetch(`/api/data/uuid/${uuid}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
     })
-    const parsed = await res.json();
+    const item = await res.json();
 
-    console.log(parsed.item)
-    if (parsed.item) this.update_cache(parsed.item.id, [parsed.item]);
-    return parsed.item;
+    if (item) this.update_cache(item.id, [item]);
+    return item;
   }
 
   async add(fields) {
-    // send to server, get a response, update_cache()
+    const res = await fetch(`/api/data/add/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: { fields }
+    })
+    const item = await res.json()
+
+    if (item) this.update_cache(item.id, [item]);
+    return item;
   }
+
   async modify(id, fields) {
-    // fetch send fields to change that's all
+    const res = await fetch(`/api/data/modify/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: { id, fields }
+    })
+    const item = await res.json()
+
+    if (item) this.update_cache(item.id, [item]);
+    return item;
   }
+
   async remove_uuid(uuid) {
-    // fetch remove blah blah
+    await fetch(`/api/data/uuid/${uuid}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    // we need to totally reset the cache here bc the ids will alll get shuffled
+    // probably trigger some sort of refresh, but that's front(er) end stuff
+    // for now just:
+    this.#items = [];
   }
 
   get_id(id, recursive_depth) {

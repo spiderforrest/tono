@@ -1,5 +1,5 @@
 const { auth, add } = require("../lib/users");
-const { get_data_from_disk, get_range, get_uuid, create, remove } = require("../lib/items");
+const { get_data_from_disk, get_range, get_uuid: get_by_uuid, create, modify, remove } = require("../lib/items");
 const auth_middleware = require("../lib/auth");
 const router = require('express').Router();
 
@@ -51,32 +51,36 @@ router.get("/data/all", auth_middleware, (req, res) => {
   res.status(200).json({ data: req.session.user.data });
 });
 
-// still think GET should be used for this but i don't write rfcs
-router.post("/data/range", auth_middleware, (req, res) => {
-  const range = get_range(req.session.user, req.body.start, req.body.end)
+router.get("/data/range", auth_middleware, (req, res) => {
+  const range = get_range(req.session.user, req.query.first, req.query.last)
   if (range) {
-    res.status(200).json({ range });
+    res.status(200).json(range);
   } else {
     res.status(400).json({ message: 'range empty'});
   }
 })
 
-router.post("/data/uuid", auth_middleware, (req, res) => {
-  const item = get_uuid(req.session.user, req.body.uuid)
+router.get("/data/uuid/:uuid", auth_middleware, (req, res) => {
+  const item = get_by_uuid(req.session.user, req.params.uuid)
   if (item) {
-    res.status(200).json({ item });
+    res.status(200).json(item);
   } else {
     res.status(400).json({ message: 'item not found'});
   }
 })
 
-router.put("/data/add", auth_middleware, (req, res) => {
+router.post("/data/add", auth_middleware, (req, res) => {
   create(req.session.user, req.body.fields);
   res.status(200);
 })
 
-router.delete("/data/uuid", auth_middleware, (req, res) => {
-  const id = get_uuid(req.session.user, req.body.uuid).id
+router.put("/data/modify", auth_middleware, (req, res) => {
+  const item = modify(req.session.user, req.body.id, req.body.fields)
+  res.status(200).json(item);
+})
+
+router.delete("/data/uuid/:uuid", auth_middleware, (req, res) => {
+  const id = get_by_uuid(req.session.user, req.params.uuid).id
   if (id) {
     remove(req.session.user, id)
     res.status(200);
