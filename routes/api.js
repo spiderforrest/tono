@@ -19,7 +19,7 @@ router.post("/login", async (req, res) => {
     // lack of error handling is stinky, also ram bloat
     req.session.user.items = await get_data_from_disk(checked_user.uuid);
 
-    res.status(200).json({ message: 'logged in' });
+    res.status(200).json({ message: 'logged in', ctime: checked_user.ctime });
   } else {
     res.status(400).json({ message: 'username or password incorrect' });
   }
@@ -78,7 +78,7 @@ router.get("/data/uuid/:uuid", auth_middleware, (req, res) => {
   }
 })
 
-router.post("/data/add", auth_middleware, (req, res) => {
+router.post("/data/create", auth_middleware, (req, res) => {
   create(req.session.user, req.body.fields);
   res.status(200);
 })

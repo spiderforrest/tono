@@ -3,23 +3,52 @@ class Items {
   // _sparsely_ with any data its gotten sent over. This is all done in the update_cache() function,
   // which needs to be called by any functions that get more data from the server.
   #items;
-  constructor() {
-    this.#items = [];
-  }
-  #update_cache(new_list) {
-    // go over each of the new items
-    for (let i = 0; i <= new_list.length; ++i) {
-      const id = new_list[i].id
-      // assign them DIRECTLY to the cache array in their id slot
-      this.#items[id - 1] = new_list[i]
+  #ctime;
+  constructor(remote_ctime) {
+    const ctime = window.localStorage.getItem("dote-ctime") || 0;
+    let cache = [];
+    try {
+      cache = JSON.parse(window.localStorage.getItem("dote-items"));
+    } catch {
+      // fix it
+      window.localStorage.setItem("dote-items", JSON.stringify([]));
     }
+
+    // check if the cache is safe to trust as correct (no other clients modified data)
+    // like, if the ctimes are within 15s of each other
+    if (15000 > Math.abs(ctime - remote_ctime)) {
+      this.#items = cache;
+      this.#ctime = ctime;
+    } else {
+      // zero it all
+      this.#items = [];
+      this.#ctime = Date.now();
+      window.localStorage.setItem("dote-items", JSON.stringify(this.#items));
+      window.localStorage.setItem("dote-ctime", this.#ctime);
+    }
+  }
+
+  // updates the internal cache and local storage with new items
+  #update_cache(new_list) {
+    console.log(new_list)
+    // go over each of the new items
+      for(const item of new_list) {
+      const id = item.id;
+      // assign them DIRECTLY to the cache array in their id slot
+      this.#items[id - 1] = item;
+    }
+
+    this.#ctime = Date.now();
+    // cache in browser storage
+    window.localStorage.setItem("dote-items", JSON.stringify(this.#items));
+    window.localStorage.setItem("dote-ctime", this.#ctime)
   }
 
   get_cache() {
     return this.#items;
   }
   // first/last is the id, not the index, of the first item in the range
-  async get_range(first, last) {
+  async fetch_range(first, last) {
     const res = await fetch(`/api/data/range?first=${first}&last=${last}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
@@ -31,18 +60,19 @@ class Items {
   }
 
 
-  async get_recursive(id, depth) {
+  async fetch_recursive(id, depth) {
     const res = await fetch(`/api/data/range?id=${id}&depth=${depth}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     })
 
     const bundle = await res.json()
-    if (bundle) this.#update_cache(bundle); // no overwrite bad resp
+    if (bundle) this.#update_cache(bundle);
     return bundle;
   }
 
-  async get_uuid(uuid) {
+  // returns an item by uuid
+  async find_uuid(uuid) {
     const match = this.#items.find(item => item?.uuid == uuid);
     if (match) return match;
 
@@ -57,8 +87,9 @@ class Items {
     return item;
   }
 
-  async add(fields) {
-    const res = await fetch(`/api/data/add/`, {
+  // creates an item
+  async create(fields) {
+    const res = await fetch(`/api/data/create/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: { fields }
@@ -69,6 +100,7 @@ class Items {
     return item;
   }
 
+  // takes an item's id and an object with k:v pairs for field:value to overwrite the items fields
   async modify(id, fields) {
     const res = await fetch(`/api/data/modify/`, {
       method: 'POST',
@@ -81,7 +113,8 @@ class Items {
     return item;
   }
 
-  async remove_uuid(uuid) {
+  // completely deletes an item, by uuid for safety
+  async delete_item(uuid) {
     await fetch(`/api/data/uuid/${uuid}`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
@@ -91,33 +124,5 @@ class Items {
     // probably trigger some sort of refresh, but that's front(er) end stuff
     // for now just:
     this.#items = [];
-  }
-
-  get_id(id, recursive_depth) {
-    // assume they don't wanna recurse cause that's like work
-    recursive_depth = recursive_depth || 0;
-    if (recursive > 0) {
-      // the recursinator
-      const items_tree = {}
-      const recurse = function(id, depth) {
-        if (depth > recursive_depth) return;
-
-        // TODO: REWRITE FOR TREE STRUCTURE, THIS IS STILL LIST CODE
-        // no dupes
-        if (!items_tree.includes(this.#items[id-1])) {
-          items_tree.push(this.#items[id-1]);
-        }
-
-        // recurse on them kids
-        for (const kid of this.#items[id-1]?.children) {
-          recurse(kid, depth + 1);
-        }
-      }
-      recurse(id, 0);
-      return items_tree;
-
-    } else {
-      return this.#items[id-1]; // random items start at 1 reminder
-    }
   }
 }
