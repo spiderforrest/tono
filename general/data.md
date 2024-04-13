@@ -1,4 +1,4 @@
-# Dote data structure notes
+# Dote Data Structure
 
 Dote stores user data as individual-per-user JSON files; when one user's file is loaded, it should contain all their currently relevant data.
 (In other words, one user's JSON data file should contain all the data a Dote client needs to render the user's full todo/notes list, excluding archived items and any non-default configuration files.)
@@ -7,12 +7,12 @@ Dote is also designed with the assumption that each user's datafile comes from a
 If a user's datafile needs to be synchronized across multiple servers or dynamically assembled from multiple sources on demand, *that work must be done before the datafile is provided to the Dote client.*
 
 Each datafile contains one large array that contains many individual Dote objects (todos, notes, tags), henceforth referred to as "items".
-(See the "Item notes" section below for details.)
+(See the *Items* section below for details.)
 
 Although Dote is built around the idea of parent/child relationships and inheritance of properties through those relationships,
-the list of items in JSON form is a flat structure where every item is on the same level; no item is actually nested inside of another item in JSON.
+the list of items in JSON form is a flat array; no item is actually nested inside of another item in JSON.
 
-## Item notes
+## Items
 
 Items take the form of individual JSON objects within the single array in the user's JSON datafile, and those objects contain key-value pairs that store data about the item in question.
 Users can add arbitrary key-value pairs to items whenever they'd like.
@@ -21,33 +21,50 @@ Users should avoid naming their custom keys anything that Dote recognizes as hav
 
 ### Properties (global)
 
-All items have three required properties:
+All items have a number of **required** properties. These key-value pairs should be set whenever a new item is created.
 
-- `created`: (int, unix timestamp) Date of item creation.
-- `id`: (int, unique per individual user's item list) Numeric. Assigned by server if using client-server setup, assigned by client if using local-only mode.
-- `type`: (string) Type of item. For now, only `todo`, `tag`, `note`.
+| Key | Type | Description | Default value |
+| ---------- | ---------- | ---------- | ---------- |
+| `created` | int (unix timestamp) | Time/date of item's creation. | Current time at item creation |
+| `id` | int | User-specific item identifier. Always contiguous from 1 to `n`, where `n` is the total number of items in a user's list. Only assigned/modified by server. This value is arbitrarily assigned and not used for ordering items by default. **Not constant: when items are added or removed from a user's list, this value may be reassigned.** | `n + 1` |
+| `type` | string | The item's type (see *Item Types* section below). Always lowercase (ex: "todo", "note") | configurable |
+| `title` | string | The item's user-facing name. In the client, this is the primary "name" displayed for an item. | configurable |
+| `children` | array of ints | List of other items this item has as children, specified by `id`. | `[]` |
+| `parents` | array of ints | List of other items this item has as parents, specified by `id`. | `[]` |
+| `uuid` | string | UUID for item. No items should ever share a UUID, even if owned by different users. **Does not change after item creation.** | generated at item creation |
 
-Specific properties expect specific datatypes. Quick list:
+Items may also have **optional** properties. For these items, a value of `undefined` is permitted.
+As these options are not required for core Dote functionality, they have no default value.
 
-```
-title = "string",
-body = "string",
-created = "date",
-updated = "date",
+| Key | Type | Description |
+| ---------- | ---------- | ---------- |
+| `body` | string | Information about the item too long for the `title` field, that is supplementary in nature. |
+| `updated` | int (unix timestamp) | Date item was most recently updated. |
+
+Some other properties we want to add later, but not yet:
 target = "date",
 deadline = "date",
 done = "bool",
 hidden = "bool",
-id = "int",
-children = "deref",
-parents = "deref"
-```
 
-### Properties (todo/note)
+## Item Types
 
-Todo and note types are internally identical aside from their `type` value: their only other difference is in how clients render them.
+Item types denote specific functionality the user wishes the item to have, and are what Dote clients use to determine the most appropriate method for displaying the item in question.
+Each item type represents a specific kind of information the user wishes to keep track of.
+For example, an item with type `todo` is most appropriate for keeping track of a task the user must complete, and has properties specifically for tracking this type of information.
+In contrast, an item with type `note` lacks the functionality of `todo` (for example, the `done` field), and is most appropriate for recording information the user wishes to have easy access to, but is not closely tied to a specific task.
 
-### Properties (tag)
+Details on specific types and their unique properties are listed below.
+
+### todo
+
+- todo (irony)
+
+### note
+
+- todo (less irony)
+
+### tag
 
 Parent and child relationships have special meaning when used with tags.
 Parent-child relationships are not different in internal function when used with tags--the difference is in how clients render tags as categories rather than items.
