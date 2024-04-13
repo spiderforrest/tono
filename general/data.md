@@ -15,9 +15,20 @@ the list of items in JSON form is a flat array; no item is actually nested insid
 ## Items
 
 Items take the form of individual JSON objects within the single array in the user's JSON datafile, and those objects contain key-value pairs that store data about the item in question.
+
 Users can add arbitrary key-value pairs to items whenever they'd like.
+
 However, Dote uses many specifically-named keys (such as `type`) for its core functionality, and Dote expects the values of these keys to have specific datatypes. Some must also be formatted or constructed in specific ways.
+
 Users should avoid naming their custom keys anything that Dote recognizes as having special meaning.
+
+### Parent/Child relationships
+
+Dote allows users to "stack" items in a tree structure, where items may be "sub-items" of other items; this is intended to be used as a way of representing dependency and scope relationships between items.
+
+For example, a `todo` item that is the child of another `todo` item can be considered a "sub-task" that must be completed before its parent task can be accomplished.
+
+Similarly, a `note` item that is the child of another item can be considered "scoped" to its parent, indicating that it is relevant only in the context of its parent item. (For example, a `todo` item titled "repair my car" could have a `note` item as a child detailing the parts and steps required to accomplish the repair job.)
 
 ### Properties (global)
 
@@ -34,43 +45,54 @@ All items have a number of **required** properties. These key-value pairs should
 | `uuid` | string | UUID for item. No items should ever share a UUID, even if owned by different users. **Does not change after item creation.** | generated at item creation |
 
 Items may also have **optional** properties. For these items, a value of `undefined` is permitted.
+
 As these options are not required for core Dote functionality, they have no default value.
 
 | Key | Type | Description |
 | ---------- | ---------- | ---------- |
 | `body` | string | Information about the item too long for the `title` field, that is supplementary in nature. |
 | `updated` | int (unix timestamp) | Date item was most recently updated. |
+| `complete` | bool | Indicates whether the item is still relevant to the user. If all items in a subtree (meaning a root item and all its children, direct or indirect) have `complete: true` set, that subtree will be automatically archived by Dote after a configurable amount of time. |
 
 Some other properties we want to add later, but not yet:
 target = "date",
 deadline = "date",
-done = "bool",
 hidden = "bool",
 
 ## Item Types
 
 Item types denote specific functionality the user wishes the item to have, and are what Dote clients use to determine the most appropriate method for displaying the item in question.
+
 Each item type represents a specific kind of information the user wishes to keep track of.
+
 For example, an item with type `todo` is most appropriate for keeping track of a task the user must complete, and has properties specifically for tracking this type of information.
+
 In contrast, an item with type `note` lacks the functionality of `todo` (for example, the `done` field), and is most appropriate for recording information the user wishes to have easy access to, but is not closely tied to a specific task.
 
 Details on specific types and their unique properties are listed below.
 
 ### todo
 
-- todo (irony)
+The `todo` item type is intended for task tracking, and has a few properties for this purpose.
+
+| Key | Type | Description | Required? | Default value |
+| --- | ---- | ----------- | --------- | ------------- |
+| `complete` | bool | For todo type, whether or not the task is complete. | yes | `false` |
 
 ### note
 
-- todo (less irony)
+The `note` item type is intended for storing information in text form.
 
 ### tag
 
-Parent and child relationships have special meaning when used with tags.
-Parent-child relationships are not different in internal function when used with tags--the difference is in how clients render tags as categories rather than items.
+The `tag` item type is intended for sorting and categorizing other items.
 
-- A child item with a tag as a parent is considered to be tagged by that parent.
-- A tag item's list of children is a list of items considered to be tagged with that tag. Tags function similarly to categories in this way.
+Parent and child relationships between items have special meaning when used with tags.
+
+Parent-child relationships don't behave any differently with tags compared to other item types--the only difference is in how clients render tags compared to other items.
+
+- A child item with a tag as a parent, *directly or indirectly*, is considered to be tagged by that parent.
+- A tag item's children, *direct or indirect*, are considered to be tagged with that tag. Tags function similarly to categories in this way.
     - When tagging/untagging items, make sure to update both the parent tag's `children` field and the tagged items' `parents` fields.
 - When a tag item is the child of a non-tag item, the tag is considered "scoped" to that item (although this does not actually limit what items the tag in question may have as children).
 - Tags tagged with other tags (tags with tag items as children) can also be considered "scoped" tags (though this again does not limit either tag's use at all.)

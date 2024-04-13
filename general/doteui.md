@@ -16,8 +16,8 @@ Each viewmode has a client-visible name and (not client-visible) render function
 
 #### Viewmode list
 
-`overview`: renders tree sorted by top-level tags. Ideal for seeing the state of all your projects at a glance.
-`debug`: Prints and prettifies the user's JSON datafile directly onto the webpage. For debug purposes.
+- `overview`: renders tree sorted by root-level items (that is, items that have children but no parents of their own). Ideal for seeing the state of all your projects at a glance.
+- `debug`: Prints and prettifies the user's JSON datafile directly onto the webpage. For debug purposes.
 
 ### Rendering items and the item tree
 
