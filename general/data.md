@@ -43,7 +43,7 @@ All items have a number of **required** properties. These key-value pairs should
 | `children` | array of ints | List of other items this item has as children, specified by `id`. | `[]` |
 | `parents` | array of ints | List of other items this item has as parents, specified by `id`. | `[]` |
 | `uuid` | string | UUID for item. No items should ever share a UUID, even if owned by different users. **Does not change after item creation.** | generated at item creation |
-
+| `done` | bool | Indicates whether the item is still relevant to the user. If all items in a subtree (meaning a root item and all its children, direct or indirect) have `done: true` set, that subtree will be automatically archived by Dote after a configurable amount of time. | false |
 Items may also have **optional** properties. For these items, a value of `undefined` is permitted.
 
 As these options are not required for core Dote functionality, they have no default value.
@@ -52,7 +52,6 @@ As these options are not required for core Dote functionality, they have no defa
 | ---------- | ---------- | ---------- |
 | `body` | string | Information about the item too long for the `title` field, that is supplementary in nature. |
 | `updated` | int (unix timestamp) | Date item was most recently updated. |
-| `complete` | bool | Indicates whether the item is still relevant to the user. If all items in a subtree (meaning a root item and all its children, direct or indirect) have `complete: true` set, that subtree will be automatically archived by Dote after a configurable amount of time. |
 
 Some other properties we want to add later, but not yet:
 target = "date",
