@@ -68,16 +68,33 @@ M.add_to_field = function(field, word, id) -- {{{
 
     -- create field if needed
     if not data[id][field] then
-        data[id][field] = {}
+        if c.format.field_type[field] == 'deref' then
+            data[id][field] = {}
+        else
+            data[id][field] = ''
+        end
     end
 
     -- ids should not be duplicated, so use ensure_present for them
-    if data[tonumber(word)] then
-        util.ensure_present(data[id][field], word)
-    else
-        table.insert(data[id][field], word)
-    end
+    if c.format.field_type[field] == 'deref' then
+        if data[tonumber(word)] then
+            util.ensure_present(data[id][field], word)
+        else
+            util.err("The field '" .. field .. "' is an ID field, but the id '" .. word .. "' does not exist")
+        end
 
+    elseif c.format.field_type[field] == 'date' then
+        -- todo: convert input from human readable date (alternatively, git gud & mentally keep time by nix stamp)
+        data[id][field] = tonumber(word)
+
+    elseif c.format.field_type == 'int' then
+        data[id][field] = tonumber(word)
+
+    elseif type(data[id][field]) == 'string' then
+        data[id][field] = data[id][field] .. word
+    else
+        util.err("Something weird is going on with the field '" .. field .. " of item " .. id .. " (with word " .. word .. ")")
+    end
 end
 --  }}}
 

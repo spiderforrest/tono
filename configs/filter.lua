@@ -36,31 +36,27 @@ M.all = function ()
 end
 
 M.top = function (item, ...)
-    if item.parents then return false end
+    if #item.parents > 0 then return false end
 
-    if not M.default(item, ...) then return false end
-    return true
+    return M.default(item, ...)
 end
 
 M.tags = function (item, ...)
     if item.type == "tag" then return true end
 
-    if not M.default(item, ...) then return false end
-    return false
+    return M.default(item, ...)
 end
 
 M.todos = function (item, ...)
     if item.type == "todo" then return true end
 
-    if not M.default(item, ...) then return false end
-    return false
+    return M.default(item, ...)
 end
 
 M.notes = function (item, ...)
     if item.type == "note" then return true end
 
-    if not M.default(item, ...) then return false end
-    return false
+    return M.default(item, ...)
 end
 
 return M

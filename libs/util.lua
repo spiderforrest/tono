@@ -196,7 +196,7 @@ M.get_flag = function (flag) -- {{{
     for i, v in ipairs(arg) do
         if v == flag then
             if arg[i + 1] == nil then -- if flag passed by itself
-                M.err("The flag " .. flag .. " requires a path")
+                M.err("The flag '" .. flag .. "' requires a path")
             end
             value = arg[i + 1]
             table.remove(arg, i)

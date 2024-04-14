@@ -193,6 +193,7 @@ M.queue = function (queue, id, level, filter) -- {{{
     local data = store.get()
 
     if not filter(data[id], c, require("libs")) then return queue end
+    -- print(tostring(id) .. " passes filter")
 
     table.insert(queue, { id = id, level = level })
 

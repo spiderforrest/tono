@@ -31,6 +31,8 @@ local function create (type)  -- {{{
         type = type,
         created = os.time(),
         id = #data + 1,
+        parents = {},
+        children = {}
     }
 
     table.insert(data, item)
@@ -84,6 +86,7 @@ M.delete = function()  -- {{{
 
     table.remove(data, id)
     -- we MUST fix the table every time we remove something; splitting the array would be bad in like six ways
+
     M.repair(data)
     store.save(data)
 
@@ -162,20 +165,11 @@ M.print = function()  -- {{{
         -- for printing the whole list
         if c.format.order_decending then
             for id = #data, 1, -1 do -- mom said we have ipairs at home
-                -- yikes. check if any of the parents are not tags, and skip.
-                for _, parent in ipairs(data[id].parents or {}) do
-                    if data[parent].type ~= 'tag' then goto skip end
-                end
                 queue = output.queue(queue, id, 0, multifilter)
-                ::skip::
             end
         else
             for id in ipairs(data) do
-                for _, parent in ipairs(data[id].parents or {}) do
-                    if data[parent].type ~= 'tag' then goto skip end
-                end
                 queue = output.queue(queue, id, 0, multifilter)
-                ::skip::
             end
         end
     end
@@ -235,13 +229,6 @@ M.repair = function(data) -- {{{
 
     -- less repeated code this way... theoretically.
     local id_related_fields = { "parents", "children" }
-    -- local id_related_fields = { "parents", "children", "tags" }
-    -- local id_related_fields = {
-    --     { field = "parents", complement = "children" },
-    --     { field = "children", complement = "parents" },
-    --     { field = "tags", complement = "members" }
-    --     { field = "members", complement = "tags" }
-    -- }
 
     -- for each number \ in each field (that exists) \ in each item, do the swap
     for _,item in ipairs(data) do
@@ -266,35 +253,31 @@ M.repair = function(data) -- {{{
         for id, item in ipairs(data) do
             -- correct relationships with parents and kids
             -- note, only does one level, so this whole function gets looped until nothing is changed to recurse
-            if item.children then
-                for k, child in ipairs(item.children) do
-                    -- check if self reference and remove
-                    if id == child then
-                        table.remove(data[id].children, k)
-                    else
+            for k, child in ipairs(item.children) do
+                -- check if self reference and remove
+                if id == child then
+                    table.remove(data[id].children, k)
+                else
 
                     -- put the id in the kids parents table and check if it's already there
-                     local tbl, updated = util.ensure_present(data[child].parents, id)
+                    local tbl, updated = util.ensure_present(data[child].parents, id)
                     data[child].parents = tbl
 
 
                     -- save if anything was changed so we can run another pass
                     needs_another_pass = updated or needs_another_pass
-                    end
                 end
             end
-            if item.parents then
-                for k, parent in ipairs(item.parents) do
-                    if id == parent then
-                        table.remove(data[id].parents, k)
-                    else
+            for k, parent in ipairs(item.parents) do
+                if id == parent then
+                    table.remove(data[id].parents, k)
+                else
 
-                     local tbl, updated = util.ensure_present(data[parent].children, id)
+                    local tbl, updated = util.ensure_present(data[parent].children, id)
                     data[parent].children = tbl
 
 
                     needs_another_pass = updated or needs_another_pass
-                    end
                 end
             end
 

@@ -66,6 +66,9 @@ if #Config == 0 then
         -- bake and replace theme:
         Config.theme = util.bake_theme(Config.theme, Config.term_escape_seq)
 
+        -- get flag arguments (importantly, stripping them from arg[])
+        Config.data_file_location = util.get_flag("-d") or Config.data_file_location
+
         return Config
     end
     -- }}}

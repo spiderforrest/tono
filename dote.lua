@@ -20,7 +20,7 @@
 
 package.path = package.path .. ";./libs/?.lua;"
 
--- calling this actively loads the configs (and cuts -c from arg)
+-- calling this actively loads the configs (and cuts flags from args)
 local c = require("config")
 
 -- this contains functions for each command

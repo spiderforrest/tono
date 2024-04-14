@@ -57,6 +57,7 @@ M.blacklist = {
 }
 
 -- list of fields with special types that need to be rendered in different formats etc
+-- other fields are just strings
 M.field_type = {
     created = "date",
     updated = "date",
