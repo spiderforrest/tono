@@ -30,6 +30,8 @@ yeah yeah listen we gotta track stuff somehow before dote exists
 
 ### farther out features
 
+- ability to specify item order and store that data in item fields
+    - possibly a field on the parent called `children_order` or something like that with an array of ids/uuids
 - `deadline` and `target` fields, for recording dates to finish stuff by
 - ability to encrypt an item's potentially sensitive fields (titles, bodies, other stuff)
     - although it does leak some information, fields like `created` and `type` should probably never be encrypted
