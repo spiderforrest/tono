@@ -87,9 +87,6 @@ M.add_to_field = function(field, word, id) -- {{{
         -- todo: convert input from human readable date (alternatively, git gud & mentally keep time by nix stamp)
         data[id][field] = tonumber(word)
 
-    elseif c.format.field_type == 'int' then
-        data[id][field] = tonumber(word)
-
     elseif type(data[id][field]) == 'string' then
         data[id][field] = data[id][field] .. word
     else
