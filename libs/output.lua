@@ -67,10 +67,6 @@ end
 
 local function render_fields(content, item, field_list, indent) -- {{{
     for i, field in ipairs(field_list) do
-        -- do not render empty id lists
-        if c.format.field_type[field] == "deref" and #item[field] == 0 then
-            goto continue
-        end
 
         -- the symbol at the start of the field
         if c.format.line_split_fields then
@@ -111,7 +107,6 @@ local function render_fields(content, item, field_list, indent) -- {{{
                 util.safe_app(content, c.format.ascii_diagram.inline)
             end
         end
-        ::continue::
     end
 end
 -- }}}
@@ -119,18 +114,21 @@ end
 local function arrange_fields(item, indent) -- {{{
     local content, rendered, ordered, i = {}, {}, {}, 1 -- lua brain small i no kno what a zee ro is
     -- first go through their fav fields
-    for _,v in ipairs(c.format.field_order) do
+    for _,field in ipairs(c.format.field_order) do
         -- skip if missing/blacklisted
-        if item[v] and item[v] ~= {} and not c.format.blacklist[v] then
-            -- add it to a list to be rendered in a bit
-            ordered[i] = v
-            -- track that it's been done
-            rendered[v] = true
-            i = i + 1
+        if item[field] and item[field] ~= {} and not c.format.blacklist[field] then
+            -- do not render empty id lists
+            if not (c.format.field_type[field] == "deref" and #item[field] == 0) then
+                -- check add it to a list to be rendered in a bit
+                ordered[i] = field
+                -- track that it's been done
+                rendered[field] = true
+                i = i + 1
+            end
         end
 
         -- create the tags field in place by reading parents
-        if v == "tags" and item.parents then
+        if field == "tags" and item.parents then
             local data = store.get()
             item.tags = {}
             for _, parent in ipairs(item.parents) do
@@ -142,10 +140,13 @@ local function arrange_fields(item, indent) -- {{{
     end
 
     -- next, we just dump the rest in
-    for k in pairs(item) do
-        if (not c.format.blacklist[k]) and (not rendered[k]) then
-            ordered[i] = k
-            i = i + 1
+    for field in pairs(item) do
+        if (not c.format.blacklist[field]) and (not rendered[field]) then
+            if not (c.format.field_type[field] == "deref" and #item[field] == 0) then
+                ordered[i] = field
+                rendered[field] = true
+                i = i + 1
+            end
         end
     end
 

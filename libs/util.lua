@@ -211,20 +211,36 @@ end
 -- }}}
 
 M.get_id_by_maybe_title = function (word, data) -- {{{
-    -- if not filter then filter = function(_,_) return true end end
-
     -- if valid id just return
-        if data[tonumber(word)] then return tonumber(word) end
+    if data[tonumber(word)] then return tonumber(word) end
 
-        -- check everything for tags with the same name
-        for _, item in ipairs(data) do
-            -- if item.title and item.title[1] == word and filter(item, data) then
-            if item.title and item.title[1] == word  then
-                return item.id
+    local matches = {}
+    -- check everything for tags with the same name
+    for _, item in ipairs(data) do
+        if item.title then
+            local start_idx = string.find(item.title, ".*" .. word .. ".*")
+            if start_idx then
+                table.insert(matches, { id = item.id, start = start_idx})
             end
         end
-        -- rip
-        M.err("Search for title " .. tostring(word) .. " failed!")
+    end
+
+    if #matches == 0 then
+        M.err("Search for title " .. tostring(word) .. " failed!") -- rip
+    elseif #matches == 1 then
+        return matches[1].id
+    else -- here we have to pick one, just pick whoever matched sooner in the string
+        M.warn("Guessing match from " .. tostring(#matches) .. " matches")
+        local soonest = 100000000
+        local winner
+        for _, match in ipairs(matches) do
+            if match.start < soonest then
+                soonest = match.start
+                winner = match.id
+            end
+        end
+        return winner
+    end
 end
 
 -- }}}

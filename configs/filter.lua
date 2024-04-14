@@ -21,8 +21,8 @@ M.default = function (item, _, lib)
 
     -- check for tag being hidden/done
     local data = lib.store.get()
-    if item.tags then
-        for _,id in ipairs(item.tags) do
+    for _,id in ipairs(item.parents) do
+        if data[id].type == "tag" then
             if data[id].done then return false end
             if data[id].hide then return false end
         end

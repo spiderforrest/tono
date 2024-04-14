@@ -90,6 +90,7 @@ M.delete = function()  -- {{{
     M.repair(data)
     store.save(data)
 
+    table.remove(arg, 2)
     if c.print_after_change then M.print() end
 end
 -- }}}
@@ -281,12 +282,6 @@ M.repair = function(data) -- {{{
                 end
             end
 
-            -- strip all empty fields
-            for k,v in pairs(item) do
-                if type(v) == 'table' and not next(v, nil) then
-                    data[id][k] = nil
-                end
-            end
             -- util.dump_table_of_arrays(item)
         end
         -- track if modified

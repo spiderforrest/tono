@@ -43,7 +43,7 @@ M.get = function(path) --{{{
     -- try to read
     if not pcall(function() data = json.parse(file:read("*all")) end)
     then
-        util.warn("File " .. tostring(path) .. " empty!")
+        util.warn("File " .. tostring(path) .. " empty or malformatted!")
         data = {}
     end
     file:close()
