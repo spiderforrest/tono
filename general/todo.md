@@ -17,7 +17,7 @@ yeah yeah listen we gotta track stuff somehow before dote exists
 
 #### Assorted doteui implementation details
 
-- allie: just write func signatures for transaction lib while writing ui code, spood will adapt lib code
+- ~allie: just write func signatures for transaction lib while writing ui code, spood will adapt lib code~
 
 ### Goal for web client MVP
 
@@ -25,9 +25,12 @@ yeah yeah listen we gotta track stuff somehow before dote exists
 - can use as daily driver on phone + desktop
 - supports todos, notes, and tags, and properly renders their parent-child relationships visually
 - client/server communication
+- overview viewmode complete
+- allows user to add, modify, delete, and change items' relationships
 
 ### farther out features
 
+- `deadline` and `target` fields, for recording dates to finish stuff by
 - ability to encrypt an item's potentially sensitive fields (titles, bodies, other stuff)
     - although it does leak some information, fields like `created` and `type` should probably never be encrypted
     - likely add an `encrypted` field to mark encrypted items
@@ -43,7 +46,7 @@ yeah yeah listen we gotta track stuff somehow before dote exists
     - probably track worktime on tasks, storing data in todo items
     - may combine this with `daily`/`task` mode
 - new item type: `tracker` or `log`, which is used to track user data over time (mood tracking, whether you took your meds, period tracking, whatever`
-    - `tracker tracker` viewmode, for accessing your trackers quickly
+    - `tracker` tracker viewmode, for accessing your trackers quickly
 - user-facing documentation that gives guidance, advice, and recommendations for how to most effectively use dote in your own life
 
 ### nice to have but not priority
