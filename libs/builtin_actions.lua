@@ -41,7 +41,7 @@ local function create (type)  -- {{{
 
     store.save(data)
 
-    if c.print_after_change then M.print() end
+    if c.print_after_change then M.print(#data) end
 end
 
 -- lazily dispatch these
@@ -61,7 +61,7 @@ M.done = function()  -- {{{
     data[id].done = true
     store.save(data)
 
-    if c.print_after_change then M.print() end
+    if c.print_after_change then M.print(true) end
 end
 -- }}}
 
@@ -69,7 +69,7 @@ M.delete = function()  -- {{{
     local id = tonumber(arg[1])
     local data = store.get()
     c.theme.primary("Trashing ")
-    c.theme.ternary(table.concat(data[id].title or {'<no title>'}, ' '))
+    c.theme.ternary(data[id].title or '<no title>')
     io.write('\n')
 
     -- wipe connections
@@ -90,17 +90,19 @@ M.delete = function()  -- {{{
     M.repair(data)
     store.save(data)
 
-    table.remove(arg, 2)
-    if c.print_after_change then M.print() end
+    if c.print_after_change then M.print(true) end
 end
 -- }}}
 
 M.modify = function()  -- {{{
     local data = store.get()
+    local id
     -- non interactive
     if arg[2] then
+        -- todo: use the field processer for this
+
         -- pull the target and field
-        local id = tonumber(arg[1])
+        id = tonumber(arg[1])
         table.remove(arg, 1)
         local field = arg[1]
         table.remove(arg, 1)
@@ -114,63 +116,77 @@ M.modify = function()  -- {{{
         store.save(data)
     end
 
-    if c.print_after_change then M.print() end
+    if c.print_after_change then M.print(id) end
 end
 -- }}}
 
-M.print = function()  -- {{{
+M.print = function(override_args)  -- {{{
+    local data = store.get()
+    local queue = {}
+    local multifilter, id
 
-    -- filter {{{
-    local filters = {}
-    for idx, word in ipairs(arg) do
-        if string.find(word, "^%w+$") and c.filter[word] then -- only match alpha words, not numbers/symbols
-            table.insert(filters, word)
-            -- strip arg
-            table.remove(arg, idx)
+    -- override skips all of the argument parsing-for when you want to call it after you do something else
+    -- well there's some jank with the 'recurse' setting but TODO fix
+    if override_args then
+        multifilter = c.filter.default
+        if data[override_args] then
+            id = override_args
+        else
+            id = false
         end
-    end
+    else
 
-    -- set the default filter if there's none
-    if #filters == 0 then filters[1] = "default" end
-
-    -- bake the multifilter function
-    local multifilter = function (item, conf, libs)
-        for _,filter in ipairs(filters) do
-            -- eval the current filter
-            local filter_result = c.filter[filter](item, conf, libs)
-            -- if it's set to blacklist, return false if any filters return false
-            -- if whitelisting, do the same backwards
-            if c.filter.multifilter_whitelist == filter_result then return filter_result end
+        -- filter {{{
+        local filters = {}
+        for idx, word in ipairs(arg) do
+            if string.find(word, "^%w+$") and c.filter[word] then -- only match alpha words, not numbers/symbols
+                table.insert(filters, word)
+                -- strip arg
+                table.remove(arg, idx)
+            end
         end
-        -- if no matches to the filter white/blacklist mode, return the opposite
-        return not c.filter.multifilter_whitelist
+
+        -- set the default filter if there's none
+        if #filters == 0 then filters[1] = "default" end
+
+        -- bake the multifilter function
+        multifilter = function (item, conf, libs)
+            for _,filter in ipairs(filters) do
+                -- eval the current filter
+                local filter_result = c.filter[filter](item, conf, libs)
+                -- if it's set to blacklist, return false if any filters return false
+                -- if whitelisting, do the same backwards
+                if c.filter.multifilter_whitelist == filter_result then return filter_result end
+            end
+            -- if no matches to the filter white/blacklist mode, return the opposite
+            return not c.filter.multifilter_whitelist
+        end
+        -- }}}
+
+        id = util.get_id_by_maybe_title(arg[1], data, true)
     end
-    -- }}}
 
     -- fill queue {{{
-    local queue = {}
-    local data = store.get()
     -- handle single item prints, notably, these bypass the filter
-    if arg[1] then
-        local item = util.get_id_by_maybe_title(arg[1], data)
+    if id then
         -- if flagged or configs say to recurse
         if arg[2] == 'recurse' or (c.format.single_item_recurse and not arg[2]) then
             -- fill the queue, no filter here
-            queue = output.queue(queue, tonumber(item), 0, function() return true end)
+            queue = output.queue(queue, id, 0, function() return true end)
         else
             -- else print one and bail
-            output.print_item(tonumber(item), 0)
+            output.print_item(id, 0)
             return
         end
     else
         -- for printing the whole list
         if c.format.order_decending then
-            for id = #data, 1, -1 do -- mom said we have ipairs at home
-                queue = output.queue(queue, id, 0, multifilter)
+            for i = #data, 1, -1 do -- mom said we have ipairs at home
+                queue = output.queue(queue, i, 0, multifilter)
             end
         else
-            for id in ipairs(data) do
-                queue = output.queue(queue, id, 0, multifilter)
+            for i in ipairs(data) do
+                queue = output.queue(queue, i, 0, multifilter)
             end
         end
     end
@@ -213,7 +229,7 @@ M.archive = function() -- {{{
     M.repair(data)
     store.save(data)
 
-    if c.print_after_change then M.print() end
+    if c.print_after_change then M.print(true) end
 end
 -- }}}
 

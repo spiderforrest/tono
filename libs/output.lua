@@ -37,10 +37,10 @@ M.format_field = function (field, item, content) -- {{{
             util.safe_app(content, c.format.false_string)
         end
         return
+
     elseif not c.format.field_type[field] then
         util.safe_app(content, item[field], ' ')
     end
-
 
     local data = store.get() -- only get the store if needed idk '''performant'''
 
@@ -49,7 +49,7 @@ M.format_field = function (field, item, content) -- {{{
             util.safe_app(content, item[field])
             util.safe_app(content, c.format.ascii_diagram.after_id)
         end
-        util.safe_app(content, data[item[field]].title)
+        util.safe_app(content, data[item[field]].title or "<no title>")
 
     elseif c.format.field_type[field] == "deref" then -- if array of ids
         for k, id in ipairs(item[field]) do
@@ -59,7 +59,7 @@ M.format_field = function (field, item, content) -- {{{
                 util.safe_app(content, id)
                 util.safe_app(content, c.format.ascii_diagram.after_id)
             end
-            util.safe_app(content, data[id].title, ' ')
+            util.safe_app(content, data[id].title or "<no title>", ' ')
         end
     end
 end
@@ -201,9 +201,9 @@ M.queue = function (queue, id, level, filter) -- {{{
 
     -- now do recursion
     level = level + 1
-    for _, child_id in ipairs(data[id].children or {}) do
+    for _, child_id in ipairs(data[id].children) do
         -- checks to keep recursion finite
-        if id ~= child_id and (not queue[child_id]) then
+        if id ~= child_id and not (c.format.never_duplicate and queue[child_id]) then
             queue = M.queue(queue, child_id, level, filter)
         end
     end

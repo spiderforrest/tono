@@ -27,7 +27,7 @@ M.process_all = function(id)  --{{{
     local data = store.get()
     local separator_status = "title"
     for _, word in ipairs(arg) do
-        -- match the largest non-letter chain at the start of the arg
+        -- match the largest non-alphanumeric chain at the start of the arg
         local _, _, sym, body = string.find(word, "^(%W+)(.*)")
 
         -- do the lookup or default
@@ -36,28 +36,22 @@ M.process_all = function(id)  --{{{
         -- swap adding to title or body
         if key_actual == "separator" then
             separator_status = "body"
-            goto continue -- gotta save all of like. 16 instructions by skipping eval
-        end
 
-        -- if field has handler
-        if M[key_actual] then
+            -- if field has handler
+        elseif M[key_actual] then
             M[key_actual](body, id)
-            goto continue
-        end
 
-        -- if field is defined but doesn't have a handler just add it
-        if key_actual and not key_actual == '' then
+            -- if field is defined but doesn't have a handler just add it
+        elseif key_actual and key_actual ~= '' then
             M.add_to_field(key_actual, body, id)
-            goto continue
-        end
 
-        -- otherwise treat as plaintext
-        if sym and c.warn.unmatched_sym then
-            util.warn("No defined field for '" .. sym .. "'! Treating as plaintext.")
+            -- otherwise treat as plaintext, with the symbol as part of the text
+        else
+            if sym and c.warn.unmatched_sym then
+                util.warn("No defined field for '" .. sym .. "'! Treating as plaintext.")
+            end
+            M.add_to_field(separator_status, word, id)
         end
-        M.add_to_field(separator_status, word, id)
-
-        ::continue::
     end
     return data[id]
 end
@@ -86,8 +80,16 @@ M.add_to_field = function(field, word, id) -- {{{
     elseif c.format.field_type[field] == 'date' then
         -- todo: convert input from human readable date (alternatively, git gud & mentally keep time by nix stamp)
         data[id][field] = tonumber(word)
+    elseif c.format.field_type[field] == 'bool' then
+        if word == "false" or word == 'done' then word = false end
+        data[id][field] = not not word -- lol
 
     elseif type(data[id][field]) == 'string' then
+        -- no annoying first space or extra spaces
+        if #data[id][field] > 0 and not string.find(data[id][field], "%s$") then
+            data[id][field] = data[id][field] .. ' '
+        end
+
         data[id][field] = data[id][field] .. word
     else
         util.err("Something weird is going on with the field '" .. field .. " of item " .. id .. " (with word " .. word .. ")")

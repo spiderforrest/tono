@@ -15,6 +15,8 @@ M.single_item_recurse = true
 -- print items decending vs ascending
 M.order_decending = true
 
+-- prevent it from ever rendering the same item twice
+M.never_duplicate = false
 -- how do you want the fields to show
 M.field_order = {
     'done',

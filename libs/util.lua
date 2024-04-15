@@ -210,7 +210,15 @@ M.get_flag = function (flag) -- {{{
 end
 -- }}}
 
-M.get_id_by_maybe_title = function (word, data) -- {{{
+M.get_id_by_maybe_title = function (word, data, safe) -- {{{
+    -- if null fail
+    if not word then
+        if safe then
+            return false
+        else
+            M.err("Searching for null!")
+        end
+    end
     -- if valid id just return
     if data[tonumber(word)] then return tonumber(word) end
 
@@ -226,12 +234,16 @@ M.get_id_by_maybe_title = function (word, data) -- {{{
     end
 
     if #matches == 0 then
-        M.err("Search for title " .. tostring(word) .. " failed!") -- rip
+        if safe then
+            return false
+        else
+            M.err("Search for title " .. tostring(word) .. " failed!") -- rip
+        end
     elseif #matches == 1 then
         return matches[1].id
     else -- here we have to pick one, just pick whoever matched sooner in the string
-        M.warn("Guessing match from " .. tostring(#matches) .. " matches")
-        local soonest = 100000000
+        M.warn("Guessing title match from " .. tostring(#matches) .. " matches")
+        local soonest = 1/0 -- lol (inf)
         local winner
         for _, match in ipairs(matches) do
             if match.start < soonest then
