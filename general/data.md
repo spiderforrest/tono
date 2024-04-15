@@ -44,6 +44,7 @@ All items have a number of **required** properties. These key-value pairs should
 | `parents` | array of ints | List of other items this item has as parents, specified by `id`. | `[]` |
 | `uuid` | string | UUID for item. No items should ever share a UUID, even if owned by different users. **Does not change after item creation.** | generated at item creation |
 | `done` | bool | Indicates whether the item is still relevant to the user. If all items in a subtree (meaning a root item and all its children, direct or indirect) have `done: true` set, that subtree will be automatically archived by Dote after a configurable amount of time. | false |
+
 Items may also have **optional** properties. For these items, a value of `undefined` is permitted.
 
 As these options are not required for core Dote functionality, they have no default value.
@@ -76,7 +77,6 @@ The `todo` item type is intended for task tracking, and has a few properties for
 
 | Key | Type | Description | Required? | Default value |
 | --- | ---- | ----------- | --------- | ------------- |
-| `complete` | bool | For todo type, whether or not the task is complete. | yes | `false` |
 
 ### note
 
