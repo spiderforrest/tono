@@ -47,7 +47,11 @@ local function kind_of(obj)
   for _ in pairs(obj) do
     if obj[i] ~= nil then i = i + 1 else return 'table' end
   end
-  if i == 1 then return 'table' else return 'array' end
+
+  -- MODIFICATION by spider:
+  -- assume array if empty for compatability with dote-web, as our format will not have any objects that are empty
+  return 'array'
+  -- if i == 1 then return 'table' else return 'array' end
 end
 
 local function escape_str(s)
