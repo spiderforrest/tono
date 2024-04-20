@@ -36,7 +36,7 @@ All items have a number of **required** properties. These key-value pairs should
 
 | Key | Type | Description | Default value |
 | ---------- | ---------- | ---------- | ---------- |
-| `created` | int (unix timestamp) | Time/date of item's creation. | Current time at item creation |
+| `created` | int | Time/date of item's creation in [Unix time](https://en.wikipedia.org/wiki/Unix_time). | Current time at item creation |
 | `id` | int | User-specific item identifier. Always contiguous from 1 to `n`, where `n` is the total number of items in a user's list. Only assigned/modified by server. This value is arbitrarily assigned and not used for ordering items by default. **Not constant: when items are added or removed from a user's list, this value may be reassigned.** | `n + 1` |
 | `type` | string | The item's type (see *Item Types* section below). Always lowercase (ex: "todo", "note") | configurable |
 | `title` | string | The item's user-facing name. In the client, this is the primary "name" displayed for an item. | configurable |
