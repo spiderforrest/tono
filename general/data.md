@@ -38,8 +38,8 @@ All items have a number of **required** properties. These key-value pairs should
 | ---------- | ---------- | ---------- | ---------- |
 | `created` | int | Time/date of item's creation in [Unix time](https://en.wikipedia.org/wiki/Unix_time). | Current time at item creation |
 | `id` | int | User-specific item identifier. Always contiguous from 1 to `n`, where `n` is the total number of items in a user's list. Only assigned/modified by server. This value is arbitrarily assigned and not used for ordering items by default. **Not constant: when items are added or removed from a user's list, this value may be reassigned.** | `n + 1` |
-| `type` | string | The item's type (see *Item Types* section below). Always lowercase (ex: "todo", "note") | configurable |
-| `title` | string | The item's user-facing name. In the client, this is the primary "name" displayed for an item. | configurable |
+| `type` | string | The item's type (see *Item Types* section below). Always lowercase (ex: "todo", "note"). | configurable |
+| `title` | string | The item's user-facing name. In clients, this should be the primary "name" displayed for an item. | configurable |
 | `children` | array of ints | List of other items this item has as children, specified by `id`. | `[]` |
 | `parents` | array of ints | List of other items this item has as parents, specified by `id`. | `[]` |
 | `uuid` | string | UUID for item. No items should ever share a UUID, even if owned by different users. **Does not change after item creation.** | generated at item creation |
@@ -51,7 +51,7 @@ As these options are not required for core Dote functionality, they have no defa
 
 | Key | Type | Description |
 | ---------- | ---------- | ---------- |
-| `body` | string | Information about the item too long for the `title` field, that is supplementary in nature. |
+| `body` | string | User-entered information about the item that is relevant to the item, but is too long or detailed for the `title` field. |
 | `updated` | int (unix timestamp) | Date item was most recently updated. |
 
 Some other properties we want to add later, but not yet:
@@ -61,13 +61,13 @@ hidden = "bool",
 
 ## Item Types
 
-Item types denote specific functionality the user wishes the item to have, and are what Dote clients use to determine the most appropriate method for displaying the item in question.
+Item types denote specific functionality the user wishes an item to have, and are what Dote clients use to determine the most appropriate method for displaying the item in question.
 
-Each item type represents a specific kind of information the user wishes to keep track of.
+Each item type is most appropriate for keeping track of a specific *type* of information the user wishes to keep track of.
 
-For example, an item with type `todo` is most appropriate for keeping track of a task the user must complete, and has properties specifically for tracking this type of information.
+For example, an item with type `todo` is most appropriate for keeping track of a task the user must complete, and clients render `todo` items with this in mind (as to-do list items.)
 
-In contrast, an item with type `note` lacks the functionality of `todo` (for example, the `done` field), and is most appropriate for recording information the user wishes to have easy access to, but is not closely tied to a specific task.
+In contrast, an item with type `note` is most appropriate for recording comparatively large amounts of information, and is rendered by the client in a way that reflects this (as a note.)
 
 Details on specific types and their unique properties are listed below.
 
@@ -86,10 +86,12 @@ The `note` item type is intended for storing information in text form.
 
 The `tag` item type is intended for sorting and categorizing other items.
 
-Parent and child relationships between items have special meaning when used with tags.
-
-Parent-child relationships don't behave any differently with tags compared to other item types--the only difference is in how clients render tags compared to other items.
+Parent and child relationships between items have special meaning when used with tags, and are handled according to the following rules:
 
 - A child item with a tag as a **direct** parent is considered to be tagged by that parent.
-- A tag item's **direct** children are considered to be tagged with that tag. Tags function similarly to categories in this way.
+- A tag item's **direct** children are considered to be tagged by that tag. This makes tags ideal for labelling and categorizing items, including other tags.
     - When tagging/untagging items, make sure to update both the parent tag's `children` field and the tagged items' `parents` fields.
+- When writing client code, if you want an indirect child of tags to also be tagged with that parent, ensure you add the tag to the indirect child's `parents` array and the indirect child to the tag's `children` array.
+- Example: *If an item `C` is the child of another item `B`, where `B` is a direct child of the tag `A` but `C` is not, **`C` is not considered to be tagged by `A`.***
+
+This rule exists to reduce the amount of processing that would otherwise be necessary for determining tag inheritance, as well as making the process of finding all items with a specific tag significantly more performant.
