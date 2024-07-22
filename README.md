@@ -10,7 +10,7 @@ Inspiration taken from [paradigm/chore](https://github.com/paradigm/chore).
 
 You can find a work in progress web version of dote at [spiderforrest/dote-web](https://github.com/spiderforrest/dote-web).
 
-![Screenshot of three terminals showing dote](https://private-user-images.githubusercontent.com/8104435/351132645-efb61056-b394-433c-8852-176609dc8709.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjE2ODg3NTUsIm5iZiI6MTcyMTY4ODQ1NSwicGF0aCI6Ii84MTA0NDM1LzM1MTEzMjY0NS1lZmI2MTA1Ni1iMzk0LTQzM2MtODg1Mi0xNzY2MDlkYzg3MDkucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MDcyMiUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDA3MjJUMjI0NzM1WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9NGY5NTk1NmQ0NzcyZDUyMGUxZTkxMzBkZDA5NGIwMzBhMWQ3YzQzMTQ1ODViODBhZWUyMmZkOWIyNzk2NDQ1MSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmYWN0b3JfaWQ9MCZrZXlfaWQ9MCZyZXBvX2lkPTAifQ.Y-wkqE1R-MtUsS9gYr99NOkNMwWfEZ_Vrclz0OJNVFo)
+![Screenshot of three terminals showing dote](https://share.spood.org:5281/file_share/de981bdc-1f66-441e-9d91-3f90abad8611/5b9771d5-54bc-4ba6-a1a1-ad2a874c4f12.png)
 
 ## A directed graph? What is dote, what does that actually mean?
 Dote is a list of todos and notes with a structure for organizing those around each other in the form of parents and children.
@@ -132,7 +132,7 @@ dote [action] [entity name/id]
 ### Operands
 
 These symbols are not considered meaningful by Bash, and are thus safe to use for field names. The symbol/field name relationships are
-defined in user configs under `action_lookup`
+defined in user configs under `action_lookup`.
 
 `+ - / _ ^ % @ ,`
 
