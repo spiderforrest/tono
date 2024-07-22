@@ -149,8 +149,8 @@ Also, be aware that this list is not accurate in other contexts than dote.
 ### Flags
 
 Supported flags are:
-    - `-c [path]`: specify config location
-    - `-d [path]`: specify datafile location
+- `-c [path]`: specify config location
+- `-d [path]`: specify datafile location
 
 ## Customizing
 
