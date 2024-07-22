@@ -1,83 +1,138 @@
 # Dote (toDO-noTE)
 
-A to-do and note-taking system centered around dependencies and priorities.
+A to-do and note-taking system centered around dependencies and priorities inside a [directed graph](https://en.wikipedia.org/wiki/Directed_graph).
+
+Dote is a collection of different programs that are all intended to access the same central data storage scheme, of human readable JSON.
+
+This is a command line version of dote, written in Lua.
+
 Inspiration taken from [paradigm/chore](https://github.com/paradigm/chore).
 
-Dote is made up of a collection of different programs that are all intended to access the same central data storage scheme/location.
+You can find a work in progress web version of dote at [spiderforrest/dote-web](https://github.com/spiderforrest/dote-web).
 
-## Features
+![Screenshot of three terminals showing dote](https://private-user-images.githubusercontent.com/8104435/351132645-efb61056-b394-433c-8852-176609dc8709.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjE2ODg3NTUsIm5iZiI6MTcyMTY4ODQ1NSwicGF0aCI6Ii84MTA0NDM1LzM1MTEzMjY0NS1lZmI2MTA1Ni1iMzk0LTQzM2MtODg1Mi0xNzY2MDlkYzg3MDkucG5nP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MDcyMiUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDA3MjJUMjI0NzM1WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9NGY5NTk1NmQ0NzcyZDUyMGUxZTkxMzBkZDA5NGIwMzBhMWQ3YzQzMTQ1ODViODBhZWUyMmZkOWIyNzk2NDQ1MSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmYWN0b3JfaWQ9MCZrZXlfaWQ9MCZyZXBvX2lkPTAifQ.Y-wkqE1R-MtUsS9gYr99NOkNMwWfEZ_Vrclz0OJNVFo)
 
-## Docs
+## A directed graph? What is dote, what does that actually mean?
+Dote is a list of todos and notes with a structure for organizing those around each other in the form of parents and children.
+The most simple way to think of dote's structure is as a tree structure, like a filesystem. In fact, a filesystem that supports
+linking is a form of directed graph (A [rooted flow bigraph](https://en.wikipedia.org/wiki/Rooted_graph), to be precise).
+Unlike a filesystem, there is no root node in dote, so entities can have no parents.
 
-There are three different types of basic entities in Dote, all of which are represented as nodes in a tree.
+The advantage of this structure is it allows you to look at your data from different perspectives, allowing you to find relevant tasks
+or notes for whatever situation you're in. For example, you could look at tasks you want to get done today, and seeing that decide to
+go out to do errands. Once you head out, you could look at tasks that are errands, and find some lower priority tasks to get done
+while you're already out. You could see your shopping list under a task for grocery shopping, and even see recipes that track their
+ingredients to help you keep track of what to buy.
+
+
+## Usage
+
+There's three different types of basic entities in dote, all represented as nodes in the graph. The types do not have any special
+bearing on their content or behavior, and are there solely for user organizational purposes.
 
 - **Task**: A single thing that needs to get done; a single entry on a todo list.
 
-- **Note**: A note to record information in, in the form of plain text. *Can appear on todo list, but cannot be completed like a task. Exists in the global structure, and can be referenced by tasks.*
+- **Note**: A note to record information in, in the form of plain text.
 
-- **Tags**: Both tasks and notes can be tagged, to group related tasks/notes. Tagged tasks inherit metadata from the tag's metadata, like due dates or priority, if they don't already have it explicitly set.
+- **Tags**: A group for related tasks/notes. (Not implemented yet: Tasks created with assigned tags inherit metadata from the tag's metadata, like due dates or priority, if they don't already have it explicitly set.)
 
-Tasks (and other nodes) can placed in a tree structure. Tasks can also have dependencies on any other task, regardless of position in the tree. (Dependency structure is internally a second tree, orthagonal to the first tree.)
+Entities can have any number of properties, and properties can be freely user defined. There are some required properties that are present
+on all entities:
 
-Any three of these nodes can have the following properties set (though some of them only have effects for specific types.)
+- `id`: unique ID number to identify entity.
 
-- **id**: unique ID number to identify entity **non-optional.**
+- `type`: entity type; `task`, `note`, or `tag`.
 
-- **type**: type of the entity, either `task`, `note`, or `tag`. **non-optional.**
+- `created` timestamp of when node was originally created.
 
-- **name**: name of the entity. For tasks, their single-sentence description. For notes, their title. For tags, their tag text. **nonoptional.**
+- `children`: a list of nodes that are children of the node.
 
-- **body**: additional text to be stored with the entity. For tasks, can contain supplemental information. For notes, the primary body of text. For tags, a description of the tags.
+- `parents`: a list of nodes that are parents of the node.
 
-- **target**: an estimated date by which you expect a task to be done (or want to have it done by.)
+Children and parents are arcs, from a mathematical perspective. Dote always maintains parity between them, i.e. when you remove a child
+from an entity, that child has the entity removed from its parent list.
 
-- **deadline**: when a task absolutely must be done by. ideal for your taxes.
 
-- **tags**: a list of tags applied to the entity (specified by each tag's id.)
+Some common properties that have some sort of special handling:
 
-- **parents**: a list of nodes that are parents of the node. *Nodes are allowed to have multiple parents.* For tasks, this means the child tasks MUST be completed before the parent task can be; you can think of them as either dependencies or subtasks.
+- `name`: name of the entity, used for matching or searching entities.
 
-- **children**: a list of nodes that are children of the node.
+- `body`: text to store with the entity.
 
-- **auxParents**: This behaves like the tree structure created by the `parents` and `children` properties, but is not correlated with it. This allows you to separately keep track of task structure and the order in which to complete them.
+- `tags`: a list of tags applied to the entity. Under the hood, this is a subset of the `parents` property, and is a shorthand for managing tags.
 
-- **auxChildren**: *Same as above, but children instead*
+- `completed`: marks if an entity is complete. Those entities are not rendered most of the time.
 
-- **updated**: timestamp of when node was last updated (used to resolve sync conflicts)
+- `updated`: timestamp of when node was last updated. Managed automatically.
 
-- **created** timestamp of when node was originally created
+(custom behaviors not implemented for these yet:)
+- `target`: an estimated date by which you expect to complete a task, or want to have it completed by.
 
-- **completed**: marks if something is done. Most useful for tasks, but also allowed on notes and tags (for instance, to mark them as no longer necessary. Why delete anything ever)
+- `deadline`: a date you must complete a task by.
+
+- `priority`: an ordering for task completion importance, scaled with the current date and `deadline` and `target`.
+
 
 
 ## Dote command line syntax
 
-`dote create` and `dote modify` commands follow the following format.
+`dote create` and `dote modify` commands follow the following format:
 
 ```
 dote [action] [name/fields] $ [body/fields]
 ```
 
-- `action`: one of the following subcommands
+- `action`: one of the following commands, or user defined commands
     - `todo`: create a new task
     - `note`: create a new note
     - `tag`: create a new tag
     - `modify`: modify an existing entity
     - `done`: mark an entity as complete
     - `delete`: delete an entity
-    - to be determined: how to do output (probably subcommands like `dote today` for daily view, etc)
-- `name`: any number of arguments representing `name` property of entity
+- `name`: any number of arguments representing `name` property of entity, concatenated together.
 - `$`: Literal dollar sign character, surrounded by spaces. Defines boundary between name and body.
-- `body`: any number of args representing `body` property
-- `fields`: any single argument starting with any single Dote operand (see below). Used to specify other properties of the entity (tags, date, etc)
+- `body`: any number of arguments representing `body` property, concatenated together.
+- `fields`: any single argument starting with any single symbol operand (see below). Used to specify arbitrary properties of the entity (tags, date, etc). If the property is a string, multiple arguments with the same symbol operand will be concatenated.
 
-    *example*: `dote create go to =10/27 grocery store $ @outside get salad and cheese @chores and dressing`
+*example*: `dote todo go to =10/27 grocery store $ @outside get salad and cheese @chores and dressing`
 
-This command would create a new task entity with a due date of 10/27, tagged 'outside' and 'chores', with the name 'go to grocery store' and the body 'get salad and cheese and dressing'.
+This command would create a new task entity with a due date of 10/27, with tags named 'outside' and 'chores', the name 'go to grocery store' and the body 'get salad and cheese and dressing'.
 
-## Operands
 
-These symbols are not considered meaningful by Bash, and are thus safe to use for Dote CLI syntax.
+
+`dote print` commands follow the following format:
+
+```
+dote [action] [filters] [entity name/id]
+```
+
+- `action`: `print` or a user defined command
+- `filter`: any number of arguments matching filters. Built in filters are `all`, `default`, `direct`, `loose`, `tags`, `todos`, `notes`.
+- `entity name`: the first characters of an entity's `name` field, any amount to match the entity uniquely.
+- `entity id`: the id of an entity you want to match
+
+*example*: `dote print todos tags outside`
+
+This command would output entities that are children of the entity named `outside` that pass the filters `todos` and `tags`. (as well as `outside` itself).
+
+
+*example*: `dote print`
+
+This command would output entities matching the filter `default`.
+
+
+
+Other dote commands (like `delete`, `done`) follow the format:
+
+```
+dote [action] [entity name/id]
+```
+
+
+### Operands
+
+These symbols are not considered meaningful by Bash, and are thus safe to use for field names. The symbol/field name relationships are
+defined in user configs under `action_lookup`
 
 `+ - / _ ^ % @ ,`
 
@@ -85,54 +140,22 @@ These symbols are sometimes considered meaningful by Bash, so be aware-however, 
 
 `$ = [ ] { } . :`
 
-If you're using another shell, like Fish, you'll need to change those symbols in Dote's configuration file to something safe for your shell.
-Also, be aware that this list is not very accurate, and extremely situational.
+You can always quote arguments and use any symbols you'd like.
 
-## Example format
+If you're using another shell, like Fish, you'll need to change those symbols in dote's configuration file to something safe for your shell.
+Also, be aware that this list is not accurate in other contexts than dote.
 
-Project plan, written in the planned format for the pretty file:
 
-```
-#dote $03/03 $mid @portfolio &1 [
-    X write this todo &2 >3
-    settle on final syntax &3 <2 (
-        current syntax plan is:
-        @ for tag
-        = for due date and priority
-        <> for soft parent/child relationship
-        [] for hard parent/child relationship (like my mom)
-        & for uuid for linking to
-        () for an aside, for writing out note like this
-    )
-    settle on JSON naming scheme &4 (
-        id: int
-        type: str (task, note, tag)
-        name: str
-        body: str (stuff in parenthesis)
-        target: date
-        deadline: date
-        tags: int array (id)
-        parents: int array (id)
-        children: int array (id)
-        auxParents: int array (id)
-        auxChildren: int array (id)
-        updated: date
-        created: date
-        completed: bool
-    )
+### Flags
 
-    parse script $low &5
-    pretty generate script &6
-    graph renderer &7
-    cli i/o script &8 $high <
-        add
-        done
-        remove/delete
-        modify-possibly pop out into external editors
-        undo $low
-        list/show
-    >
-    parse dates and adjust priority &9 $low
-]
-```
+Supported flags are:
+    - `-c [path]`: specify config location
+    - `-d [path]`: specify datafile location
+
+## Customizing
+
+Dote's behavior is customizable to a high degree, and infinitely so if you're comfortable using Lua. The default configs contain every
+config field, described in those files.
+
+Custom actions and filters are part of those configs, and can access dote's libraries for item management and rendering freely.
 
