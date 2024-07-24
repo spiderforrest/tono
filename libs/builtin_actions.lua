@@ -55,7 +55,7 @@ M.done = function()  -- {{{
     local data = store.get()
 
     c.theme.primary("Completed ")
-    c.theme.ternary(table.concat(data[id].title, ' '))
+    c.theme.ternary(data[id].title)
     io.write('\n')
 
     data[id].done = true
@@ -107,6 +107,7 @@ M.modify = function()  -- {{{
         local field = arg[1]
         table.remove(arg, 1)
 
+        -- NOT ANYMORE, FIX LATER
         -- strings are arrays internally so just dump what's left of arg in
         data[id][field] = { table.unpack(arg) }
 
@@ -150,10 +151,10 @@ M.print = function(override_args)  -- {{{
         if #filters == 0 then filters[1] = "default" end
 
         -- bake the multifilter function
-        multifilter = function (item, conf, libs)
+        multifilter = function (...)
             for _,filter in ipairs(filters) do
                 -- eval the current filter
-                local filter_result = c.filter[filter](item, conf, libs)
+                local filter_result = c.filter[filter](...)
                 -- if it's set to blacklist, return false if any filters return false
                 -- if whitelisting, do the same backwards
                 if c.filter.multifilter_whitelist == filter_result then return filter_result end
@@ -169,32 +170,37 @@ M.print = function(override_args)  -- {{{
     -- fill queue {{{
     -- handle single item prints, notably, these bypass the filter
     if id then
-        -- if flagged or configs say to recurse
+        -- -- if flagged or configs say to recurse
         if arg[2] == 'recurse' or (c.format.single_item_recurse and not arg[2]) then
-            -- fill the queue, no filter here
-            queue = output.queue(queue, id, 0, function() return true end)
+            output.queue(id, multifilter)
+            -- however the item itself might get filtered -_-
+            -- just. fix that
+            if not output.current_queue[1] or not output.current_queue[1].id == id then
+                table.insert(output.current_queue, 1, { id = id, level = 0 })
+            end
         else
-            -- else print one and bail
+            -- just print the item and bail
             output.print_item(id, 0)
             return
         end
     else
-        -- for printing the whole list
-        if c.format.order_decending then
-            for i = #data, 1, -1 do -- mom said we have ipairs at home
-                queue = output.queue(queue, i, 0, multifilter)
-            end
-        else
-            for i in ipairs(data) do
-                queue = output.queue(queue, i, 0, multifilter)
-            end
+        -- for printing the whole list, queue it all
+        for i in ipairs(data) do
+            output.queue(i, multifilter)
         end
     end
     -- }}}
 
     -- actually print the queue
-    for _, entry in ipairs(queue or {}) do
-        output.print_item(entry.id, entry.level)
+    if c.format.order_decending then
+        -- mom said we have ipairs at home
+        for i = #output.current_queue, 1, -1 do
+            output.print_item(output.current_queue[i].id, output.current_queue[i].level)
+        end
+    else
+        for _, entry in ipairs(output.current_queue) do
+            output.print_item(entry.id, entry.level)
+        end
     end
 end
 -- }}}

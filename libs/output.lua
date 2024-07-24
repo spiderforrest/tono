@@ -190,24 +190,31 @@ M.print_item = function(id, level) -- {{{
 end
 -- }}}
 
-M.queue = function (queue, id, level, filter) -- {{{
+-- store the current queue here for accessing in other places
+M.current_queue = { level = 0, id = 0}
+M.queue = function (id, filter) -- {{{
     -- print("queuer called on " .. tostring(id))
     local data = store.get()
 
-    if not filter(data[id], c, require("libs")) then return queue end
+    if not filter(data[id], c, require("libs"), M.current_queue) then return M.current_queue end
     -- print(tostring(id) .. " passes filter")
 
-    table.insert(queue, { id = id, level = level })
+    table.insert(M.current_queue, { id = id, level = M.current_queue.level })
+
+    -- save the item as last entered
+    M.current_queue.id = id
 
     -- now do recursion
-    level = level + 1
+    M.current_queue.level = M.current_queue.level + 1
     for _, child_id in ipairs(data[id].children) do
         -- checks to keep recursion finite
-        if id ~= child_id and not (c.format.never_duplicate and queue[child_id]) then
-            queue = M.queue(queue, child_id, level, filter)
+        if id ~= child_id and not (c.format.never_duplicate and M.current_queue[child_id]) then
+            M.current_queue = M.queue(child_id, filter)
         end
     end
-    return queue
+    M.current_queue.level = M.current_queue.level - 1
+
+    return M.current_queue
 end
 
 --}}}
