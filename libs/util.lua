@@ -187,7 +187,7 @@ end
 
 -- store a table of flags so they can be stripped from arg but if this is called again they'll be remembered
 local flag_cache = {}
-M.get_flag = function (flag) -- {{{
+M.get_flag = function (flag, bool) -- {{{
     -- check if the flag's been stored and leave it at that if so
     if flag_cache[flag] then return flag_cache[flag] end
 
@@ -195,13 +195,19 @@ M.get_flag = function (flag) -- {{{
     local value
     for i, v in ipairs(arg) do
         if v == flag then
-            if arg[i + 1] == nil then -- if flag passed by itself
-                M.err("The flag '" .. flag .. "' requires a path")
+            if not bool then
+                if arg[i + 1] == nil then -- if flag passed by itself
+                    M.err("The flag '" .. flag .. "' requires a path")
+                end
+                value = arg[i + 1]
+                table.remove(arg, i)
+                -- removing both the flag and the value specified after it so we remove twice
+                table.remove(arg, i)
+            else
+                -- if it's a bool just set it and remove it
+                value = true
+                table.remove(arg, i)
             end
-            value = arg[i + 1]
-            table.remove(arg, i)
-            -- removing both the flag and the value specified after it so we remove twice
-            table.remove(arg, i)
         end
     end
 
