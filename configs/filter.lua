@@ -12,34 +12,51 @@ M.multifilter_whitelist = true
 
 -- every filter is just called by name with the text of the arg
 -- also your configs and the libs are passed as args 2/3 just in casesies
+-- and arg 4 is the current queue for printing
 
--- except this one it's called when there's no args to dote
-M.default = function (item, _, lib)
+-- this one is called when there's no args to dote
+
+M.default = function (item, _, lib, q)
     if item.done then return false end
     if item.hide then return false end
     if item.type == "tag" then return false end
+    if item.done then return false end
+    if item.hide then return false end
 
-    -- check for tag being hidden/done
+    -- check for direct parent being hidden/done
     local data = lib.store.get()
     for _,id in ipairs(item.parents) do
-        if data[id].type == "tag" then
-            if data[id].done then return false end
-            if data[id].hide then return false end
-        end
+        if data[id].done then return false end
+        if data[id].hide then return false end
     end
 
-    return true
+    return M.clean(item, _, lib, q)
 end
 
 M.all = function ()
     return true
 end
 
-M.top = function (item, ...)
-    if #item.parents > 0 then return false end
+-- prevent duplicates rendering all over the place
+-- note: this also hides loops entirely, as it can't find an 'entry point' to render one and recurse
+M.clean = function (item, _, c, q)
+    -- items with no parents pass
+    if #item.parents == 0 then return true end
 
-    return M.default(item, ...)
+    -- if they have parents, no printing top level
+    for  _, v in ipairs(q) do
+        if v.id == item.id then
+            return false
+        end
+    end
+
+    return true
 end
+
+-- only render children
+M.direct = function (item, _, lib, q)
+end
+
 
 M.tags = function (item, ...)
     if item.type == "tag" then return true end
