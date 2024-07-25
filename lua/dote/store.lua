@@ -17,9 +17,9 @@
 -- }}}
 
 local M = {}
-local util = require("util")
-local json = require("json")
-local c = require("config")
+local util = require("dote.util")
+local json = require("dote.json")
+local c = require("dote.config")
 
 -- hold the datafile in this module's scope, prevent reperated re openings
 local data_cache = nil

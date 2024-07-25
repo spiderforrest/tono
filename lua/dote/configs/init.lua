@@ -1,23 +1,42 @@
 -- config is a module, configure by populating it with lookup tables, variables, functions
 local M = {}
 
--- {{{ default config only
--- shadow the path while in this file to pull config files from here only
-local package_tmp = package.path
-package.path = "./configs/?.lua"
+-- {{{ internal config only, delete if you've copied this out
+    -- pull the other files
+    M.format = require('dote.configs.format')
+    M.warn = require('dote.configs.warn')
+    M.theme = require('dote.configs.theme')
+    M.filter = require('dote.configs.filter')
+    M.action = require('dote.configs.action')
 
--- pull the other files
-M.format = require('format')
-M.warn = require('warn')
-M.theme = require('theme')
-M.filter = require('filter')
-M.action = require('action')
 
-package.path = package_tmp
-
--- the default configs are part of the project itself, this is just where dote looks first for user configs.
-M.config_file_location = os.getenv("HOME") .. "/.config/dote/config.lua"
+    -- the default configs are part of the project itself, this is just where dote looks first for user configs.
+    -- this is the ONLY line you should change of the internal default configs (if you're naughty and messing with those)
+    -- if you've copied them out
+    M.config_file_location = os.getenv("HOME") .. "/.config/dote/config.lua"
 -- }}}
+
+--{{{ if you've copied out, and keep the files split like it is in the internal defaults
+    -- you'll have to set the package path so require can get them, like:
+
+    --[[ (delete this line to uncomment the whole section below, and make sure you delete the "internal config only" section above)
+
+    -- first, shadow the package path, so we can mess with it and not cause conflicts later on
+    local package_tmp = package.path
+
+    -- then, set it to match lua files in the dir your configs are in
+    package.path = os.gentenv("HOME") .. "./config/dote/?.lua"
+
+    -- then you can require them
+    M.format = require('format')
+    M.warn = require('warn')
+    M.theme = require('theme')
+    M.filter = require('filter')
+    M.action = require('action')
+
+    -- then, use the shadowed path to restore package.path
+    package.path = package_tmp
+-- }}}]]
 
 
 M.data_file_location = os.getenv("HOME").."/.config/dote/data.json"

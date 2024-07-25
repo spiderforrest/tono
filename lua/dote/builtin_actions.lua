@@ -16,11 +16,11 @@
 -- along with this program, at /LICENSE. If not, see <https://www.gnu.org/licenses/>.
 -- }}}
 
-local store = require("store")
-local output = require("output")
-local fields = require("fields")
-local util = require("util")
-local c = require("config")
+local store = require("dote.store")
+local output = require("dote.output")
+local fields = require("dote.fields")
+local util = require("dote.util")
+local c = require("dote.config")
 
 local M = {}
 

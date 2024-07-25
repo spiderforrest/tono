@@ -18,13 +18,13 @@
 -- along with this program, at /LICENSE. If not, see <https://www.gnu.org/licenses/>.
 -- }}}
 
-package.path = package.path .. ";./libs/?.lua;"
+-- package.path = package.path .. ";./lua/?.lua;"
 
--- calling this actively loads the configs (and cuts flags from args)
-local c = require("config")
+-- calling this actively loads the configs (and cuts relevant flags from arg)
+local c = require("dote.config")
 
 -- this contains functions for each command
-local builtins = require("builtin_actions")
+local builtins = require("dote.builtin_actions")
 
 -- lookup the user's aliases
 local action = c.action_lookup[arg[1]]
@@ -34,7 +34,7 @@ if c.action[action] then
     table.remove(arg, 1)
     -- hand config and libs to the custom function.. in the configs
     -- bit contrived but I like the interface
-    c.action[action](c, require('libs'))
+    c.action[action](c, require('dote'))
 else
     if builtins[action] then
         table.remove(arg, 1)

@@ -18,11 +18,11 @@
 
 -- just a bundle for convience, for passing internal libs into configs
 local M = {
-    actions = require('builtin_actions'),
-    fields = require('fields'),
-    output = require('output'),
-    store = require('store'),
-    util = require('util'),
+    actions = require('dote.builtin_actions'),
+    fields = require('dote.fields'),
+    output = require('dote.output'),
+    store = require('dote.store'),
+    util = require('dote.util'),
 }
 
 return M

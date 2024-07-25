@@ -16,7 +16,7 @@
 -- along with this program, at /LICENSE. If not, see <https://www.gnu.org/licenses/>.
 -- }}}
 
-local util = require("util")
+local util = require("dote.util")
 
 -- explaination of this before I forget
 -- lua caches stuff when you run require so it doesn't need to re-process the file when you
@@ -50,7 +50,7 @@ if #Config == 0 then
     Config.reset = function()  -- {{{
         local user_config
         -- get default configs
-        local default_config = require("configs")
+        local default_config = require("dote.configs")
         local config_location = util.get_flag("-c") or default_config.config_file_location -- lol
 
         -- load config, warn if no config file found and skip clobber code
@@ -80,6 +80,10 @@ if #Config == 0 then
     Config.modify = function(altered_config)
         Config = altered_config
     end
+
+    -- set any flagged args, will probably just pile as i run into things i want to mess with
+    if util.get_flag("--no-recurse", true) then Config.format.single_item_recurse = false end
+
 end
 
 return Config
