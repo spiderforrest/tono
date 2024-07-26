@@ -64,6 +64,7 @@ if #Config == 0 then
         Config = util.merge_tbl_recurse(Config, default_config)
 
         -- {{{ read arguments to dynamically set configs by doing `--some-config-thing value`
+        local changed = false
         for i, v in ipairs(arg) do
             -- match the symbols '--' to find an arg to act on, 'body' will be `-some-config-thing`
             local _, _, body = string.find(v, "^%-(%-.*)") -- match substr after - starting with another - (two - in a row, but keep the second - in body)
@@ -100,6 +101,7 @@ if #Config == 0 then
                 -- check if it's valid and what its type is
                 if type(ptr[key]) == 'string' then
                     if arg[i+1] then
+                        changed = true
                         -- set and strip the argument away
                         ptr[key] = arg[i+1]
                         arg[i] = nil -- we will repair the arg table at the end
@@ -110,6 +112,7 @@ if #Config == 0 then
 
                 elseif type(ptr[key]) == 'number' then
                     if arg[i+1] and tonumber(arg[i+1]) then
+                        changed = true
                         ptr[key] = tonumber(arg[i+1])
                         arg[i] = nil
                         arg[i+1] = nil
@@ -118,6 +121,7 @@ if #Config == 0 then
                     end
 
                 elseif type(ptr[key]) == 'boolean' then
+                    changed = true
                     if rest then -- rest is truthy if --no is found, so inverted here
                         ptr[key] = false
                     else
@@ -130,7 +134,7 @@ if #Config == 0 then
 
         -- we absolutely mess up the arg table to keep the iterator in sync above, so fix that now
         -- (we replaced 'used' values with nil, to mark them as used, but we want arg continuous)
-        if #arg > 0 then
+        if changed then
             for i,v in pairs(arg) do
                 if v and i ~= -1 and i ~= 0 then -- don't fuck with the defaults
                     arg[i] = nil -- delete it from where it is
