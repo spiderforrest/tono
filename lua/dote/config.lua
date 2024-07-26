@@ -18,7 +18,7 @@
 
 local util = require("dote.util")
 
--- explaination of this before I forget
+-- {{{ long-winded explaination of this before I forget
 -- lua caches stuff when you run require so it doesn't need to re-process the file when you
 -- use require again. That makes it possible to run a setup once and store data. That data is
 -- even mutable, and `config` is the module itself. It's the configs stored during runtime
@@ -39,15 +39,15 @@ local util = require("dote.util")
 
 --probably didn't need to write all that out but the naming here is bad so it can be pretty
 --elsewhere
+-- }}}
 
 
 -- we cache the config so that it can be modified on the fly
 local Config = {}
 
 if #Config == 0 then
-    -- bc this file is a module we're gonna just use active_config like M
-    -- and while this is a setup function it's exposed so that's why it's named reset
-    Config.reset = function()  -- {{{
+    -- bc this file is a module we're gonna just use Config like M
+    Config.setup = function()  -- {{{
         local user_config
         -- get default configs
         local default_config = require("dote.configs")
@@ -63,6 +63,74 @@ if #Config == 0 then
         default_config = util.merge_tbl_recurse(user_config, default_config)
         Config = util.merge_tbl_recurse(Config, default_config)
 
+        -- commentt better latrrrrrrrrr this bad shoulda taken my meds
+        -- alllllllso it doesnt work if you re-call config.reset buttt you shouldn't ever do that
+        -- i should just name it setup
+        -- okay now it's named setup
+        -- {{{ read arguments to dynamically set configs by doing `--some-config-thing value`
+        for i, v in ipairs(arg) do
+            -- match the symbols '--' to find an arg to act on, 'body' will be `-some-config-thing`
+            local _, _, body = string.find(v, "^%-(%-.*)") -- match substr after - starting with another - (two - in a row, but keep the second -)
+            if body then
+                -- check if it's an antibool thingy
+                local _,_, rest = string.find(body, "^%-no(.+)") -- match substr after -no
+                if rest then body = rest end -- save theaaat and rest will be truthy now yipee
+
+                -- save the key thingyky whatever because if you keep moving the pointer to the acual value
+                -- lua goes and switches to it being an unhhhh 'by value' and makes the pointer not a pointer but a regular
+                -- variable yeas which is baaad bc we wanna modify the original from Config with . or [] syntax not like
+                -- the local ptr
+                -- yea
+                local key
+
+                local ptr = Config -- hehe it's likea a c mama mia it works likea youa think it do
+                for sub_thingyy in string.gmatch(body, "[%-%.]([^%-%.]+)") do -- match substr after - or . and go til next - or .
+                    if ptr[sub_thingyy] then
+                        if type(ptr[sub_thingyy]) == "table" then -- keep going if it's a table
+                            ptr = ptr[sub_thingyy] -- move the pointer down the table tree thingymajob
+                            -- hey wait tables are graphs not trees suck it js
+                        else
+                            key = sub_thingyy
+                        end
+                    else
+                        util.err("entered an invalid config modifying flag at: '" .. v .."'")
+                    end
+                end
+
+                -- check if it's valid and what it's type is
+                if type(ptr[key]) == 'string' then
+                    if arg[i+1] then
+                        -- set it and strip the flag thingy and the value
+                        ptr[key] = arg[i+1]
+                        table.remove(arg, i)
+                        table.remove(arg, i)
+                    else
+                        util.err("The flag '" .. v .. "' requires a value")
+                    end
+                elseif type(ptr[key]) == 'number' then
+                    -- print'haiiii'
+                    if arg[i+1] and tonumber(arg[i+1]) then
+                        -- set it and strip the flag thingy and the value
+                        ptr[key] = tonumber(arg[i+1])
+                        table.remove(arg, i)
+                        table.remove(arg, i)
+                    else
+                        util.err("The flag '" .. v .. "' requires a number value")
+                    end
+                elseif type(ptr[key]) == 'boolean' then
+                    if rest then -- loll if this is true its cos --no was there so acktually it should be false
+                        ptr[key] = false
+                    else
+                        ptr[key] = true
+                    end
+                    -- jus the one this time cos no value
+                    table.remove(arg, i)
+                end
+                -- holy shit this shit worked like basically first try
+            end
+        end
+        -- }}}
+
         -- bake and replace theme:
         Config.theme = util.bake_theme(Config.theme, Config.term_escape_seq)
 
@@ -74,7 +142,7 @@ if #Config == 0 then
     -- }}}
 
     -- this file is a module, that sets its own contents to the data inside the config
-    Config = Config.reset()
+    Config = Config.setup()
 
     -- lets you change configs to like, switch formatting rules etc
     Config.modify = function(altered_config)
