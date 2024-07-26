@@ -16,9 +16,9 @@
 -- along with this program, at /LICENSE. If not, see <https://www.gnu.org/licenses/>.
 -- }}}
 
-local util = require("dote.util")
-local c = require("dote.config")
-local store = require("dote.store")
+local util = require'dote.util'
+local c = require'dote.config'
+local store = require'dote.store'
 
 local M = {}
 

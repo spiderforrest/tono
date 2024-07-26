@@ -16,9 +16,9 @@
 -- along with this program, at /LICENSE. If not, see <https://www.gnu.org/licenses/>.
 -- }}}
 
-local c = require("dote.config")
-local util = require("dote.util")
-local store = require("dote.store")
+local c = require'dote.config'
+local util = require'dote.util'
+local store = require'dote.store'
 
 local M = {}
 
@@ -196,7 +196,7 @@ M.queue = function (id, filter) -- {{{
     -- print("queuer called on " .. tostring(id))
     local data = store.get()
 
-    if not filter(data[id], c, require("dote"), M.current_queue) then return M.current_queue end
+    if not filter(data[id], c, require'dote', M.current_queue) then return M.current_queue end
     -- print(tostring(id) .. " passes filter")
 
     table.insert(M.current_queue, { id = id, level = M.current_queue.level })

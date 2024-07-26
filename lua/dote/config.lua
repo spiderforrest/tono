@@ -16,7 +16,7 @@
 -- along with this program, at /LICENSE. If not, see <https://www.gnu.org/licenses/>.
 -- }}}
 
-local util = require("dote.util")
+local util = require'dote.util'
 
 -- {{{ long-winded explaination of this before I forget
 -- lua caches stuff when you run require so it doesn't need to re-process the file when you
@@ -50,12 +50,12 @@ if #Config == 0 then
     Config.setup = function()  -- {{{
         local user_config
         -- get default configs
-        local default_config = require("dote.configs")
-        local config_location = util.get_flag("-c") or default_config.config_file_location -- lol
+        local default_config = require'dote.configs'
+        local config_location = util.get_flag"-c" or default_config.config_file_location -- lol
 
         -- load config, warn if no config file found and skip clobber code
         if not pcall(function() user_config = dofile(config_location) end) then
-            util.warn("Config file not found or erroring! Default location is ~/.config/dote/config.lua")
+            util.warn"Config file not found or erroring! Default location is ~/.config/dote/config.lua"
             user_config = {}
         end
 
@@ -63,70 +63,68 @@ if #Config == 0 then
         default_config = util.merge_tbl_recurse(user_config, default_config)
         Config = util.merge_tbl_recurse(Config, default_config)
 
-        -- commentt better latrrrrrrrrr this bad shoulda taken my meds
-        -- alllllllso it doesnt work if you re-call config.reset buttt you shouldn't ever do that
-        -- i should just name it setup
-        -- okay now it's named setup
         -- {{{ read arguments to dynamically set configs by doing `--some-config-thing value`
         for i, v in ipairs(arg) do
             -- match the symbols '--' to find an arg to act on, 'body' will be `-some-config-thing`
-            local _, _, body = string.find(v, "^%-(%-.*)") -- match substr after - starting with another - (two - in a row, but keep the second -)
+            local _, _, body = string.find(v, "^%-(%-.*)") -- match substr after - starting with another - (two - in a row, but keep the second - in body)
             if body then
-                -- check if it's an antibool thingy
+                -- for bools, instead of doing writing true/false you after do --no-some-config-thing or --some-config-thing for false/true
+                -- check for that and cut the -no from body
                 local _,_, rest = string.find(body, "^%-no(.+)") -- match substr after -no
-                if rest then body = rest end -- save theaaat and rest will be truthy now yipee
+                if rest then body = rest end
 
-                -- save the key thingyky whatever because if you keep moving the pointer to the acual value
-                -- lua goes and switches to it being an unhhhh 'by value' and makes the pointer not a pointer but a regular
-                -- variable yeas which is baaad bc we wanna modify the original from Config with . or [] syntax not like
-                -- the local ptr
-                -- yea
+                -- tables copy by reference in Lua, so copying one creates an independent pointer
+                -- we'll move that along the Config table to find the target setting to change
+                local ptr = Config
+                -- we can't actually move the pointer all the way to point directly at the setting-
+                -- if we do, it turns into an independent variable and copies the value of the setting
+                -- so we'll store the final part ('thing' in --some-config-thing) as a string here and
+                -- do ptr[key] to actually access the real Config.some.config.thing
                 local key
 
-                local ptr = Config -- hehe it's likea a c mama mia it works likea youa think it do
-                for sub_thingyy in string.gmatch(body, "[%-%.]([^%-%.]+)") do -- match substr after - or . and go til next - or .
-                    if ptr[sub_thingyy] then
-                        if type(ptr[sub_thingyy]) == "table" then -- keep going if it's a table
-                            ptr = ptr[sub_thingyy] -- move the pointer down the table tree thingymajob
-                            -- hey wait tables are graphs not trees suck it js
+                -- go through the string and step the pointer down a layer for each match
+                for layer in string.gmatch(body, "[%-%.]([^%-%.]+)") do -- match substr after - or . and go til next - or .
+                    if ptr[layer] then
+                        -- if it's a table, we need to keep going, we can't set those
+                        if type(ptr[layer]) == "table" then
+                            ptr = ptr[layer]
                         else
-                            key = sub_thingyy
+                            -- if we've found the value, set key instead
+                            key = layer
                         end
-                    else
+                    else -- bail if not valid
                         util.err("entered an invalid config modifying flag at: '" .. v .."'")
                     end
                 end
 
-                -- check if it's valid and what it's type is
+                -- check if it's valid and what its type is
                 if type(ptr[key]) == 'string' then
                     if arg[i+1] then
-                        -- set it and strip the flag thingy and the value
+                        -- set and strip the argument away
                         ptr[key] = arg[i+1]
                         table.remove(arg, i)
                         table.remove(arg, i)
                     else
                         util.err("The flag '" .. v .. "' requires a value")
                     end
+
                 elseif type(ptr[key]) == 'number' then
-                    -- print'haiiii'
                     if arg[i+1] and tonumber(arg[i+1]) then
-                        -- set it and strip the flag thingy and the value
                         ptr[key] = tonumber(arg[i+1])
                         table.remove(arg, i)
                         table.remove(arg, i)
                     else
                         util.err("The flag '" .. v .. "' requires a number value")
                     end
+
                 elseif type(ptr[key]) == 'boolean' then
-                    if rest then -- loll if this is true its cos --no was there so acktually it should be false
+                    if rest then -- rest is truthy if --no is found, so inverted here
                         ptr[key] = false
                     else
                         ptr[key] = true
                     end
-                    -- jus the one this time cos no value
                     table.remove(arg, i)
                 end
-                -- holy shit this shit worked like basically first try
             end
         end
         -- }}}
@@ -135,7 +133,7 @@ if #Config == 0 then
         Config.theme = util.bake_theme(Config.theme, Config.term_escape_seq)
 
         -- get flag arguments (importantly, stripping them from arg[])
-        Config.data_file_location = util.get_flag("-d") or Config.data_file_location
+        Config.data_file_location = util.get_flag"-d" or Config.data_file_location
 
         return Config
     end
@@ -148,9 +146,6 @@ if #Config == 0 then
     Config.modify = function(altered_config)
         Config = altered_config
     end
-
-    -- set any flagged args, will probably just pile as i run into things i want to mess with
-    if util.get_flag("--no-recurse", true) then Config.format.single_item_recurse = false end
 
 end
 

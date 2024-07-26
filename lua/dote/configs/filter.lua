@@ -11,8 +11,10 @@ M.multifilter_whitelist = true
 -- custom field, it'll be named as you named it and just as accessible.
 
 -- every filter is just called by name with the text of the arg
--- also your configs and the libs are passed as args 2/3 just in casesies
--- and arg 4 is the current queue for printing
+-- your configs, the libs and the current item printing queue are passed
+-- as args 2-4 so you can use them
+-- the queue is an array of objects, with {id, depth} showing the represented
+-- item's id and how deep in recursion it is
 
 -- this one is called when there's no args to dote
 
@@ -51,10 +53,6 @@ M.clean = function (item, _, c, q)
     end
 
     return true
-end
-
--- only render children
-M.direct = function (item, _, lib, q)
 end
 
 

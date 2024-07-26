@@ -222,7 +222,7 @@ M.get_id_by_maybe_title = function (word, data, safe) -- {{{
         if safe then
             return false
         else
-            M.err("Searching for null!")
+            M.err"Searching for null!"
         end
     end
     -- if valid id just return

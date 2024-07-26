@@ -1,4 +1,5 @@
--- config is a module, configure by populating it with lookup tables, variables, functions
+
+-- config is a module, configure dote by populating it with lookup tables, variables, functions
 local M = {}
 
 -- {{{ internal config only, delete if you've copied this out:
@@ -46,26 +47,26 @@ M.trash_file_location = os.getenv("HOME").."/.config/dote/trash.json"
 
 -- commands to use (you change the left side, the right is actual function names)
 M.action_lookup = {
-    ['todo'] = "create_todo",
-    ['add'] = "create_todo",
-    ['note'] = "create_note",
-    ['tag'] = "create_tag",
-    ['done'] = "done",
-    ['delete'] = "delete",
-    ['modify'] = "modify",
-    ['edit'] = "modify",
-    ['print'] = "print",
-    ['archive'] = "archive",
-    ['fix'] = "repair",
+    todo = "create_todo",
+    add = "create_todo",
+    note = "create_note",
+    tag = "create_tag",
+    done = "done",
+    delete = "delete",
+    modify = "modify",
+    edit = "modify",
+    print = "print",
+    archive = "archive",
+    fix = "repair",
 
-    ['compact'] = "compact",
-    ['debug'] = "debug",
+    compact = "compact",
+    debug = "debug",
 }
 
 -- default command
 M.default_action = "print"
 
--- after you delete, add, etc should it print it out
+-- after you delete, add, etc should it call the default print
 M.print_after_change = true
 
 -- symbols that specify the key in key:value pairs

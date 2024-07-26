@@ -21,7 +21,7 @@ a Lua table. The only way this will output "null" is if your entire input obj is
 nil itself.
 An empty Lua table, {}, could be considered either a json object or array -
 it's an ambiguous edge case. We choose to treat this as an object as it is the
-more general type.
+more general type. !| MODIFIED: DOES THE OPPOSITE |!
 To be clear, none of the above considerations is a limitation of this code.
 Rather, it is what we get when we completely observe the json specification for
 as arbitrary a Lua object as json is capable of expressing.

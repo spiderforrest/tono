@@ -17,9 +17,9 @@
 -- }}}
 
 local M = {}
-local util = require("dote.util")
-local json = require("dote.json")
-local c = require("dote.config")
+local util = require'dote.util'
+local json = require'dote.json'
+local c = require'dote.config'
 
 -- hold the datafile in this module's scope, prevent reperated re openings
 local data_cache = nil
@@ -41,7 +41,7 @@ M.get = function(path) --{{{
         util.err("File " .. tostring(path) .. " not found!")
     end
     -- try to read
-    if not pcall(function() data = json.parse(file:read("*all")) end)
+    if not pcall(function() data = json.parse(file:read'*all') end)
     then
         util.warn("File " .. tostring(path) .. " empty or malformatted!")
         data = {}
@@ -54,8 +54,7 @@ M.get = function(path) --{{{
     end
 
     return data
-end
--- }}}
+end -- }}}
 
 M.save = function(data, path) -- {{{
     local datafile, jsonified, safety
@@ -71,13 +70,11 @@ M.save = function(data, path) -- {{{
     end)
     then
         -- dump and crash
-        c.theme.ternary("/// Old file contents: ///")
+        c.theme.ternary"/// Old file contents: ///"
         io.write(safety .. "\n\n")
-        c.theme.ternary("/// Cache contents: ///")
+        c.theme.ternary"/// Cache contents: ///"
         io.write(json.stringify(data_cache) .. "\n\n")
-        util.err(
-            "ERROR WRITING FILE! Data dumped above, please manually verify your stored data before running dote again."
-        )
+        util.err"ERROR WRITING FILE! Data dumped above, please manually verify your stored data before running dote again."
     end
     datafile:close()
 
@@ -85,7 +82,7 @@ M.save = function(data, path) -- {{{
     if not path then
         data_cache = data
     end
-end                                         -- }}}
+end -- }}}
 
 return M
 

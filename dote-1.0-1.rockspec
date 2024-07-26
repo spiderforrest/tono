@@ -1,7 +1,7 @@
 package = "dote"
 version = "1.0-1"
 source = {
-   url = "http://github.com/spiderforrest/dote",
+   url = "git://github.com/spiderforrest/dote.git",
 }
 description = {
    summary = "A cli to-do and note-taking system built on graph theory",
