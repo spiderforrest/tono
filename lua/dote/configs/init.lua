@@ -1,13 +1,13 @@
 -- config is a module, configure by populating it with lookup tables, variables, functions
 local M = {}
 
--- {{{ internal config only, delete if you've copied this out
+-- {{{ internal config only, delete if you've copied this out:
     -- pull the other files
-    M.format = require('dote.configs.format')
-    M.warn = require('dote.configs.warn')
-    M.theme = require('dote.configs.theme')
-    M.filter = require('dote.configs.filter')
-    M.action = require('dote.configs.action')
+    M.format = require'dote.configs.format'
+    M.warn = require'dote.configs.warn'
+    M.theme = require'dote.configs.theme'
+    M.filter = require'dote.configs.filter'
+    M.action = require'dote.configs.action'
 
 
     -- the default configs are part of the project itself, this is just where dote looks first for user configs.
@@ -16,7 +16,8 @@ local M = {}
     M.config_file_location = os.getenv("HOME") .. "/.config/dote/config.lua"
 -- }}}
 
---{{{ if you've copied out, and keep the files split like it is in the internal defaults
+--{{{ if you've copied out, and keep the files split like it is in the internal defaults:
+    -- if you know what you're doing you can use dofile or anything but like doing it with require
     -- you'll have to set the package path so require can get them, like:
 
     --[[ (delete this line to uncomment the whole section below, and make sure you delete the "internal config only" section above)
@@ -28,11 +29,11 @@ local M = {}
     package.path = os.gentenv("HOME") .. "./config/dote/?.lua"
 
     -- then you can require them
-    M.format = require('format')
-    M.warn = require('warn')
-    M.theme = require('theme')
-    M.filter = require('filter')
-    M.action = require('action')
+    M.format = require'format'
+    M.warn = require'warn'
+    M.theme = require'theme'
+    M.filter = require'filter'
+    M.action = require'action'
 
     -- then, use the shadowed path to restore package.path
     package.path = package_tmp
