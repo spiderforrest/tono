@@ -23,7 +23,7 @@ local store = require'dote.store'
 local M = {}
 
 -- this one goes through the input text, parses it, and calls all the field handlers appropriately
-M.process_all = function(id)  --{{{
+M.process_all = function(id, reset)  --{{{
     local data = store.get()
     local separator_status = "title"
     for _, word in ipairs(arg) do
@@ -39,10 +39,12 @@ M.process_all = function(id)  --{{{
 
             -- if field has handler
         elseif M[key_actual] then
+            if reset then M.reset_field(key_actual, id) end -- if modifying, we blank the field
             M[key_actual](body, id)
 
             -- if field is defined but doesn't have a handler just add it
         elseif key_actual and key_actual ~= '' then
+            if reset then M.reset_field(key_actual, id) end
             M.add_to_field(key_actual, body, id)
 
             -- otherwise treat as plaintext, with the symbol as part of the text
@@ -50,12 +52,52 @@ M.process_all = function(id)  --{{{
             if sym and c.warn.unmatched_sym then
                 util.warn("No defined field for '" .. sym .. "'! Treating as plaintext.")
             end
+            if reset then M.reset_field(separator_status, id) end
             M.add_to_field(separator_status, word, id)
         end
     end
     return data[id]
 end
 -- }}}
+
+local reset_tracker = {} -- if we reset we only want to the first time we change the field
+M.reset_field = function (field, id) -- {{{
+    -- cancel if we've already reset the field so we don't repeatedly blank it on the same action
+    if reset_tracker[field] then return end
+    -- log that we're changing it
+    reset_tracker[field] = true
+
+    local data = store.get()
+    if c.format.field_type[field] == 'deref' then
+        -- util.err"....sorry, can't modify relationships at the moment, the code exists but isn't here"
+
+        -- check whompst
+        local inverse_target
+        if field == "tags" then field = "parents" end -- there are no tags in Ba Sing Se
+        if field == "parents" then inverse_target = "children"
+        elseif field == "children" then inverse_target = "parents"
+        else util.err("cannot modify unknown relationship field " .. field)
+        end
+
+        -- iterate through who's there and fix the inverse
+        for _,v in ipairs(data[id][field]) do
+            -- search for the current id in the opposite
+            for k in ipairs(data[v][inverse_target]) do
+                -- remove
+                table.remove(data[v][inverse_target], k)
+            end
+        end
+
+        -- then you can reset the field
+        data[id][field] = {}
+
+    elseif c.format.field_type[field] == 'date' then
+        -- this one doesn't really do anything, but if something's weird it'll be obvious?
+        data[id][field] = 0
+    else -- then string
+        data[id][field] = ''
+    end
+end --}}}
 
 M.add_to_field = function(field, word, id) -- {{{
     local data = store.get()
@@ -71,11 +113,7 @@ M.add_to_field = function(field, word, id) -- {{{
 
     -- ids should not be duplicated, so use ensure_present for them
     if c.format.field_type[field] == 'deref' then
-        if data[tonumber(word)] then
-            util.ensure_present(data[id][field], word)
-        else
-            util.err("The field '" .. field .. "' is an ID field, but the id '" .. word .. "' does not exist")
-        end
+        util.ensure_present(data[id][field], util.get_id_by_maybe_title(word, data))
 
     elseif c.format.field_type[field] == 'date' then
         -- todo: convert input from human readable date (alternatively, git gud & mentally keep time by nix stamp)
@@ -102,7 +140,7 @@ M.target = function(word, id)  -- {{{
 end
 -- }}}
 
-M.child = function(word, id)  -- {{{
+M.children = function(word, id)  -- {{{
     local data = store.get()
     local child_id = util.get_id_by_maybe_title(word, data)
 
@@ -111,7 +149,7 @@ M.child = function(word, id)  -- {{{
 end
 -- }}}
 
-M.parent = function(word, id)  -- {{{
+M.parents = function(word, id)  -- {{{
     local data = store.get()
     -- if user puts the parent name in because duh that's how it works in your brain
     -- i thought there was a bug where somehow the parent name was getting inserted where id's should be
@@ -125,9 +163,9 @@ M.parent = function(word, id)  -- {{{
 end
 -- }}}
 
-M.tag = function(word, id)  -- {{{
+M.tags = function(word, id)  -- {{{
     -- tags r just parents
-    return M.parent(word, id)
+    return M.parents(word, id)
 end
 -- }}}
 

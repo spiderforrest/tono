@@ -77,10 +77,10 @@ M.field_lookup = {
     ['-'] = "done",
     [':'] = "",
     ['_'] = "",
-    ['^'] = "child",
-    ['/'] = "parent",
+    ['^'] = "children",
+    ['/'] = "parents",
     ['%'] = "",
-    ['@'] = "tag", -- technically identical as parent
+    ['@'] = "tags", -- technically identical to parents
     ['='] = "date",
     ['['] = "new made up field",
     [']'] = "",

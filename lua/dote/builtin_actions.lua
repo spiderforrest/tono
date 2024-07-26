@@ -51,8 +51,8 @@ M.create_tag = function() create('tag') end
 -- }}}
 
 M.done = function()  -- {{{
-    local id = tonumber(arg[1])
     local data = store.get()
+    local id = util.get_id_by_maybe_title(arg[1], data)
 
     c.theme.primary("Completed ")
     c.theme.ternary(data[id].title)
@@ -68,6 +68,8 @@ end
 M.delete = function()  -- {{{
     local id = tonumber(arg[1])
     local data = store.get()
+    if data[id] == 'number' then util.err"Must use numerical id with delete!" end
+
     c.theme.primary("Trashing ")
     c.theme.ternary(data[id].title or '<no title>')
     io.write('\n')
@@ -96,20 +98,13 @@ end
 
 M.modify = function()  -- {{{
     local data = store.get()
-    local id
-    -- non interactive
-    if arg[2] then
-        -- todo: use the field processer for this
-
-        -- pull the target and field
-        id = tonumber(arg[1])
-        table.remove(arg, 1)
-        local field = arg[1]
-        table.remove(arg, 1)
-
-        -- NOT ANYMORE, FIX LATER
-        -- strings are arrays internally so just dump what's left of arg in
-        data[id][field] = { table.unpack(arg) }
+    -- find target
+    local id = util.get_id_by_maybe_title(arg[1], data)
+    table.remove(arg, 1)
+    -- non interactive, mabye will write interactive ver later
+    if arg[1] then
+        -- re-process fields, reseting any that have been modified
+        fields.process_all(id, true)
 
         -- mark er as modifyied
         data[id].updated = os.time()
@@ -206,6 +201,7 @@ end
 -- }}}
 
 M.archive = function() -- {{{
+    util.warn"currently may create random relationships if you archive items that have relationships to items not getting archived! @ me if you want me to fix it, ez just low priority"
     local data = store.get()
     c.theme.primary("Where do you want to archive to? (")
     c.theme.ternary(c.archive_file_location)
@@ -226,6 +222,7 @@ M.archive = function() -- {{{
     local archive = store.get(path)
     -- merge and cut
     for i = start_range, end_range do
+        -- TODO: handle relationships here
         table.insert(archive, data[i])
         table.remove(data, i)
     end
