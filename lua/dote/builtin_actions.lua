@@ -75,10 +75,10 @@ M.delete = function()  -- {{{
     io.write('\n')
 
     -- wipe connections
-    for item in ipairs(data[id].parents or {}) do
+    for item in ipairs(data[id].parents) do
         data[item].children = util.ensure_not_present(data[item].children, id)
     end
-    for item in ipairs(data[id].children or {}) do
+    for item in ipairs(data[id].children) do
         data[item].parents = util.ensure_not_present(data[item].parents, id)
     end
 

@@ -45,21 +45,23 @@ M.format_field = function (field, item, content) -- {{{
     local data = store.get() -- only get the store if needed idk '''performant'''
 
     if c.format.field_type[field] == "id" then -- if only one id
-        if c.format.deref_show_id then
-            util.safe_app(content, item[field])
+        util.safe_app(content, item[field])
+        if c.format.deref_show_title then -- show the title?
             util.safe_app(content, c.format.ascii_diagram.after_id)
+            util.safe_app(content, data[item[field]].title or "<no title>")
         end
-        util.safe_app(content, data[item[field]].title or "<no title>")
 
     elseif c.format.field_type[field] == "deref" then -- if array of ids
         for k, id in ipairs(item[field]) do
             if k ~= 1 then util.safe_app(content, c.format.ascii_diagram.list_sep) end
 
-            if c.format.deref_show_id then
+            if c.format.deref_show_id then -- show the id?
                 util.safe_app(content, id)
-                util.safe_app(content, c.format.ascii_diagram.after_id)
+                if c.format.deref_show_title then util.safe_app(content, c.format.ascii_diagram.after_id) end
             end
-            util.safe_app(content, data[id].title or "<no title>", ' ')
+            if c.format.deref_show_title then -- show the title?
+                util.safe_app(content, data[id].title or "<no title>", ' ')
+            end
         end
     end
 end
@@ -174,7 +176,7 @@ M.print_item = function(id, level) -- {{{
     util.safe_app(content, c.format.ascii_diagram.after_id) -- }}}
 
     -- calculate indentation
-    local whitespace = level * c.format.indentation
+    local whitespace = level * c.format.indent
     -- build the string of whitespace
     if whitespace > 0 then
         util.safe_app(content, string.format('%' .. whitespace .. 's', ''))

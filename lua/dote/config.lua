@@ -55,7 +55,7 @@ if #Config == 0 then
 
         -- load config, warn if no config file found and skip clobber code
         if not pcall(function() user_config = dofile(config_location) end) then
-            util.warn"Config file not found or erroring! Default location is ~/.config/dote/config.lua"
+            util.warn("Config file not found or erroring! Default location is " .. default_config.config_file_location)
             user_config = {}
         end
 
@@ -84,7 +84,7 @@ if #Config == 0 then
 
                 -- go through the string and step the pointer down a layer for each match
                 for layer in string.gmatch(body, "[%-%.]([^%-%.]+)") do -- match substr after - or . and go til next - or .
-                    if ptr[layer] then
+                    if ptr[layer] ~= nil then
                         -- if it's a table, we need to keep going, we can't set those
                         if type(ptr[layer]) == "table" then
                             ptr = ptr[layer]
@@ -102,8 +102,8 @@ if #Config == 0 then
                     if arg[i+1] then
                         -- set and strip the argument away
                         ptr[key] = arg[i+1]
-                        table.remove(arg, i)
-                        table.remove(arg, i)
+                        arg[i] = nil -- we will repair the arg table at the end
+                        arg[i+1] = nil
                     else
                         util.err("The flag '" .. v .. "' requires a value")
                     end
@@ -111,8 +111,8 @@ if #Config == 0 then
                 elseif type(ptr[key]) == 'number' then
                     if arg[i+1] and tonumber(arg[i+1]) then
                         ptr[key] = tonumber(arg[i+1])
-                        table.remove(arg, i)
-                        table.remove(arg, i)
+                        arg[i] = nil
+                        arg[i+1] = nil
                     else
                         util.err("The flag '" .. v .. "' requires a number value")
                     end
@@ -123,8 +123,17 @@ if #Config == 0 then
                     else
                         ptr[key] = true
                     end
-                    table.remove(arg, i)
+                    arg[i] = nil
                 end
+            end
+        end
+
+        -- we absolutely mess up the arg table to keep the iterator in sync above, so fix that now
+        -- (we replaced 'used' values with nil, to mark them as used, but we want arg continuous)
+        for i,v in pairs(arg) do
+            if v and i ~= -1 and i ~= 0 then -- don't fuck with the defaults
+                arg[i] = nil -- delete it from where it is
+                table.insert(arg, v) -- put it where it should be
             end
         end
         -- }}}

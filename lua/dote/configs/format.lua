@@ -6,7 +6,7 @@ local M = {}
 M.term_escape_seq = "\27["
 
 -- for printing the tree, how much whitespace
-M.indentation = 4
+M.indent = 4
 M.left_align_id = true
 
 -- when you show a single item does it recurse by default
@@ -17,7 +17,8 @@ M.order_decending = true
 
 -- prevent it from ever rendering the same item twice
 M.never_duplicate = false
--- how do you want the fields to show
+
+-- what order do you want the fields to show in
 M.field_order = {
     'done',
     'title',
@@ -28,12 +29,11 @@ M.field_order = {
     'created',
 }
 
--- date strng, pretty much same as unix `date` but see https://www.lua.org/pil/22.1.html
-M.date = "%b %d, %H:%M"
--- M.true_string = "✔"
-M.true_string = "✓"
-M.false_string = "X"
 
+-- various symbols for rendering
+M.true_string = "✓" -- for showing bools
+M.false_string = "X"
+M.date = "%b %d, %H:%M" -- date strng, pretty much same as unix `date` but see https://www.lua.org/pil/22.1.html
 M.ascii_diagram = {
     -- these three apply with split fields
     first_line = '╔', -- first item
@@ -45,10 +45,11 @@ M.ascii_diagram = {
     after_id = ": ", -- idk how to name this bc a colon is the only thing that makes sense to me
     list_sep = ", ", -- for inline lists; see deref
 }
-M.line_split_fields = true
--- M.line_split_fields = false
 
--- blacklist fields
+-- do you want to render items as one line or a line for each field
+M.line_split_fields = true
+
+-- blacklist fields to not render
 M.blacklist = {
     children = true,
     parents = true,
@@ -73,6 +74,9 @@ M.field_type = {
     tags = "deref", -- this field isn't real, but the renderer thinks it is
 }
 
-M.deref_show_id = false
+-- when listing parents, tags, children ('deref' fields), show the item id/title?
+-- probably don't turn them both off...
+M.deref_show_id = true
+M.deref_show_title = true
 
 return M
