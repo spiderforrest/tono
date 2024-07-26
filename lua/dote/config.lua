@@ -134,7 +134,7 @@ if #Config == 0 then
 
         -- we absolutely mess up the arg table to keep the iterator in sync above, so fix that now
         -- (we replaced 'used' values with nil, to mark them as used, but we want arg continuous)
-        if changed then
+        if changed and #arg > 0 then
             for i,v in pairs(arg) do
                 if v and i ~= -1 and i ~= 0 then -- don't fuck with the defaults
                     arg[i] = nil -- delete it from where it is
