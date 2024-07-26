@@ -13,7 +13,7 @@ M.left_align_id = true
 M.single_item_recurse = true
 
 -- print items decending vs ascending
-M.order_decending = true
+M.order_descending = true
 
 -- prevent it from ever rendering the same item twice
 M.never_duplicate = false
