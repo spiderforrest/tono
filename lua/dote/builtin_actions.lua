@@ -187,7 +187,7 @@ M.print = function(override_args)  -- {{{
     -- }}}
 
     -- actually print the queue
-    if c.format.order_decending then
+    if c.format.order_descending then
         -- mom said we have ipairs at home
         for i = #output.current_queue, 1, -1 do
             output.print_item(output.current_queue[i].id, output.current_queue[i].level)
