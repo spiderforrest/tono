@@ -323,6 +323,49 @@ M.repair = function(data) -- {{{
 end
 -- }}}
 
+M.help = function()  -- {{{
+    c.theme.primary("primary")
+    c.theme.auxilary("auxilary")
+    c.theme.ternary("ternary")
+    c.theme.accent("accent\n")
+
+    -- output help text detailing actions, symbols, and usage
+    c.theme.primary("Usage: ")
+    c.theme.auxilary("dote [action]\n\n")
+
+    -- c.theme.auxilary("  done")
+    -- c.theme.primary(":          mark an entity as complete\n")
+    -- c.theme.auxilary("  delete")
+    -- c.theme.primary(":        delete an entity\n\n")
+
+    c.theme.primary("Command format for ")
+    c.theme.auxilary("dote [todo/note/tag]")
+    c.theme.primary(" and ")
+    c.theme.auxilary("dote modify\n\n")
+
+    c.theme.auxilary("  dote [action] [name/fields] $ [body/fields]\n\n")
+
+    c.theme.auxilary("  [action]")
+    c.theme.primary("   one of the following commands, or user defined commands\n")
+    c.theme.auxilary("    todo")
+    c.theme.primary("          create a new task\n")
+    c.theme.auxilary("    note")
+    c.theme.primary("          create a new note\n")
+    c.theme.auxilary("    tag")
+    c.theme.primary("           create a new tag\n")
+    c.theme.auxilary("    modify")
+    c.theme.primary("        modify an existing entity\n\n")
+
+    c.theme.auxilary("  [name]")
+    c.theme.primary("     Any number of arguments representing 'name' property of entity, concatenated together.\n")
+    c.theme.auxilary("  $")
+    c.theme.primary("          Literal dollar sign character, surrounded by spaces. Defines boundary between name and body.\n")
+    c.theme.auxilary("  [body]")
+    c.theme.primary("     Any number of arguments representing 'body' property, concatenated together.\n")
+    c.theme.auxilary("  [fields]")
+    c.theme.primary("   Any single argument starting with any single symbol operand (see below).\n             Used to specify arbitrary properties of the entity (tags, date, etc).\n             If the property is a string, multiple arguments with the same symbol operand will be concatenated.")
+end -- }}}
+
 return M
 
 -- vim:foldmethod=marker

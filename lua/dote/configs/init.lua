@@ -58,6 +58,7 @@ M.action_lookup = {
     print = "print",
     archive = "archive",
     fix = "repair",
+    help = "help",
 
     compact = "compact",
     debug = "debug",
