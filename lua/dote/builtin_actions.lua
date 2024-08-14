@@ -324,19 +324,16 @@ end
 -- }}}
 
 M.help = function()  -- {{{
-    c.theme.primary("primary")
-    c.theme.auxilary("auxilary")
-    c.theme.ternary("ternary")
-    c.theme.accent("accent\n")
+    -- output help text detailing flags
+    c.theme.accent("Options:\n")
+    c.theme.auxilary("   -c [path]\n")
+    c.theme.primary("       specify path to config\n")
+    c.theme.auxilary("   -d [path]\n")
+    c.theme.primary("       specify path to datafile\n\n")
 
     -- output help text detailing actions, symbols, and usage
-    c.theme.primary("Usage: ")
+    c.theme.accent("Usage: ")
     c.theme.auxilary("dote [action]\n\n")
-
-    -- c.theme.auxilary("  done")
-    -- c.theme.primary(":          mark an entity as complete\n")
-    -- c.theme.auxilary("  delete")
-    -- c.theme.primary(":        delete an entity\n\n")
 
     -- help section for create/modify commands {{{
     c.theme.primary("Command format for ")
@@ -355,7 +352,7 @@ M.help = function()  -- {{{
     c.theme.auxilary("      tag")
     c.theme.primary("           create a new tag\n")
     c.theme.auxilary("      modify")
-    c.theme.primary("        modify an existing entity\n\n")
+    c.theme.primary("        modify an existing entity\n")
 
     c.theme.auxilary("   [name]")
     c.theme.primary("     Any number of arguments representing 'name' property of entity, concatenated together.\n")
@@ -365,8 +362,7 @@ M.help = function()  -- {{{
     c.theme.primary("     Any number of arguments representing 'body' property, concatenated together.\n")
     c.theme.auxilary("   [fields]")
     c.theme.primary("   Any single argument starting with any single symbol operand (see below).\n               Used to specify arbitrary properties of the entity (tags, date, etc).\n               If the property is a string, multiple arguments with the same symbol operand will be concatenated.\n\n")
-
-    c.theme.primary("       List of fields (symbols without definitions are unassigned and do nothing):\n\n")
+    c.theme.primary("   List of fields (symbols without definitions are unassigned and do nothing):\n")
 
     local dateOperand, separatorOperand, tagsOperand, childrenOperand = "[date symbol]", "[separator symbol]", "[tags symbol]", "[children symbol]"
 
@@ -379,9 +375,49 @@ M.help = function()  -- {{{
         if k == "children" then childrenOperand = i end
     end
 
-    c.theme.primary("\n    Usage example: ")
+    c.theme.primary("\n   Usage example: ")
     c.theme.auxilary("dote todo go to "..dateOperand.."10/27 grocery store "..separatorOperand.." "..tagsOperand.."outside get salad and cheese "..tagsOperand.."chores and "..childrenOperand.."4 dressing\n\n")
-    c.theme.primary("    This command would create a new task entity with a due date of 10/27,\n    with tags named 'outside' and 'chores',\n    the name 'go to grocery store',\n    and the body 'get salad and cheese and dressing',\n    that is a child of the entity with id 4.\n\n")
+    c.theme.primary("   This command would create a new task entity with a due date of 10/27,\n   with tags named 'outside' and 'chores',\n   the name 'go to grocery store',\n   and the body 'get salad and cheese and dressing',\n   that is a child of the entity with id 4.\n\n")
+    -- }}}
+
+    -- help section for print commands {{{
+    c.theme.primary("Command format for ")
+    c.theme.auxilary("dote print\n\n")
+
+    c.theme.auxilary("  dote print [filters] [entity name/id]\n\n")
+
+    c.theme.auxilary("   [filter]")
+    c.theme.primary("         Any number of arguments matching filters. Built in filters are `all`, `default`, `direct`, `loose`, `tags`, `todos`, `notes`.\n")
+    c.theme.auxilary("   [entity name]")
+    c.theme.primary("    The first characters of an entity's `name` field, any amount to match the entity uniquely.\n")
+    c.theme.auxilary("   [entity id]")
+    c.theme.primary("      The id of an entity you want to match.\n")
+
+    c.theme.primary("\n   Usage example: ")
+    c.theme.auxilary("dote print todos tags outside\n\n")
+    c.theme.primary("   This command would output entities that are children of the entity named `outside`,\n   that pass the filters `todos` and `tags` (as well as `outside` itself).\n\n")
+    -- }}}
+
+    -- help section for delete/done commands {{{
+    c.theme.primary("Command format for ")
+    c.theme.auxilary("dote [delete/done]\n\n")
+
+    c.theme.auxilary("  dote [action] [entity name/entity id]\n\n")
+
+    c.theme.auxilary("   [action]")
+    c.theme.primary("        one of the following commands, or user defined commands\n")
+    c.theme.auxilary("      delete")
+    c.theme.primary("          delete the specified entity\n")
+    c.theme.auxilary("      done")
+    c.theme.primary("            mark the specified entity as complete\n")
+    c.theme.auxilary("   [entity name]")
+    c.theme.primary("   The first characters of an entity's `name` field, any amount to match the entity uniquely.\n")
+    c.theme.auxilary("   [entity id]")
+    c.theme.primary("     The id of an entity you want to match.\n")
+
+    c.theme.primary("\n   Usage example: ")
+    c.theme.auxilary("dote delete go to grocery\n\n")
+    c.theme.primary("   This command would delete a single entity whose name begins with 'go to grocery'.\n\n")
     -- }}}
 end -- }}}
 
