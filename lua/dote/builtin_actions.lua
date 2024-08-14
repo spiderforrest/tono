@@ -338,6 +338,7 @@ M.help = function()  -- {{{
     -- c.theme.auxilary("  delete")
     -- c.theme.primary(":        delete an entity\n\n")
 
+    -- help section for create/modify commands {{{
     c.theme.primary("Command format for ")
     c.theme.auxilary("dote [todo/note/tag]")
     c.theme.primary(" and ")
@@ -345,25 +346,43 @@ M.help = function()  -- {{{
 
     c.theme.auxilary("  dote [action] [name/fields] $ [body/fields]\n\n")
 
-    c.theme.auxilary("  [action]")
+    c.theme.auxilary("   [action]")
     c.theme.primary("   one of the following commands, or user defined commands\n")
-    c.theme.auxilary("    todo")
+    c.theme.auxilary("      todo")
     c.theme.primary("          create a new task\n")
-    c.theme.auxilary("    note")
+    c.theme.auxilary("      note")
     c.theme.primary("          create a new note\n")
-    c.theme.auxilary("    tag")
+    c.theme.auxilary("      tag")
     c.theme.primary("           create a new tag\n")
-    c.theme.auxilary("    modify")
+    c.theme.auxilary("      modify")
     c.theme.primary("        modify an existing entity\n\n")
 
-    c.theme.auxilary("  [name]")
+    c.theme.auxilary("   [name]")
     c.theme.primary("     Any number of arguments representing 'name' property of entity, concatenated together.\n")
-    c.theme.auxilary("  $")
+    c.theme.auxilary("   $")
     c.theme.primary("          Literal dollar sign character, surrounded by spaces. Defines boundary between name and body.\n")
-    c.theme.auxilary("  [body]")
+    c.theme.auxilary("   [body]")
     c.theme.primary("     Any number of arguments representing 'body' property, concatenated together.\n")
-    c.theme.auxilary("  [fields]")
-    c.theme.primary("   Any single argument starting with any single symbol operand (see below).\n             Used to specify arbitrary properties of the entity (tags, date, etc).\n             If the property is a string, multiple arguments with the same symbol operand will be concatenated.")
+    c.theme.auxilary("   [fields]")
+    c.theme.primary("   Any single argument starting with any single symbol operand (see below).\n               Used to specify arbitrary properties of the entity (tags, date, etc).\n               If the property is a string, multiple arguments with the same symbol operand will be concatenated.\n\n")
+
+    c.theme.primary("       List of fields (symbols without definitions are unassigned and do nothing):\n\n")
+
+    local dateOperand, separatorOperand, tagsOperand, childrenOperand = "[date symbol]", "[separator symbol]", "[tags symbol]", "[children symbol]"
+
+    for i, k in pairs(c.field_lookup) do
+        c.theme.auxilary("         "..tostring(i))
+        c.theme.primary("    "..tostring(k).."\n")
+        if k == "date" then dateOperand = i end
+        if k == "separator" then separatorOperand = i end
+        if k == "tags" then tagsOperand = i end
+        if k == "children" then childrenOperand = i end
+    end
+
+    c.theme.primary("\n    Usage example: ")
+    c.theme.auxilary("dote todo go to "..dateOperand.."10/27 grocery store "..separatorOperand.." "..tagsOperand.."outside get salad and cheese "..tagsOperand.."chores and "..childrenOperand.."4 dressing\n\n")
+    c.theme.primary("    This command would create a new task entity with a due date of 10/27,\n    with tags named 'outside' and 'chores',\n    the name 'go to grocery store',\n    and the body 'get salad and cheese and dressing',\n    that is a child of the entity with id 4.\n\n")
+    -- }}}
 end -- }}}
 
 return M

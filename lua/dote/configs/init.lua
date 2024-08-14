@@ -83,7 +83,7 @@ M.field_lookup = {
     ['%'] = "",
     ['@'] = "tags", -- technically identical to parents
     ['='] = "date",
-    ['['] = "new made up field",
+    ['['] = "",
     [']'] = "",
     ['{'] = "",
     ['}'] = "",
