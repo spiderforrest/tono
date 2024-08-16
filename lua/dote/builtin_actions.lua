@@ -59,6 +59,7 @@ M.done = function()  -- {{{
     io.write('\n')
 
     data[id].done = true
+    data[id].completed = os.time()
     store.save(data)
 
     if c.print_after_change then M.print(true) end
@@ -324,12 +325,23 @@ end
 -- }}}
 
 M.help = function()  -- {{{
+    -- get needed symbols
+    local dateOperand, separatorOperand, tagsOperand, childrenOperand = "[date symbol]", "[separator symbol]", "[tags symbol]", "[children symbol]"
+    for i, k in pairs(c.field_lookup) do
+        if k == "date" then dateOperand = i end
+        if k == "separator" then separatorOperand = i end
+        if k == "tags" then tagsOperand = i end
+        if k == "children" then childrenOperand = i end
+    end
+
     -- output help text detailing flags
     c.theme.accent("Options:\n")
     c.theme.auxilary("   -c [path]\n")
     c.theme.primary("       specify path to config\n")
     c.theme.auxilary("   -d [path]\n")
-    c.theme.primary("       specify path to datafile\n\n")
+    c.theme.primary("       specify path to datafile\n")
+    c.theme.auxilary("   --some-config [value]\n")
+    c.theme.primary("       specify any config value, i.e. --theme-primary-bg-r 22 or --no-format-line_split_fields\n\n")
 
     -- output help text detailing actions, symbols, and usage
     c.theme.accent("Usage: ")
@@ -341,7 +353,7 @@ M.help = function()  -- {{{
     c.theme.primary(" and ")
     c.theme.auxilary("dote modify\n\n")
 
-    c.theme.auxilary("  dote [action] [name/fields] $ [body/fields]\n\n")
+    c.theme.auxilary("  dote [action] [name/fields] "..separatorOperand.." [body/fields]\n\n")
 
     c.theme.auxilary("   [action]")
     c.theme.primary("   one of the following commands, or user defined commands\n")
@@ -356,23 +368,20 @@ M.help = function()  -- {{{
 
     c.theme.auxilary("   [name]")
     c.theme.primary("     Any number of arguments representing 'name' property of entity, concatenated together.\n")
-    c.theme.auxilary("   $")
-    c.theme.primary("          Literal dollar sign character, surrounded by spaces. Defines boundary between name and body.\n")
+    c.theme.auxilary("   "..separatorOperand)
+    c.theme.primary("          Literal '"..separatorOperand.."', surrounded by spaces. Defines boundary between name and body.\n")
     c.theme.auxilary("   [body]")
     c.theme.primary("     Any number of arguments representing 'body' property, concatenated together.\n")
     c.theme.auxilary("   [fields]")
     c.theme.primary("   Any single argument starting with any single symbol operand (see below).\n               Used to specify arbitrary properties of the entity (tags, date, etc).\n               If the property is a string, multiple arguments with the same symbol operand will be concatenated.\n\n")
-    c.theme.primary("   List of fields (symbols without definitions are unassigned and do nothing):\n")
+    c.theme.primary("   List of currently usable fields (bind more by setting field_lookup in your configs):\n")
 
-    local dateOperand, separatorOperand, tagsOperand, childrenOperand = "[date symbol]", "[separator symbol]", "[tags symbol]", "[children symbol]"
-
+    -- output all fields
     for i, k in pairs(c.field_lookup) do
-        c.theme.auxilary("         "..tostring(i))
-        c.theme.primary("    "..tostring(k).."\n")
-        if k == "date" then dateOperand = i end
-        if k == "separator" then separatorOperand = i end
-        if k == "tags" then tagsOperand = i end
-        if k == "children" then childrenOperand = i end
+        if k and #k > 0 then -- skip the field if it's nil or ""
+            c.theme.auxilary("         "..tostring(i))
+            c.theme.primary("    "..tostring(k).."\n")
+        end
     end
 
     c.theme.primary("\n   Usage example: ")
@@ -387,7 +396,18 @@ M.help = function()  -- {{{
     c.theme.auxilary("  dote print [filters] [entity name/id]\n\n")
 
     c.theme.auxilary("   [filter]")
-    c.theme.primary("         Any number of arguments matching filters. Built in filters are `all`, `default`, `direct`, `loose`, `tags`, `todos`, `notes`.\n")
+    c.theme.primary"         Any number of arguments matching filters. Currently available filters are: "
+
+    -- output available filters, output commas conditionally
+    local first = true
+    for k in pairs(c.filter) do
+        if not first then c.theme.primary", " end
+        first = false
+        c.theme.primary(tostring(k))
+    end
+
+    c.theme.primary'\n'
+
     c.theme.auxilary("   [entity name]")
     c.theme.primary("    The first characters of an entity's `name` field, any amount to match the entity uniquely.\n")
     c.theme.auxilary("   [entity id]")
@@ -416,8 +436,8 @@ M.help = function()  -- {{{
     c.theme.primary("     The id of an entity you want to match.\n")
 
     c.theme.primary("\n   Usage example: ")
-    c.theme.auxilary("dote delete go to grocery\n\n")
-    c.theme.primary("   This command would delete a single entity whose name begins with 'go to grocery'.\n\n")
+    c.theme.auxilary("dote delete \"go to groce\"\n\n")
+    c.theme.primary("   This command would delete a single entity whose name begins with 'go to groce' ('go to grocery store').\n\n")
     -- }}}
 end -- }}}
 
