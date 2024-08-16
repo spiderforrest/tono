@@ -61,9 +61,11 @@ Some common properties that have some sort of special handling:
 
 - `tags`: a list of tags applied to the entity. Under the hood, this is a subset of the `parents` property, and is a shorthand for managing tags.
 
-- `completed`: marks if an entity is complete. Those entities are not rendered most of the time.
+- `done`: marks if an entity is complete. Those entities are not rendered most of the time.
 
 - `updated`: timestamp of when node was last updated. Managed automatically.
+
+- `completed`: timestamp of when node was last marked `done`. Managed automatically
 
 (custom behaviors not implemented for these yet:)
 - `target`: an estimated date by which you expect to complete a task, or want to have it completed by.
@@ -157,5 +159,5 @@ Supported flags are:
 Dote's behavior is customizable to a high degree, and infinitely so if you're comfortable using Lua. The default configs contain every
 config field, described in those files.
 
-Custom actions and filters are part of those configs, and can access dote's libraries for item management and rendering freely.
+Custom actions and filters are part of those configs, and can access dote's libraries for node management and rendering freely.
 
