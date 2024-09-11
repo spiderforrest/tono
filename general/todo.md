@@ -6,14 +6,19 @@ yeah yeah listen we gotta track stuff somehow before dote exists
 
 ### Preliminary steps for GUI/web client
 
-- ~draw primary UI mockup~
+- draw list viewmode UI mockup w/completion checkbox, ui button placement decided, etc
     - item editing mockup (slideup-from-bottom window?)
     - item relationship editing mockup (using drag+drop library?)
     - ~single-item ui element mockup (deciding what info should be positioned where, etc)~
 - ~decide on tooling (or yknow just vanilla JS)~
-    - I'm sick of looking at sites for frameworks sponsored by panera bread i'm writing vanilla js
-    - okay hold on a library with drag+drop functions would be super useful
-    - hey, [you rang?](https://interactjs.io/)
+    - ~I'm sick of looking at sites for frameworks sponsored by panera bread i'm writing vanilla js~
+    - ~okay hold on a library with drag+drop functions would be super useful~
+    - ~hey, [you rang?](https://interactjs.io/)~
+
+### Current steps for webclient
+
+- complete generic item add/edit popup window
+- finalize layout/ui for list viewmode
 
 #### Assorted doteui implementation details
 
